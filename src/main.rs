@@ -1,5 +1,5 @@
 use logos::Logos;
-use sonancelang::Token;
+use sonancelang::lex::*;
 
 static PROGRAM: &str = r#"
     func main(): void {
@@ -9,5 +9,5 @@ static PROGRAM: &str = r#"
 
 fn main() {
     let mut lex = Token::lexer(PROGRAM);
-    println!("{}", sonancelang::get_debug_string_from_tokens(lex));
+    println!("{}", get_debug_string_from_tokens(lex));
 }
