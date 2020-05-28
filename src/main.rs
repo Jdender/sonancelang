@@ -1,13 +1,10 @@
-use logos::Logos;
-use sonancelang::lex::*;
+#[macro_use]
+extern crate lalrpop_util;
 
-static PROGRAM: &str = r#"
-    func main(): void {
-        print!("Hello world!");
-    }
-"#;
+lalrpop_mod!(pub test);
 
 fn main() {
-    let mut lex = Token::lexer(PROGRAM);
-    println!("{}", get_debug_string_from_tokens(lex));
+    let program = include_str!("../test/hello_world.so");
+
+    dbg!(test::ModuleParser::new().parse(program)).unwrap();
 }

@@ -1,0 +1,54 @@
+use sonancelang::*;
+
+grammar;
+
+Ident: &'input str = {
+    r"[a-zA-Z][a-zA-Z0-9_]*" => <>,
+};
+
+pub Module: Module<'input> = {
+    Item* => Module(<>),
+}
+
+Item: Item<'input>  = {
+    FunctionItem => Item::Function(<>),
+};
+
+FunctionItem: FunctionItem<'input> = {
+    "func" <name: Ident> "(" ")" "->" <return_type: Ident> <body: Block> => FunctionItem { name, return_type, body },
+};
+
+Block: Block<'input> = {
+    "{" <body: (<Statement>)*> <trailing: Exper?> "}" => Block { body, trailing },
+};
+
+Statement: Statement<'input> = {
+    <ExperWithoutBlock> ";" => Statement::Exper(<>),
+    <ExperWithBlock> => Statement::Exper(<>),
+};
+
+Exper = {
+    ExperWithBlock,
+    ExperWithoutBlock,
+}
+
+ExperWithBlock: Exper<'input> = {
+    Block => Exper::Block(Box::new(<>)),
+}
+
+ExperWithoutBlock: Exper<'input> = {
+    "(" <Exper> ")" => Exper::Parens(Box::new(<>)),
+    r#""[^"]*""# => Exper::StringLiteral(<>),
+    <name: Ident> "(" <args: List<Exper, ",">> ")" => Exper::FunctionCall { name, args },
+};
+
+List<T, S>: Vec<T> = {
+    <v: (<T> S)*> <e: T?> => match e {
+        None => v,
+        Some(e) => {
+            let mut v = v;
+            v.push(e);
+            v
+        }
+    }
+};

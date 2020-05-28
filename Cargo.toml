@@ -9,5 +9,9 @@ publish = false
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[build-dependencies]
+lalrpop = { version = "0.19", features = ["lexer"] }
+
 [dependencies]
-logos = "0.11.4"
+lalrpop-util = "0.19.0"
+regex = "1"
