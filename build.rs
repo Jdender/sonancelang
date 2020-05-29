@@ -1,3 +1,6 @@
 fn main() {
-    lalrpop::process_root().unwrap();
+    lalrpop::Configuration::new()
+        .set_in_dir("src")
+        .process()
+        .unwrap();
 }

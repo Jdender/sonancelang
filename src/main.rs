@@ -1,10 +1,17 @@
-#[macro_use]
-extern crate lalrpop_util;
-
-lalrpop_mod!(pub test);
+use sonancelang::compile;
+use std::{env::current_dir, fs::File, io::prelude::*};
 
 fn main() {
-    let program = include_str!("../test/hello_world.so");
+    let program = r"
+        22. * 44. + 66.
+    ";
 
-    dbg!(test::ModuleParser::new().parse(program)).unwrap();
+    let compiled = compile(program).unwrap();
+
+    let path = current_dir().unwrap().join("output/num.wasm");
+
+    File::create(&path)
+        .unwrap()
+        .write_all(&compiled[..])
+        .unwrap();
 }
