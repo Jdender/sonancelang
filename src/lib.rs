@@ -3,7 +3,6 @@ extern crate lalrpop_util;
 
 mod codegen;
 mod parser;
-mod visitor;
 
 use codegen::{generate, GeneratorError};
 use parser::parse;

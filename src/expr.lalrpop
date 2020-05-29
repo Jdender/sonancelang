@@ -24,11 +24,11 @@ FactorOp: Opcode = {
 };
 
 Term: Box<Expr> = {
-    Num => Box::new(Expr::Literal(<>)), // (4)
+    Literal => Box::new(Expr::Literal(<>)), // (4)
     "(" <Expr> ")"
 };
 
-Num: NumberLiteral = {
-    r"[+-]?\d+" => NumberLiteral::Int(i32::from_str(<>).unwrap()),
-    r"[+-]?(\d+\.\d*|\.\d+)" => NumberLiteral::Float(f32::from_str(<>).unwrap()),
+Literal: Literal = {
+    r"[+-]?\d+" => Literal::Int(i32::from_str(<>).unwrap()),
+    r"[+-]?(\d+\.\d*|\.\d+)" => Literal::Float(f32::from_str(<>).unwrap()),
 };

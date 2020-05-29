@@ -8,12 +8,12 @@ pub fn parse(input: &str) -> Result<Box<Expr>, ParseError<usize, Token, &str>> {
 
 #[derive(Debug, Clone)]
 pub enum Expr {
-    Literal(NumberLiteral),
+    Literal(Literal),
     Operation(Box<Expr>, Opcode, Box<Expr>),
 }
 
 #[derive(Debug, Clone)]
-pub enum NumberLiteral {
+pub enum Literal {
     Int(i32),
     Float(f32),
 }

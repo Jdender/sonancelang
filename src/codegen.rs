@@ -1,16 +1,13 @@
-use super::{parser::*, visitor::*};
+use super::parser::*;
 use parity_wasm::{
     builder::module,
     elements::{Instruction, Instructions, Module},
 };
 
 pub fn generate(expr: Expr) -> Result<Module, GeneratorError> {
-    let mut this = Generator {
-        instructions: vec![],
-        states: vec![],
-    };
-    expr.accept(&mut this)?;
-    this.instructions.push(Instruction::End);
+    let mut result = expr.accept(())?;
+
+    result.instructions.push(Instruction::End);
 
     Ok(module()
         .export()
@@ -25,96 +22,114 @@ pub fn generate(expr: Expr) -> Result<Module, GeneratorError> {
         .i32()
         .build()
         .body()
-        .with_instructions(Instructions::new(this.instructions))
+        .with_instructions(Instructions::new(result.instructions))
         .build()
         .build()
         .build())
 }
 
+#[derive(Debug, Clone)]
+pub enum GeneratorError {
+    TypeMismatch(Type, Opcode, Type),
+}
+use GeneratorError::*;
+
+trait AstVisitor {
+    type Argument;
+    type Return;
+
+    fn accept(&self, args: Self::Argument) -> Self::Return;
+}
+
 #[derive(Debug, Clone, PartialEq)]
-pub enum NumberType {
+pub enum Type {
     Float,
     Int,
 }
 
-#[derive(Debug, Clone)]
-pub enum GeneratorError {
-    NotEnoughState,
-    InvalidState,
-    TypeMismatch,
-}
-use GeneratorError::*;
-
-#[derive(Debug, Clone)]
-pub enum GeneratorState {
-    Argument(NumberType),
-}
-use GeneratorState::*;
-
-#[derive(Debug, Clone)]
-pub struct Generator {
+#[derive(Debug, Clone, PartialEq)]
+struct ExprReturn {
     instructions: Vec<Instruction>,
-    states: Vec<GeneratorState>,
+    value_type: Type,
 }
 
-impl AstVisitor for Generator {
-    type Result = Result<(), GeneratorError>;
+impl AstVisitor for Expr {
+    type Argument = ();
+    type Return = Result<ExprReturn, GeneratorError>;
 
-    fn visit_expr(&mut self, expr: &Expr) -> Self::Result {
+    fn accept(&self, _: Self::Argument) -> Self::Return {
         use Expr::*;
-        match expr {
-            Literal(num) => num.accept(self)?,
-            Operation(x, op, y) => {
-                x.accept(self)?;
-                y.accept(self)?;
-                op.accept(self)?;
-            }
-        };
-        Ok(())
-    }
 
-    fn visit_opcode(&mut self, opcode: &Opcode) -> Self::Result {
+        Ok(match self {
+            Literal(num) => num.accept(()),
+            Operation(x, op, y) => {
+                let x = x.accept(())?;
+                let y = y.accept(())?;
+                let op = op.accept((x.value_type, y.value_type))?;
+
+                ExprReturn {
+                    instructions: x
+                        .instructions
+                        .into_iter()
+                        .chain(y.instructions.into_iter())
+                        .chain(op.instructions.into_iter())
+                        .collect(),
+                    value_type: op.value_type,
+                }
+            }
+        })
+    }
+}
+
+impl AstVisitor for Literal {
+    type Argument = ();
+    type Return = ExprReturn;
+
+    fn accept(&self, _: Self::Argument) -> Self::Return {
+        use Literal::*;
+
+        fn float_to_int_literally(num: f32) -> u32 {
+            unsafe { std::mem::transmute(num) }
+        }
+
+        match self {
+            Int(num) => ExprReturn {
+                instructions: vec![Instruction::I32Const(*num)],
+                value_type: Type::Int,
+            },
+            Float(num) => ExprReturn {
+                instructions: vec![Instruction::F32Const(float_to_int_literally(*num))],
+                value_type: Type::Float,
+            },
+        }
+    }
+}
+
+impl AstVisitor for Opcode {
+    type Argument = (Type, Type);
+    type Return = Result<ExprReturn, GeneratorError>;
+
+    fn accept(&self, (x, y): Self::Argument) -> Self::Return {
         use Instruction::*;
         use Opcode::*;
-        use NumberType::*;
+        use Type::*;
 
-        let number_type = match self.states.iter().rev().take(2).collect::<Vec<_>>()[..] {
-            [Argument(x), Argument(y)] => {
-                if x != y {
-                    Err(TypeMismatch)?
-                }
-                x
-            }
-            _ => Err(InvalidState)?,
-        };
+        if x != y {
+            Err(TypeMismatch(x.clone(), self.clone(), y.clone()))?;
+        }
 
-        self.instructions.push(match (opcode, number_type) {
-            (Add, Int) => I32Add,
-            (Sub, Int) => I32Sub,
-            (Mul, Int) => I32Mul,
-            (Div, Int) => I32DivS,
-            (Add, Float) => F32Add,
-            (Sub, Float) => F32Sub,
-            (Mul, Float) => F32Mul,
-            (Div, Float) => F32Div,
-        });
-        Ok(())
+        Ok(ExprReturn {
+            value_type: x,
+            instructions: vec![match (self, y) {
+                (Add, Int) => I32Add,
+                (Sub, Int) => I32Sub,
+                (Mul, Int) => I32Mul,
+                (Div, Int) => I32DivS,
+                (Add, Float) => F32Add,
+                (Sub, Float) => F32Sub,
+                (Mul, Float) => F32Mul,
+                (Div, Float) => F32Div,
+            }],
+        })
     }
-
-    fn visit_number_literal(&mut self, number: &NumberLiteral) -> Self::Result {
-        use Instruction::*;
-        let (inst, state) = match number {
-            NumberLiteral::Int(num) => (I32Const(*num), NumberType::Int),
-            NumberLiteral::Float(num) => {
-                (F32Const(float_to_int_literally(*num)), NumberType::Float)
-            }
-        };
-        self.instructions.push(inst);
-        self.states.push(GeneratorState::Argument(state));
-        Ok(())
-    }
-}
-
-fn float_to_int_literally(num: f32) -> u32 {
-    unsafe { std::mem::transmute(num) }
 }
