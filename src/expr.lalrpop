@@ -3,29 +3,30 @@ use crate::parser::*;
 
 grammar;
 
-pub Expr: Box<Expr> = {
-    Expr ExprOp Factor => Box::new(Expr::Operation(<>)),
-    Factor,
+Identifier: Identifier = {
+    r"[a-zA-Z_][a-zA-Z0-9_]*" => Identifier(<>.to_string()),
 };
 
-ExprOp: Opcode = {
+pub Block: Block = {
+    <body: (<Statement>)*> <trailing: Expression?> => Block { <> },
+};
+
+Statement: Statement = {
+    "let" <Identifier> "=" <Expression> ";" => Statement::Assignment(<>),
+    <Expression> ";" => Statement::SideEffect(<>),
+};
+
+Expression: Expression = {
+    "(" <Expression> ")",
+    Literal => Expression::Literal(<>),
+    "(" <x: Expression> <op: Opcode> <y: Expression> ")" => Expression::Operation(Box::new(x), op, Box::new(y)),
+};
+
+Opcode: Opcode = {
     "+" => Opcode::Add,
     "-" => Opcode::Sub,
-};
-
-Factor: Box<Expr> = {
-    Factor FactorOp Term => Box::new(Expr::Operation(<>)),
-    Term,
-};
-
-FactorOp: Opcode = {
     "*" => Opcode::Mul,
     "/" => Opcode::Div,
-};
-
-Term: Box<Expr> = {
-    Literal => Box::new(Expr::Literal(<>)), // (4)
-    "(" <Expr> ")"
 };
 
 Literal: Literal = {

@@ -3,7 +3,9 @@ use std::{env::current_dir, fs::File, io::prelude::*};
 
 fn main() {
     let program = r"
-        22. * 44. + 66.
+        let t = ((22. * 44.) + 66.);
+        let a = (12 * (1 + 5));
+        (32 + 64)
     ";
 
     let compiled = compile(program).unwrap();

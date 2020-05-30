@@ -1,15 +1,32 @@
 lalrpop_mod!(pub expr);
 
-use lalrpop_util::{lexer::Token, ParseError};
+use lalrpop_util::lexer::Token;
 
-pub fn parse(input: &str) -> Result<Box<Expr>, ParseError<usize, Token, &str>> {
-    expr::ExprParser::new().parse(input)
+pub type ParseError<'a> = lalrpop_util::ParseError<usize, Token<'a>, &'a str>;
+
+pub fn parse(input: &str) -> Result<Block, ParseError> {
+    expr::BlockParser::new().parse(input)
 }
 
 #[derive(Debug, Clone)]
-pub enum Expr {
+pub struct Block {
+    pub body: Vec<Statement>,
+    pub trailing: Option<Expression>,
+}
+
+#[derive(Debug, Clone)]
+pub struct Identifier(pub String);
+
+#[derive(Debug, Clone)]
+pub enum Statement {
+    SideEffect(Expression),
+    Assignment(Identifier, Expression),
+}
+
+#[derive(Debug, Clone)]
+pub enum Expression {
     Literal(Literal),
-    Operation(Box<Expr>, Opcode, Box<Expr>),
+    Operation(Box<Expression>, Opcode, Box<Expression>),
 }
 
 #[derive(Debug, Clone)]
