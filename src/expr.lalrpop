@@ -3,6 +3,8 @@ use crate::parser::*;
 
 grammar;
 
+Boxed<T>: Box<T> = T => Box::new(<>);
+
 Identifier: Identifier = {
     r"[a-zA-Z_][a-zA-Z0-9_]*" => Identifier(<>.to_string()),
 };
@@ -16,17 +18,34 @@ Statement: Statement = {
     <Expression> ";" => Statement::SideEffect(<>),
 };
 
-Expression: Expression = {
-    "(" <Expression> ")",
-    Literal => Expression::Literal(<>),
-    "(" <x: Expression> <op: Opcode> <y: Expression> ")" => Expression::Operation(Box::new(x), op, Box::new(y)),
-};
+Expression: Expression = ExprP2;
 
-Opcode: Opcode = {
+OpcodeP2: Opcode = {
     "+" => Opcode::Add,
     "-" => Opcode::Sub,
+};
+
+// Left-to-Right: +, -
+ExprP2: Expression = {
+    Boxed<ExprP2> OpcodeP2 Boxed<ExprP1> => Expression::Operation(<>),
+    ExprP1,
+};
+
+OpcodeP1: Opcode = {
     "*" => Opcode::Mul,
     "/" => Opcode::Div,
+};
+
+// Left-to-Right: *, /
+ExprP1: Expression = {
+    Boxed<ExprP1> OpcodeP1 Boxed<ExprP0> => Expression::Operation(<>),
+    ExprP0,
+};
+
+// N/A: (parens), literals
+ExprP0: Expression = {
+    "(" <Expression> ")",
+    Literal => Expression::Literal(<>),
 };
 
 Literal: Literal = {
