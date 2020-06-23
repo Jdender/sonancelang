@@ -3,6 +3,7 @@ extern crate lalrpop_util;
 
 lalrpop_mod!(pub(crate) parser);
 
-pub mod stages;
+pub mod parse;
 
-pub use stages::compile;
+#[cfg(test)]
+mod test;

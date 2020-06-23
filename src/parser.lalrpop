@@ -1,54 +1,42 @@
-use std::str::FromStr;
-use crate::stages::parse::*;
+use crate::parse::*;
 
 grammar;
 
-Boxed<T>: Box<T> = T => Box::new(<>);
+pub Identifier: Identifier = r"[a-zA-Z_][a-zA-Z0-9_]*" => Identifier(<>.to_string());
 
-Identifier: Identifier = {
-    r"[a-zA-Z_][a-zA-Z0-9_]*" => Identifier(<>.to_string()),
+List<T, S>: Vec<T> = {
+    <v:(<T> S)*> <e:T?> => match e {
+        None => v,
+        Some(e) => {
+            let mut v = v;
+            v.push(e);
+            v
+        }
+    }
 };
 
-pub Block: Block = {
-    <body: (<Statement>)*> <trailing: Expression?> => Block { <> },
-};
+pub Module: Module = Item* => Module { items: <> };
 
-Statement: Statement = {
-    "let" <Identifier> "=" <Expression> ";" => Statement::Assignment(<>),
-    <Expression> ";" => Statement::SideEffect(<>),
-};
+pub Item: Item = {
+    FunctionItem => Item::Function(<>),
+}
 
-Expression: Expression = ExprP2;
+pub FunctionItem: FunctionItem =
+    "func" <name: Identifier> <arguments: Arguments> <return_type: ("->" <Type>)?> <body: Block>
+        => FunctionItem { <> };
 
-OpcodeP2: Opcode = {
-    "+" => Opcode::Add,
-    "-" => Opcode::Sub,
-};
+pub Arguments: Arguments = "(" <normal: List<Argument, ",">> ")" => Arguments { <> };
 
-// Left-to-Right: +, -
-ExprP2: Expression = {
-    Boxed<ExprP2> OpcodeP2 Boxed<ExprP1> => Expression::Operation(<>),
-    ExprP1,
-};
+pub Argument: Argument =
+    <name: (<Identifier> "as")?> <pattern: Pattern> ":" <declared_type: Type> => Argument { <> };
 
-OpcodeP1: Opcode = {
-    "*" => Opcode::Mul,
-    "/" => Opcode::Div,
-};
+pub Type: Type = {
+    <name: Identifier> => Type { <>, arguments: vec![] },
+    <name: Identifier> "[" <arguments: List<Type, ",">> "]" => Type { <> },
+}
 
-// Left-to-Right: *, /
-ExprP1: Expression = {
-    Boxed<ExprP1> OpcodeP1 Boxed<ExprP0> => Expression::Operation(<>),
-    ExprP0,
-};
+pub Pattern: Pattern = {
+    Identifier => Pattern::Identifier(<>),
+}
 
-// N/A: (parens), literals
-ExprP0: Expression = {
-    "(" <Expression> ")",
-    Literal => Expression::Literal(<>),
-};
-
-Literal: Literal = {
-    r"[+-]?\d+" => Literal::Int(i32::from_str(<>).unwrap()),
-    r"[+-]?(\d+\.\d*|\.\d+)" => Literal::Float(f32::from_str(<>).unwrap()),
-};
+pub Block: Block = "{" "}" => Block {};
