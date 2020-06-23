@@ -1,11 +1,10 @@
-lalrpop_mod!(pub expr);
-
 use lalrpop_util::lexer::Token;
+use crate::parser::BlockParser;
 
 pub type ParseError<'a> = lalrpop_util::ParseError<usize, Token<'a>, &'a str>;
 
 pub fn parse(input: &str) -> Result<Block, ParseError> {
-    expr::BlockParser::new().parse(input)
+    BlockParser::new().parse(input)
 }
 
 #[derive(Debug, Clone)]

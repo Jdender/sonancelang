@@ -1,4 +1,4 @@
-use super::parser::*;
+use super::parse::*;
 use parity_wasm::{
     builder::module,
     elements::{Instruction, Instructions, Local, Module, ValueType},

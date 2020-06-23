@@ -1,21 +1,26 @@
 import std:{
-    env::{ args, pwd },
-    fs::{ read_file, path:join },
-    futures::await_all,
+    env -> { args, pwd },
+    fs -> { read_file, path:join },
+    monad -> all_for_one,
 };
 
-func main() -> Future<void> {
+func main() -> Future<Void> {
     let files = args
-        .split(' ')
-        .map(|path| join(pwd(), path) |> read_file)
-        |> await_all?;
+        .split(" ")
+        .map(func (?) ->
+            join(pwd(), ?)
+                .read_file()
+        )
+        .all_for_one()
+        .bind;
 
-    if let Some(error) = files.find(matches!(?, Error(_))) {
-        println!("An error occurred while trying to read a file: ${error}");
-        return;
-    }
-
-    for file of files {
-        println!(file.content.to_string());
+    for result of files {
+        match result {
+            Okay(file) -> print(file.content),
+            Error(reason) -> {
+                print("An error occurred while trying to read a file: ${reason}");
+                return;
+            }
+        }
     }
 }
