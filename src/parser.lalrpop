@@ -15,6 +15,9 @@ List<T, S>: Vec<T> = {
     }
 };
 
+Boxed<T>: Box<T> = T => Box::new(<>);
+OptionBoxed<T>: OptionBox<T> = (Boxed<T>)?;
+
 pub Module: Module = Item* => Module { items: <> };
 
 pub Item: Item = {
@@ -25,10 +28,9 @@ pub FunctionItem: FunctionItem =
     "func" <name: Identifier> <arguments: Arguments> <return_type: ("->" <Type>)?> <body: Block>
         => FunctionItem { <> };
 
-pub Arguments: Arguments = "(" <normal: List<Argument, ",">> ")" => Arguments { <> };
+pub Arguments: Vec<Argument> = "(" <List<Argument, ",">> ")";
 
-pub Argument: Argument =
-    <name: (<Identifier> "as")?> <pattern: Pattern> ":" <declared_type: Type> => Argument { <> };
+pub Argument: Argument = <pattern: Pattern> ":" <declared_type: Type> => Argument { <> };
 
 pub Type: Type = {
     <name: Identifier> => Type { <>, arguments: vec![] },
@@ -39,4 +41,74 @@ pub Pattern: Pattern = {
     Identifier => Pattern::Identifier(<>),
 }
 
-pub Block: Block = "{" "}" => Block {};
+pub Block: Block = {
+    "{" "}" => Block { body: vec![], trailing: None },
+    "{" <body: Statement*> <trailing: Boxed<Expression>> "}" => Block { body, trailing: Some(trailing) },
+    "{" <body: Statement*> <last: LastStatement> "}" => Block {
+        body: {
+            let mut v = body;
+            v.push(last);
+            v
+        },
+        trailing: None
+    },
+}
+
+pub Statement: Statement = {
+    ExpressionWithBlock => Statement::SideEffect(<>),
+    LastStatement,
+}
+
+#[inline]
+LastStatement: Statement = {
+    <ExpressionWithoutBlock> ";" => Statement::SideEffect(<>),
+    "let" <Pattern> "=" <SplitExpression<";">> => Statement::Assignment(<>),
+    "for" <Pattern> "in" <Expression> <Block> => Statement::For(<>),
+    "while" <ConditionOrPattern> <Block> => Statement::While(<>),
+};
+
+#[inline]
+SplitExpression<T> = {
+    <ExpressionWithBlock>,
+    <ExpressionWithoutBlock> T,
+}
+
+pub Expression = {
+    ExpressionWithBlock,
+    ExpressionWithoutBlock,
+}
+
+ExpressionWithBlock: Expression = {
+    Block => Expression::Block(<>),
+    "match" <Boxed<Expression>> "{" <MatchCase*> "}" => Expression::Match(<>),
+    "if" <head: PartialIf> <tail: ("else" "if" <PartialIf>)*> <otherwise: ("else" <Block>)?> =>
+        Expression::If {
+            otherwise,
+            cases: {
+                let mut tail = tail;
+                tail.insert(0, head);
+                tail
+            }
+        },
+    "loop" <Block> => Expression::Loop(<>),
+}
+
+pub MatchCase: MatchCase =
+    <pattern: Pattern> <guard: ("if" <Expression>)?> "->" <result: SplitExpression<",">> => MatchCase { <> };
+
+pub ConditionOrPattern: ConditionOrPattern = {
+    Expression => ConditionOrPattern::Condition(<>),
+    "let" <Pattern> "=" <Expression> => ConditionOrPattern::Pattern(<>),
+}
+
+#[inline]
+PartialIf: PartialIf = ConditionOrPattern Block => PartialIf(<>);
+
+ExpressionWithoutBlock: Expression = {
+    "(" <Expression> ")",
+    // "return" <OptionBoxed<Expression>> => Expression::Return(<>),
+    // "break" <OptionBoxed<Expression>> => Expression::Break(<>),
+    "continue" => Expression::Continue,
+    Identifier => Expression::Lookup(<>),
+    <Boxed<ExpressionWithoutBlock>> "(" <List<Expression, ",">> ")" => Expression::Call(<>),
+}

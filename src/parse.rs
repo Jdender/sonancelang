@@ -3,6 +3,8 @@ use lalrpop_util::lexer::Token;
 
 pub type ParseError<'a> = lalrpop_util::ParseError<usize, Token<'a>, &'a str>;
 
+pub type OptionBox<T> = Option<Box<T>>;
+
 pub fn parse(input: &str) -> Result<Module, ParseError> {
     ModuleParser::new().parse(input)
 }
@@ -23,19 +25,13 @@ pub enum Item {
 #[derive(Debug, Clone, PartialEq)]
 pub struct FunctionItem {
     pub name: Identifier,
-    pub arguments: Arguments,
+    pub arguments: Vec<Argument>,
     pub return_type: Option<Type>,
     pub body: Block,
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct Arguments {
-    pub normal: Vec<Argument>,
-}
-
-#[derive(Debug, Clone, PartialEq)]
 pub struct Argument {
-    pub name: Option<Identifier>,
     pub pattern: Pattern,
     pub declared_type: Type,
 }
@@ -52,4 +48,47 @@ pub enum Pattern {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct Block {}
+pub struct Block {
+    pub body: Vec<Statement>,
+    pub trailing: OptionBox<Expression>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum Statement {
+    SideEffect(Expression),
+    Assignment(Pattern, Expression),
+    For(Pattern, Expression, Block),
+    While(ConditionOrPattern, Block),
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum ConditionOrPattern {
+    Condition(Expression),
+    Pattern(Pattern, Expression),
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum Expression {
+    Lookup(Identifier),
+    Block(Block),
+    Call(Box<Expression>, Vec<Expression>),
+    Return(OptionBox<Expression>),
+    Break(OptionBox<Expression>),
+    Continue,
+    Loop(Block),
+    Match(Box<Expression>, Vec<MatchCase>),
+    If {
+        cases: Vec<PartialIf>,
+        otherwise: Option<Block>,
+    },
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct MatchCase {
+    pub pattern: Pattern,
+    pub result: Expression,
+    pub guard: Option<Expression>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct PartialIf(pub ConditionOrPattern, pub Block);

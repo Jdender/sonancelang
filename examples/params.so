@@ -1,0 +1,19 @@
+func test(a: A, b: B, c: C) -> R {
+  // ...
+}
+
+test(1, 2, 3);
+
+func test {
+    a: A,
+    b: B,
+    c: C,
+} -> R {
+  // ...
+}
+
+test {
+    a: 1,
+    b: 2,
+    c: 3,
+};

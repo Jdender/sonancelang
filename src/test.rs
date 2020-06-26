@@ -26,9 +26,12 @@ fn function_test() {
         parser.parse("func foobar() {}").unwrap(),
         FunctionItem {
             name: ident("foobar"),
-            arguments: Arguments { normal: vec![] },
+            arguments: vec![],
             return_type: None,
-            body: Block {},
+            body: Block {
+                body: vec![],
+                trailing: None
+            },
         }
     );
 
@@ -36,12 +39,15 @@ fn function_test() {
         parser.parse("func foobar() -> Type {}").unwrap(),
         FunctionItem {
             name: ident("foobar"),
-            arguments: Arguments { normal: vec![] },
+            arguments: vec![],
             return_type: Some(Type {
                 name: ident("Type"),
                 arguments: vec![]
             }),
-            body: Block {},
+            body: Block {
+                body: vec![],
+                trailing: None
+            },
         }
     );
 }
@@ -51,27 +57,23 @@ fn arguments_test() {
     let parser = ArgumentsParser::new();
 
     assert_eq!(
-        parser.parse("(a: A, bar as b: B)").unwrap(),
-        Arguments {
-            normal: vec![
-                Argument {
-                    name: None,
-                    pattern: Pattern::Identifier(ident("a")),
-                    declared_type: Type {
-                        name: ident("A"),
-                        arguments: vec![]
-                    },
+        parser.parse("(a: A, b: B)").unwrap(),
+        vec![
+            Argument {
+                pattern: Pattern::Identifier(ident("a")),
+                declared_type: Type {
+                    name: ident("A"),
+                    arguments: vec![]
                 },
-                Argument {
-                    name: Some(ident("bar")),
-                    pattern: Pattern::Identifier(ident("b")),
-                    declared_type: Type {
-                        name: ident("B"),
-                        arguments: vec![]
-                    },
-                }
-            ]
-        }
+            },
+            Argument {
+                pattern: Pattern::Identifier(ident("b")),
+                declared_type: Type {
+                    name: ident("B"),
+                    arguments: vec![]
+                },
+            }
+        ]
     );
 }
 
