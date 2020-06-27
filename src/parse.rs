@@ -57,14 +57,6 @@ pub struct Block {
 pub enum Statement {
     SideEffect(Expression),
     Assignment(Pattern, Expression),
-    For(Pattern, Expression, Block),
-    While(ConditionOrPattern, Block),
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum ConditionOrPattern {
-    Condition(Expression),
-    Pattern(Pattern, Expression),
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -73,14 +65,25 @@ pub enum Expression {
     Block(Block),
     Call(Box<Expression>, Vec<Expression>),
     Return(OptionBox<Expression>),
-    Break(OptionBox<Expression>),
-    Continue,
-    Loop(Block),
     Match(Box<Expression>, Vec<MatchCase>),
     If {
         cases: Vec<PartialIf>,
         otherwise: Option<Block>,
     },
+    Loop(Block),
+    For {
+        pattern: Pattern,
+        iterator: Box<Expression>,
+        body: Block,
+        otherwise: Option<Block>,
+    },
+    While {
+        condition: Box<ConditionOrPattern>,
+        body: Block,
+        otherwise: Option<Block>,
+    },
+    Break(OptionBox<Expression>),
+    Continue,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -92,3 +95,9 @@ pub struct MatchCase {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct PartialIf(pub ConditionOrPattern, pub Block);
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum ConditionOrPattern {
+    Condition(Expression),
+    Pattern(Pattern, Expression),
+}

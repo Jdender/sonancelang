@@ -2,7 +2,29 @@ use crate::parse::*;
 
 grammar;
 
-pub Identifier: Identifier = r"[a-zA-Z_][a-zA-Z0-9_]*" => Identifier(<>.to_string());
+match {
+    r"\s*" => { }, // Whitespace
+    r"//[^\n\r]*[\n\r]*" => { }, // `// comments`
+    r"/\*([^\*]*\*+[^\*/])*([^\*]*\*+|[^\*])*\*/" => { },  // `/* comments */`
+} else {
+    "func",
+    "let",
+    "match", "if", "else",
+    "loop",
+    "for", "in",
+    "while",
+    "return", "break", "continue",
+    "(", ")",
+    "{", "}",
+    "[", "]",
+    ",", ";",
+    ":", "->",
+    "="
+} else {
+    r"[a-zA-Z_][a-zA-Z0-9_]*" => IDENTIFIER,
+}
+
+pub Identifier: Identifier = IDENTIFIER => Identifier(<>.to_string());
 
 List<T, S>: Vec<T> = {
     <v:(<T> S)*> <e:T?> => match e {
@@ -15,7 +37,9 @@ List<T, S>: Vec<T> = {
     }
 };
 
+#[inline]
 Boxed<T>: Box<T> = T => Box::new(<>);
+#[inline]
 OptionBoxed<T>: OptionBox<T> = (Boxed<T>)?;
 
 pub Module: Module = Item* => Module { items: <> };
@@ -63,8 +87,6 @@ pub Statement: Statement = {
 LastStatement: Statement = {
     <ExpressionWithoutBlock> ";" => Statement::SideEffect(<>),
     "let" <Pattern> "=" <SplitExpression<";">> => Statement::Assignment(<>),
-    "for" <Pattern> "in" <Expression> <Block> => Statement::For(<>),
-    "while" <ConditionOrPattern> <Block> => Statement::While(<>),
 };
 
 #[inline]
@@ -80,9 +102,13 @@ pub Expression = {
 
 ExpressionWithBlock: Expression = {
     Block => Expression::Block(<>),
-    "match" <Boxed<Expression>> "{" <MatchCase*> "}" => Expression::Match(<>),
-    "if" <head: PartialIf> <tail: ("else" "if" <PartialIf>)*> <otherwise: ("else" <Block>)?> =>
-        Expression::If {
+
+    "return" <Boxed<ExpressionWithBlock>> => Expression::Return(Some(<>)),
+    "break" <Boxed<ExpressionWithBlock>> => Expression::Break(Some(<>)),
+
+    "match" <Boxed<ExpressionWithoutBlock>> "{" <MatchCase*> "}" => Expression::Match(<>),
+    "if" <head: PartialIf> <tail: ("else" "if" <PartialIf>)*> <otherwise: ("else" <Block>)?>
+        => Expression::If {
             otherwise,
             cases: {
                 let mut tail = tail;
@@ -90,15 +116,21 @@ ExpressionWithBlock: Expression = {
                 tail
             }
         },
+
     "loop" <Block> => Expression::Loop(<>),
+    "for" <pattern: Pattern> "in" <iterator: Boxed<ExpressionWithoutBlock>> <body: Block> <otherwise: ("else" <Block>)?>
+        => Expression::For { <> },
+    "while" <condition: Boxed<ConditionOrPattern>> <body: Block> <otherwise: ("else" <Block>)?>
+        => Expression::While { <> },
 }
 
 pub MatchCase: MatchCase =
     <pattern: Pattern> <guard: ("if" <Expression>)?> "->" <result: SplitExpression<",">> => MatchCase { <> };
 
-pub ConditionOrPattern: ConditionOrPattern = {
-    Expression => ConditionOrPattern::Condition(<>),
-    "let" <Pattern> "=" <Expression> => ConditionOrPattern::Pattern(<>),
+#[inline]
+ConditionOrPattern: ConditionOrPattern = {
+    ExpressionWithoutBlock => ConditionOrPattern::Condition(<>),
+    "let" <Pattern> "=" <ExpressionWithoutBlock> => ConditionOrPattern::Pattern(<>),
 }
 
 #[inline]
@@ -106,9 +138,16 @@ PartialIf: PartialIf = ConditionOrPattern Block => PartialIf(<>);
 
 ExpressionWithoutBlock: Expression = {
     "(" <Expression> ")",
-    // "return" <OptionBoxed<Expression>> => Expression::Return(<>),
-    // "break" <OptionBoxed<Expression>> => Expression::Break(<>),
+
+    "return" <OptionBoxed<ExpressionWithoutBlock>> => Expression::Return(<>),
+    "break" <OptionBoxed<ExpressionWithoutBlock>> => Expression::Break(<>),
+
     "continue" => Expression::Continue,
     Identifier => Expression::Lookup(<>),
-    <Boxed<ExpressionWithoutBlock>> "(" <List<Expression, ",">> ")" => Expression::Call(<>),
+    <Boxed<CallTargetExpression>> "(" <List<Expression, ",">> ")" => Expression::Call(<>),
+}
+
+CallTargetExpression: Expression = {
+    Identifier => Expression::Lookup(<>),
+    "(" <Expression> ")",
 }
