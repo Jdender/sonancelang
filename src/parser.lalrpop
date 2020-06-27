@@ -3,25 +3,25 @@ use crate::parse::*;
 grammar;
 
 match {
-    r"\s*" => { }, // Whitespace
     r"//[^\n\r]*[\n\r]*" => { }, // `// comments`
     r"/\*([^\*]*\*+[^\*/])*([^\*]*\*+|[^\*])*\*/" => { },  // `/* comments */`
 } else {
-    "func",
-    "let",
-    "match", "if", "else",
-    "loop",
-    "for", "in",
-    "while",
-    "return", "break", "continue",
-    "(", ")",
-    "{", "}",
-    "[", "]",
-    ",", ";",
-    ":", "->",
-    "="
+    "func", // Items
+
+    "let", "match", "if", "else", // Patterns
+
+    "loop", "for", "in", "while", // Loops
+
+    "return", "break", "continue", // Control
+
+    "(", ")", "{", "}", "[", "]", // Parens
+
+    ",", ";", ":", "->", // Punctuation
+
+    "=" // Operators
 } else {
     r"[a-zA-Z_][a-zA-Z0-9_]*" => IDENTIFIER,
+    r"\s*" => { }, // Whitespace
 }
 
 pub Identifier: Identifier = IDENTIFIER => Identifier(<>.to_string());
