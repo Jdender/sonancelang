@@ -13,6 +13,12 @@ pub fn parse(input: &str) -> Result<Module, ParseError> {
 pub struct Identifier(pub String);
 
 #[derive(Debug, Clone, PartialEq)]
+pub enum Literal {
+    Int(i32),
+    Float(f32),
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct Module {
     pub items: Vec<Item>,
 }

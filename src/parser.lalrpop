@@ -1,4 +1,5 @@
 use crate::parse::*;
+use std::str::FromStr;
 
 grammar;
 
@@ -21,10 +22,18 @@ match {
     "=" // Operators
 } else {
     r"[a-zA-Z_][a-zA-Z0-9_]*" => IDENTIFIER,
+    r"[-+]?[0-9]+" => INT_LITERAL,
+} else {
+    r"[-+]?[0-9]*\.?[0-9]+" => FLOAT_LITERAL,
     r"\s*" => { }, // Whitespace
 }
 
 pub Identifier: Identifier = IDENTIFIER => Identifier(<>.to_string());
+
+pub Literal: Literal = {
+    INT_LITERAL => Literal::Int(i32::from_str(<>).unwrap()),
+    FLOAT_LITERAL => Literal::Float(f32::from_str(<>).unwrap()),
+}
 
 List<T, S>: Vec<T> = {
     <v:(<T> S)*> <e:T?> => match e {
@@ -124,7 +133,8 @@ ExpressionWithBlock: Expression = {
         => Expression::While { <> },
 }
 
-pub MatchCase: MatchCase =
+#[inline]
+MatchCase: MatchCase =
     <pattern: Pattern> <guard: ("if" <Expression>)?> "->" <result: SplitExpression<",">> => MatchCase { <> };
 
 #[inline]
