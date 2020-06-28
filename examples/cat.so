@@ -1,10 +1,10 @@
-import std:{
+import std::{
     env -> { args, pwd },
-    fs -> { read_file, path:join },
+    fs -> { read_file, path::join },
     monad -> all_for_one,
 };
 
-func main() -> Future<Void> {
+func main() -> Future[Void] {
     let files = args
         .split(" ")
         .map(func (?) ->
@@ -12,12 +12,12 @@ func main() -> Future<Void> {
                 .read_file()
         )
         .all_for_one()
-        .bind;
+        .use;
 
-    for result of files {
+    for result in files {
         match result {
-            Okay(file) -> print(file.content),
-            Error(reason) -> {
+            Okay: file -> print(file.content),
+            Error: reason -> {
                 print("An error occurred while trying to read a file: ${reason}");
                 return;
             }

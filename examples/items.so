@@ -1,6 +1,6 @@
-import std:package -> module:item;
-import package std:package;
-import module module:item;
+import std::package -> module::item;
+import package std::package;
+import module module::item;
 
 module SubModule {
     export type Foo = u32;
