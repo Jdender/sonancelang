@@ -15,6 +15,8 @@ macro_rules! generate_parser_repl {
                     break;
                 }
             })*
+            eprintln!("Kind not found.");
+            $kind = read_line();
             break;
         }
     };
