@@ -39,7 +39,6 @@ fn main() {
             Module,
             Item,
             Path,
-            StarterPath,
             FunctionItem,
             Arguments,
             Type,

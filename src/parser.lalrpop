@@ -9,6 +9,8 @@ match {
 } else {
     "import", "func", // Items
 
+    "self", "super", "package", "meta", // Special Scopes
+
     "let", "match", "if", "else", // Patterns
 
     "loop", "for", "in", "while", // Loops
@@ -63,19 +65,26 @@ pub Item: Item = {
 pub ImportItem: ImportItem = "import" <Path> => ImportItem(<>);
 
 pub Path: Path = {
-    Identifier ("as" <Identifier>)? => Path::End(<>),
+    PathHead ("as" <Identifier>)? => Path::End(<>),
     StarterPath,
 }
 
-pub StarterPath: Path = {
+StarterPath: Path = {
     "::" <Path>,
-    <Identifier> "::" <PathKind> => Path::Normal(<>),
-    <Identifier> "->" <PathKind> => Path::Arrow(<>),
+    <PathHead> "::" <PathTail> => Path::Normal(<>),
+    <PathHead> "->" <PathTail> => Path::Arrow(<>),
 }
 
-PathKind: PathKind = {
-    Boxed<Path> => PathKind::Single(<>),
-    "{" <List<Path, ",">> "}" => PathKind::Multiple(<>),
+PathHead: PathHead = {
+    Identifier => PathHead::Normal(<>),
+    "self" => PathHead::Self_,
+    "super" => PathHead::Super,
+    "package" => PathHead::Package,
+}
+
+PathTail: PathTail = {
+    Boxed<Path> => PathTail::Single(<>),
+    "{" <List<Path, ",">> "}" => PathTail::Multiple(<>),
 }
 
 pub FunctionItem: FunctionItem =

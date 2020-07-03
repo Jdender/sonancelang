@@ -34,13 +34,22 @@ pub struct ImportItem(pub Path);
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Path {
-    End(Identifier, Option<Identifier>),
-    Normal(Identifier, PathKind),
-    Arrow(Identifier, PathKind),
+    End(PathHead, Option<Identifier>),
+    Normal(PathHead, PathTail),
+    Arrow(PathHead, PathTail),
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum PathKind {
+pub enum PathHead {
+    Normal(Identifier),
+    Self_,
+    Super,
+    Package,
+    Meta,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum PathTail {
     Single(Box<Path>),
     Multiple(Vec<Path>),
 }
