@@ -37,12 +37,13 @@ pub enum Path {
     End(PathHead, Option<Identifier>),
     Normal(PathHead, PathTail),
     Arrow(PathHead, PathTail),
+    Root(PathTail),
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum PathHead {
     Normal(Identifier),
-    Self_,
+    Module,
     Super,
     Package,
     Meta,
@@ -70,7 +71,7 @@ pub struct Argument {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Type {
-    pub name: Identifier,
+    pub name: Path,
     pub arguments: Vec<Type>,
 }
 
@@ -93,7 +94,7 @@ pub enum Statement {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expression {
-    Lookup(Identifier),
+    Lookup(Path),
     Block(Block),
     Call(Box<Expression>, Vec<Expression>),
     Return(OptionBox<Expression>),

@@ -7,9 +7,9 @@ match {
     r"//[^\n\r]*[\n\r]*" => { }, // `// comments`
     r"/\*([^\*]*\*+[^\*/])*([^\*]*\*+|[^\*])*\*/" => { },  // `/* comments */`
 } else {
-    "import", "func", // Items
+    "module", "import", "func", // Items
 
-    "self", "super", "package", "meta", // Special Scopes
+    "super", "package", "meta", // Special Scopes
 
     "let", "match", "if", "else", // Patterns
 
@@ -19,7 +19,7 @@ match {
 
     "(", ")", "{", "}", "[", "]", // Parens
 
-    ",", ";", ":", "::", "->", // Punctuation
+    ",", ";", ":", "::", "=>", "->", // Punctuation
 
     "=", // Operators
 
@@ -66,20 +66,21 @@ pub ImportItem: ImportItem = "import" <Path> => ImportItem(<>);
 
 pub Path: Path = {
     PathHead ("as" <Identifier>)? => Path::End(<>),
-    StarterPath,
+    FullPath,
 }
 
-StarterPath: Path = {
-    "::" <Path>,
+FullPath: Path = {
+    "::" <PathTail> => Path::Root(<>),
     <PathHead> "::" <PathTail> => Path::Normal(<>),
-    <PathHead> "->" <PathTail> => Path::Arrow(<>),
+    <PathHead> "=>" <PathTail> => Path::Arrow(<>),
 }
 
 PathHead: PathHead = {
     Identifier => PathHead::Normal(<>),
-    "self" => PathHead::Self_,
+    "module" => PathHead::Module,
     "super" => PathHead::Super,
     "package" => PathHead::Package,
+    "meta" => PathHead::Meta,
 }
 
 PathTail: PathTail = {
@@ -96,8 +97,8 @@ pub Arguments: Vec<Argument> = "(" <List<Argument, ",">> ")";
 pub Argument: Argument = <pattern: Pattern> ":" <declared_type: Type> => Argument { <> };
 
 pub Type: Type = {
-    <name: Identifier> => Type { <>, arguments: vec![] },
-    <name: Identifier> "[" <arguments: List<Type, ",">> "]" => Type { <> },
+    <name: Path> => Type { <>, arguments: vec![] },
+    <name: Path> "[" <arguments: List<Type, ",">> "]" => Type { <> },
 }
 
 pub Pattern: Pattern = {
@@ -183,11 +184,11 @@ ExpressionWithoutBlock: Expression = {
     "break" <OptionBoxed<ExpressionWithoutBlock>> => Expression::Break(<>),
 
     "continue" => Expression::Continue,
-    Identifier => Expression::Lookup(<>),
+    Path => Expression::Lookup(<>),
     <Boxed<CallTargetExpression>> "(" <List<Expression, ",">> ")" => Expression::Call(<>),
 }
 
 CallTargetExpression: Expression = {
-    Identifier => Expression::Lookup(<>),
+    Path => Expression::Lookup(<>),
     "(" <Expression> ")",
 }
