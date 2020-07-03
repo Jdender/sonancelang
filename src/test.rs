@@ -5,10 +5,6 @@ fn ident(input: &str) -> Identifier {
     Identifier(input.to_string())
 }
 
-fn p_ident(input: &str) -> Path {
-    Path::End(PathHead::Normal(Identifier(input.to_string())), None)
-}
-
 #[test]
 fn identifier_test() {
     let parser = IdentifierParser::new();
@@ -45,7 +41,7 @@ fn function_test() {
             name: ident("foobar"),
             arguments: vec![],
             return_type: Some(Type {
-                name: p_ident("Type"),
+                name: ident("Type"),
                 arguments: vec![]
             }),
             body: Block {
@@ -66,14 +62,14 @@ fn arguments_test() {
             Argument {
                 pattern: Pattern::Identifier(ident("a")),
                 declared_type: Type {
-                    name: p_ident("A"),
+                    name: ident("A"),
                     arguments: vec![]
                 },
             },
             Argument {
                 pattern: Pattern::Identifier(ident("b")),
                 declared_type: Type {
-                    name: p_ident("B"),
+                    name: ident("B"),
                     arguments: vec![]
                 },
             }
@@ -88,7 +84,7 @@ fn type_test() {
     assert_eq!(
         parser.parse("Foo").unwrap(),
         Type {
-            name: p_ident("Foo"),
+            name: ident("Foo"),
             arguments: vec![]
         }
     );
@@ -96,17 +92,17 @@ fn type_test() {
     assert_eq!(
         parser.parse("Foo[Bar[Baz], Buz[]]").unwrap(),
         Type {
-            name: p_ident("Foo"),
+            name: ident("Foo"),
             arguments: vec![
                 Type {
-                    name: p_ident("Bar"),
+                    name: ident("Bar"),
                     arguments: vec![Type {
-                        name: p_ident("Baz"),
+                        name: ident("Baz"),
                         arguments: vec![]
                     }]
                 },
                 Type {
-                    name: p_ident("Buz"),
+                    name: ident("Buz"),
                     arguments: vec![]
                 }
             ]

@@ -30,19 +30,17 @@ pub enum Item {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct ImportItem(pub Path);
+pub struct ImportItem(pub ImportPath);
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum Path {
-    End(PathHead, Option<Identifier>),
-    Normal(PathHead, PathTail),
-    Arrow(PathHead, PathTail),
-    Root(PathTail),
+pub enum ImportPath {
+    Normal(ImportPathHead),
+    Special(SpecialScope, ImportPathTail),
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum PathHead {
-    Normal(Identifier),
+pub enum SpecialScope {
+    Root,
     Module,
     Super,
     Package,
@@ -50,9 +48,21 @@ pub enum PathHead {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum PathTail {
-    Single(Box<Path>),
-    Multiple(Vec<Path>),
+pub enum ImportPathHead {
+    Final(Identifier),
+    Next(Identifier, ImportPathDelimiter, ImportPathTail),
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum ImportPathDelimiter {
+    Normal,
+    Arrow,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum ImportPathTail {
+    Single(Box<ImportPathHead>),
+    Multiple(Vec<ImportPathHead>),
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -71,7 +81,7 @@ pub struct Argument {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Type {
-    pub name: Path,
+    pub name: Identifier,
     pub arguments: Vec<Type>,
 }
 
@@ -94,7 +104,7 @@ pub enum Statement {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expression {
-    Lookup(Path),
+    Lookup(PathExpression),
     Block(Block),
     Call(Box<Expression>, Vec<Expression>),
     Return(OptionBox<Expression>),
@@ -117,6 +127,19 @@ pub enum Expression {
     },
     Break(OptionBox<Expression>),
     Continue,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum PathExpression {
+    Identifier(Identifier),
+    Path(PathExpressionTail),
+    Special(SpecialScope, PathExpressionTail),
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum PathExpressionTail {
+    Final(Identifier),
+    Next(Identifier, Box<PathExpressionTail>),
 }
 
 #[derive(Debug, Clone, PartialEq)]

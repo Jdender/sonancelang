@@ -19,7 +19,7 @@ match {
 
     "(", ")", "{", "}", "[", "]", // Parens
 
-    ",", ";", ":", "::", "=>", "->", // Punctuation
+    ",", ";", ":", "::", "->", // Punctuation
 
     "=", // Operators
 
@@ -58,35 +58,39 @@ OptionBoxed<T>: OptionBox<T> = (Boxed<T>)?;
 pub Module: Module = Item* => Module { items: <> };
 
 pub Item: Item = {
-    <ImportItem> ";" => Item::Import(<>),
+    // <ImportItem> ";" => Item::Import(<>),
     FunctionItem => Item::Function(<>),
 }
 
-pub ImportItem: ImportItem = "import" <Path> => ImportItem(<>);
+// pub ImportItem: ImportItem = "import" <ImportPath> => ImportItem(<>);
 
-pub Path: Path = {
-    PathHead ("as" <Identifier>)? => Path::End(<>),
-    FullPath,
+// pub ImportPath: ImportPath = {
+//     ImportPathHead => ImportPath::Normal(<>),
+//     "::" <ImportPathHead> => ImportPath::Special(SpecialScope::Root, <>),
+//     <SpecialScope> "::" <ImportPathHead> => ImportPath::Special(<>),
+// }
+
+SpecialScope: SpecialScope = {
+    "module" => SpecialScope::Module,
+    "super" => SpecialScope::Super,
+    "package" => SpecialScope::Package,
+    "meta" => SpecialScope::Meta,
 }
 
-FullPath: Path = {
-    "::" <PathTail> => Path::Root(<>),
-    <PathHead> "::" <PathTail> => Path::Normal(<>),
-    <PathHead> "=>" <PathTail> => Path::Arrow(<>),
-}
+// ImportPathHead: ImportPathHead = {
+//     Identifier => ImportPathHead::Final(<>),
+//     Identifier ImportPathDelimiter ImportPathTail => ImportPathHead::Next(<>),
+// }
 
-PathHead: PathHead = {
-    Identifier => PathHead::Normal(<>),
-    "module" => PathHead::Module,
-    "super" => PathHead::Super,
-    "package" => PathHead::Package,
-    "meta" => PathHead::Meta,
-}
+// ImportPathDelimiter: ImportPathDelimiter = {
+//     "::" => ImportPathDelimiter::Normal,
+//     "->" => ImportPathDelimiter::Arrow,
+// }
 
-PathTail: PathTail = {
-    Boxed<Path> => PathTail::Single(<>),
-    "{" <List<Path, ",">> "}" => PathTail::Multiple(<>),
-}
+// ImportPathTail: ImportPathTail = {
+//     Boxed<ImportPathHead> => ImportPathTail::Single(<>),
+//     List<ImportPathHead, ","> => ImportPathTail::Multiple(<>),
+// }
 
 pub FunctionItem: FunctionItem =
     "func" <name: Identifier> <arguments: Arguments> <return_type: ("->" <Type>)?> <body: Block>
@@ -97,8 +101,8 @@ pub Arguments: Vec<Argument> = "(" <List<Argument, ",">> ")";
 pub Argument: Argument = <pattern: Pattern> ":" <declared_type: Type> => Argument { <> };
 
 pub Type: Type = {
-    <name: Path> => Type { <>, arguments: vec![] },
-    <name: Path> "[" <arguments: List<Type, ",">> "]" => Type { <> },
+    <name: Identifier> => Type { <>, arguments: vec![] },
+    <name: Identifier> "[" <arguments: List<Type, ",">> "]" => Type { <> },
 }
 
 pub Pattern: Pattern = {
@@ -179,16 +183,28 @@ PartialIf: PartialIf = ConditionOrPattern Block => PartialIf(<>);
 
 ExpressionWithoutBlock: Expression = {
     "(" <Expression> ")",
+    PathExpression => Expression::Lookup(<>),
 
     "return" <OptionBoxed<ExpressionWithoutBlock>> => Expression::Return(<>),
     "break" <OptionBoxed<ExpressionWithoutBlock>> => Expression::Break(<>),
-
     "continue" => Expression::Continue,
-    Path => Expression::Lookup(<>),
+
     <Boxed<CallTargetExpression>> "(" <List<Expression, ",">> ")" => Expression::Call(<>),
 }
 
+pub PathExpression: PathExpression = {
+    Identifier => PathExpression::Identifier(<>),
+    <Identifier> "::" <Boxed<PathExpressionTail>> => PathExpression::Path(PathExpressionTail::Next(<>)),
+    "::" <PathExpressionTail> => PathExpression::Special(SpecialScope::Root, <>),
+    <SpecialScope> "::" <PathExpressionTail> => PathExpression::Special(<>),
+}
+
+PathExpressionTail: PathExpressionTail = {
+    Identifier => PathExpressionTail::Final(<>),
+    <Identifier> "::" <Boxed<PathExpressionTail>> => PathExpressionTail::Next(<>),
+}
+
 CallTargetExpression: Expression = {
-    Path => Expression::Lookup(<>),
+    PathExpression => Expression::Lookup(<>),
     "(" <Expression> ")",
 }

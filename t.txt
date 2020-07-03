@@ -1,0 +1,385 @@
+   Compiling sonancelang v0.1.0 (/home/jdender/projects/sonancelang)
+error: failed to run custom build command for `sonancelang v0.1.0 (/home/jdender/projects/sonancelang)`
+
+Caused by:
+  process didn't exit successfully: `/home/jdender/projects/sonancelang/target/debug/build/sonancelang-a6b4936eb7e33b03/build-script-build` (exit code: 1)
+--- stdout
+processing file `src/parser.lalrpop`
+src/parser.lalrpop:91:5: 91:55: Ambiguous grammar detected
+
+  The following symbols can be reduced in two ways:
+    Identifier ImportPathDelimiter ImportPathHead ","
+
+  They could be reduced like so:
+    Identifier ImportPathDelimiter ImportPathHead   ╷ ","
+    │                              └─ImportPathTail─┤   │
+    ├─ImportPathHead────────────────────────────────┘   │
+    └─(<ImportPathHead> ",")+───────────────────────────┘
+
+  Alternatively, they could be reduced like so:
+    Identifier ImportPathDelimiter ImportPathHead            ","
+    │                              ├─(<ImportPathHead> ",")+───┤
+    │                              ├─List<ImportPathHead, ",">─┤
+    │                              └─ImportPathTail────────────┤
+    └─ImportPathHead───────────────────────────────────────────┘
+
+  LALRPOP does not yet support ambiguous grammars. See the LALRPOP manual for advice on making your grammar unambiguous.
+
+src/parser.lalrpop:92:5: 92:29: Ambiguous grammar detected
+
+  The following symbols can be reduced in two ways:
+    Identifier ImportPathDelimiter ImportPathHead ","
+
+  They could be reduced like so:
+    Identifier ImportPathDelimiter ImportPathHead              ╷ ","
+    │                              ├─List<ImportPathHead, ",">─┤   │
+    │                              └─ImportPathTail────────────┤   │
+    ├─ImportPathHead───────────────────────────────────────────┘   │
+    └─(<ImportPathHead> ",")+──────────────────────────────────────┘
+
+  Alternatively, they could be reduced like so:
+    Identifier ImportPathDelimiter ImportPathHead            ","
+    │                              ├─(<ImportPathHead> ",")+───┤
+    │                              ├─List<ImportPathHead, ",">─┤
+    │                              └─ImportPathTail────────────┤
+    └─ImportPathHead───────────────────────────────────────────┘
+
+  LALRPOP does not yet support ambiguous grammars. See the LALRPOP manual for advice on making your grammar unambiguous.
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `"("` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `")"` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Ambiguous grammar detected
+
+  The following symbols can be reduced in two ways:
+    Identifier ImportPathDelimiter ImportPathHead ","
+
+  They could be reduced like so:
+    Identifier ImportPathDelimiter ImportPathHead   ╷ ","
+    │                              └─ImportPathTail─┤   │
+    ├─ImportPathHead────────────────────────────────┘   │
+    └─(<ImportPathHead> ",")+───────────────────────────┘
+
+  Alternatively, they could be reduced like so:
+    Identifier ImportPathDelimiter ImportPathHead              ╷ ","
+    │                              ├─List<ImportPathHead, ",">─┤   │
+    │                              └─ImportPathTail────────────┤   │
+    ├─ImportPathHead───────────────────────────────────────────┘   │
+    └─(<ImportPathHead> ",")+──────────────────────────────────────┘
+
+  LALRPOP does not yet support ambiguous grammars. See the LALRPOP manual for advice on making your grammar unambiguous.
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `"->"` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `":"` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `"::"` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `";"` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `"="` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `"["` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `"]"` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `"as"` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `"break"` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `"continue"` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `"else"` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `"for"` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `"func"` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `"if"` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `"import"` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `"in"` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `"let"` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `"loop"` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `"match"` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `"meta"` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `"module"` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `"package"` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `"return"` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `"super"` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `"while"` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `"{"` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `"}"` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `FLOAT_LITERAL` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `IDENTIFIER` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `INT_LITERAL` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:91:5: 91:55: Conflict detected
+
+    when in this state:
+  (<ImportPathHead> ",")+ = ImportPathHead (*) "," ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  ImportPathTail = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+  List<ImportPathHead, ","> = ImportPathHead (*) ["(", ")", ",", "->", ":", "::", ";", "=", "[", "]", "as", "break", "continue", "else", "for", "func", "if", "import", "in", "let", "loop", "match", "meta", "module", "package", "return", "super", "while", "{", "}", FLOAT_LITERAL, IDENTIFIER, INT_LITERAL, EOF]
+
+  and looking at a token `EOF` we can reduce to a `ImportPathTail` but we can also reduce to a `List<ImportPathHead, ",">`
+
+src/parser.lalrpop:92:5: 92:29: Ambiguous grammar detected
+
+  The following symbols can be reduced in two ways:
+    Identifier ImportPathDelimiter (<ImportPathHead> ",")+ ImportPathHead ","
+
+  They could be reduced like so:
+    Identifier ImportPathDelimiter (<ImportPathHead> ",")+ ImportPathHead ","
+    │                              ├─List<ImportPathHead, ",">──────────┤   │
+    │                              └─ImportPathTail─────────────────────┤   │
+    ├─ImportPathHead────────────────────────────────────────────────────┘   │
+    └─(<ImportPathHead> ",")+───────────────────────────────────────────────┘
+
+  Alternatively, they could be reduced like so:
+    Identifier ImportPathDelimiter (<ImportPathHead> ",")+ ImportPathHead ","
+    │                              ├─(<ImportPathHead> ",")+────────────────┤
+    │                              ├─List<ImportPathHead, ",">──────────────┤
+    │                              └─ImportPathTail─────────────────────────┤
+    └─ImportPathHead────────────────────────────────────────────────────────┘
+
+  LALRPOP does not yet support ambiguous grammars. See the LALRPOP manual for advice on making your grammar unambiguous.
