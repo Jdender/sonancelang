@@ -3,35 +3,33 @@ macro_rules! generate_parser_repl {
         loop {
             $(paste::expr! {
                 if $kind == stringify!([<$name:snake>]) {
-
-                    let mut input = String::new();
-                    std::io::stdin().read_line(&mut input).unwrap();
-
-                    let result = sonancelang::parser::[<$name Parser>]::new().parse(input.trim());
-
-                    let _ = dbg!(result);
+                    match &read_line()[..] {
+                        "/exit" => return,
+                        "/new" => $kind = read_line(),
+                        x => {
+                            let _ = dbg!(
+                                sonancelang::parser::[<$name Parser>]::new().parse(x)
+                            );
+                        }
+                    }
                     break;
                 }
-                })*
-            eprintln!("Kind not found.");
+            })*
             break;
         }
     };
 }
 
+fn read_line() -> String {
+    let mut input = String::new();
+    std::io::stdin().read_line(&mut input).unwrap();
+    input.trim().to_string()
+}
+
 fn main() {
-    let mut previous_kind = String::new();
+    let mut kind = read_line();
+
     loop {
-        let mut kind = String::new();
-        std::io::stdin().read_line(&mut kind).unwrap();
-        let mut kind = kind.trim();
-
-        match kind {
-            "exit" => break,
-            "" => kind = &previous_kind,
-            _ => previous_kind = kind.to_string(),
-        }
-
         generate_parser_repl!(
             kind,
             Literal,
