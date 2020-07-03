@@ -1,4 +1,4 @@
-import std::package -> module::item;
+import std::package => module::item;
 import package std::package;
 import module module::item;
 

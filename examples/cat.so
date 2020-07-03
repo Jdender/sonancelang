@@ -1,7 +1,7 @@
 import std::{
-    env -> { args, pwd },
-    fs -> { read_file, path::join },
-    monad -> all_for_one,
+    env => { args, pwd },
+    fs => { read_file, path::join },
+    monad => all_for_one,
 };
 
 func main() -> Future[Void] {
