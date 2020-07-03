@@ -58,17 +58,17 @@ OptionBoxed<T>: OptionBox<T> = (Boxed<T>)?;
 pub Module: Module = Item* => Module { items: <> };
 
 pub Item: Item = {
-    // <ImportItem> ";" => Item::Import(<>),
+    <ImportItem> ";" => Item::Import(<>),
     FunctionItem => Item::Function(<>),
 }
 
-// pub ImportItem: ImportItem = "import" <ImportPath> => ImportItem(<>);
+pub ImportItem: ImportItem = "import" <ImportPath> => ImportItem(<>);
 
-// pub ImportPath: ImportPath = {
-//     ImportPathHead => ImportPath::Normal(<>),
-//     "::" <ImportPathHead> => ImportPath::Special(SpecialScope::Root, <>),
-//     <SpecialScope> "::" <ImportPathHead> => ImportPath::Special(<>),
-// }
+pub ImportPath: ImportPath = {
+    ImportPathHead => ImportPath::Normal(<>),
+    "::" <ImportPathHead> => ImportPath::Special(SpecialScope::Root, <>),
+    <SpecialScope> "::" <ImportPathHead> => ImportPath::Special(<>),
+}
 
 SpecialScope: SpecialScope = {
     "module" => SpecialScope::Module,
@@ -77,20 +77,20 @@ SpecialScope: SpecialScope = {
     "meta" => SpecialScope::Meta,
 }
 
-// ImportPathHead: ImportPathHead = {
-//     Identifier => ImportPathHead::Final(<>),
-//     Identifier ImportPathDelimiter ImportPathTail => ImportPathHead::Next(<>),
-// }
+ImportPathHead: ImportPathHead = {
+    Identifier => ImportPathHead::Final(<>),
+    Identifier ImportPathDelimiter ImportPathTail => ImportPathHead::Next(<>),
+}
 
-// ImportPathDelimiter: ImportPathDelimiter = {
-//     "::" => ImportPathDelimiter::Normal,
-//     "->" => ImportPathDelimiter::Arrow,
-// }
+ImportPathDelimiter: ImportPathDelimiter = {
+    "::" => ImportPathDelimiter::Normal,
+    "->" => ImportPathDelimiter::Arrow,
+}
 
-// ImportPathTail: ImportPathTail = {
-//     Boxed<ImportPathHead> => ImportPathTail::Single(<>),
-//     List<ImportPathHead, ","> => ImportPathTail::Multiple(<>),
-// }
+ImportPathTail: ImportPathTail = {
+    Boxed<ImportPathHead> => ImportPathTail::Single(<>),
+    List<ImportPathHead, ","> => ImportPathTail::Multiple(<>),
+}
 
 pub FunctionItem: FunctionItem =
     "func" <name: Identifier> <arguments: Arguments> <return_type: ("->" <Type>)?> <body: Block>
