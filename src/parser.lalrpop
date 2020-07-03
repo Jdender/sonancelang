@@ -7,7 +7,7 @@ match {
     r"//[^\n\r]*[\n\r]*" => { }, // `// comments`
     r"/\*([^\*]*\*+[^\*/])*([^\*]*\*+|[^\*])*\*/" => { },  // `/* comments */`
 } else {
-    "func", // Items
+    "import", "func", // Items
 
     "let", "match", "if", "else", // Patterns
 
@@ -19,7 +19,9 @@ match {
 
     ",", ";", ":", "::", "->", // Punctuation
 
-    "=" // Operators
+    "=", // Operators
+
+    "as", // Misc
 } else {
     r"[a-zA-Z_][a-zA-Z0-9_]*" => IDENTIFIER,
     r"[-+]?[0-9]+" => INT_LITERAL,
@@ -54,11 +56,14 @@ OptionBoxed<T>: OptionBox<T> = (Boxed<T>)?;
 pub Module: Module = Item* => Module { items: <> };
 
 pub Item: Item = {
+    <ImportItem> ";" => Item::Import(<>),
     FunctionItem => Item::Function(<>),
 }
 
+pub ImportItem: ImportItem = "import" <Path> => ImportItem(<>);
+
 pub Path: Path = {
-    Identifier => Path::End(<>),
+    Identifier ("as" <Identifier>)? => Path::End(<>),
     StarterPath,
 }
 
