@@ -17,7 +17,7 @@ match {
 
     "(", ")", "{", "}", "[", "]", // Parens
 
-    ",", ";", ":", "->", // Punctuation
+    ",", ";", ":", "::", "->", // Punctuation
 
     "=" // Operators
 } else {
@@ -55,6 +55,22 @@ pub Module: Module = Item* => Module { items: <> };
 
 pub Item: Item = {
     FunctionItem => Item::Function(<>),
+}
+
+pub Path: Path = {
+    Identifier => Path::End(<>),
+    StarterPath,
+}
+
+pub StarterPath: Path = {
+    "::" <Path>,
+    <Identifier> "::" <PathKind> => Path::Normal(<>),
+    <Identifier> "->" <PathKind> => Path::Arrow(<>),
+}
+
+PathKind: PathKind = {
+    Boxed<Path> => PathKind::Single(<>),
+    "{" <List<Path, ",">> "}" => PathKind::Multiple(<>),
 }
 
 pub FunctionItem: FunctionItem =

@@ -13,6 +13,19 @@ pub fn parse(input: &str) -> Result<Module, ParseError> {
 pub struct Identifier(pub String);
 
 #[derive(Debug, Clone, PartialEq)]
+pub enum Path {
+    End(Identifier),
+    Normal(Identifier, PathKind),
+    Arrow(Identifier, PathKind),
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum PathKind {
+    Single(Box<Path>),
+    Multiple(Vec<Path>),
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub enum Literal {
     Int(i32),
     Float(f32),

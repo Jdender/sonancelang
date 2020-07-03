@@ -38,6 +38,8 @@ fn main() {
             Identifier,
             Module,
             Item,
+            Path,
+            StarterPath,
             FunctionItem,
             Arguments,
             Type,
