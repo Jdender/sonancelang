@@ -10,7 +10,11 @@ match {
 
     "(", ")", "{", "}", // Parens
 
-    "+", "-", "*", "/", "!", // Operators
+    "+", "-", "*", "/", // Numeric Operators
+
+    "==", "!=", "<", ">", "<=", ">=", // Comparison Operators
+
+    "!", // Boolean Operators
 
     r"[a-zA-Z_]\w*" => IDENTIFIER,
     r"[0-9]+" => INT_LITERAL,
@@ -28,20 +32,35 @@ pub Identifier: Identifier = IDENTIFIER => Identifier(<>.to_string());
 
 pub Expression = ExprPre2;
 
-ExprPre2: Expression = {
-    Boxed<ExprPre2> OpPre2 Boxed<ExprPre1> => Expression::InfixOp(<>),
-    ExprPre1,
+ExprPreN<X, OP, Y>: Expression = {
+    Boxed<X> OP Boxed<Y> => Expression::InfixCall(<>),
+    Y,
 }
+
+ExprPre4 = ExprPreN<ExprPre4, OpPre4, ExprPre3>;
+
+OpPre4: InfixOp = {
+    "==" => InfixOp::Equal,
+    "!="=> InfixOp::NotEqual,
+}
+
+ExprPre3 = ExprPreN<ExprPre3, OpPre3, ExprPre2>;
+
+OpPre3: InfixOp = {
+    ">"=> InfixOp::GreaterThan,
+    "<"=> InfixOp::LessThan,
+    ">="=> InfixOp::GreaterOrEqual,
+    "<="=> InfixOp::LessOrEqual,
+}
+
+ExprPre2 = ExprPreN<ExprPre2, OpPre2, ExprPre1>;
 
 OpPre2: InfixOp = {
     "+" => InfixOp::Add,
     "-" => InfixOp::Subtract,
 }
 
-ExprPre1: Expression = {
-    Boxed<ExprPre1> OpPre1 Boxed<ExprPre0> => Expression::InfixOp(<>),
-    ExprPre0,
-}
+ExprPre1 = ExprPreN<ExprPre1, OpPre1, ExprPre0>;
 
 OpPre1: InfixOp = {
     "*" => InfixOp::Multiply,
@@ -50,7 +69,7 @@ OpPre1: InfixOp = {
 
 ExprPre0: Expression = {
     IntLiteral => Expression::Literal(<>),
-    PrefixOp Boxed<ExprPre0> => Expression::PrefixOp(<>),
+    PrefixOp Boxed<ExprPre0> => Expression::PrefixCall(<>),
 }
 
 PrefixOp: PrefixOp = {

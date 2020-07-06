@@ -32,16 +32,16 @@ impl Display for Identifier {
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expression {
     Literal(i32),
-    PrefixOp(PrefixOp, Box<Expression>),
-    InfixOp(Box<Expression>, InfixOp, Box<Expression>),
+    PrefixCall(PrefixOp, Box<Expression>),
+    InfixCall(Box<Expression>, InfixOp, Box<Expression>),
 }
 
 impl Display for Expression {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
         match self {
             Expression::Literal(num) => write!(f, "{}", num),
-            Expression::PrefixOp(op, expr) => write!(f, "{}{}", op, expr),
-            Expression::InfixOp(x, op, y) => write!(f, "{} {} {}", x, op, y),
+            Expression::PrefixCall(op, expr) => write!(f, "{}{}", op, expr),
+            Expression::InfixCall(x, op, y) => write!(f, "{} {} {}", x, op, y),
         }
     }
 }
@@ -71,6 +71,12 @@ pub enum InfixOp {
     Subtract,
     Multiply,
     Divide,
+    Equal,
+    NotEqual,
+    GreaterThan,
+    LessThan,
+    GreaterOrEqual,
+    LessOrEqual,
 }
 
 impl Display for InfixOp {
@@ -83,6 +89,12 @@ impl Display for InfixOp {
                 InfixOp::Subtract => "-",
                 InfixOp::Multiply => "*",
                 InfixOp::Divide => "/",
+                InfixOp::Equal => "==",
+                InfixOp::NotEqual => "!=",
+                InfixOp::GreaterThan => ">",
+                InfixOp::LessThan => "<",
+                InfixOp::GreaterOrEqual => ">=",
+                InfixOp::LessOrEqual => "<=",
             }
         )
     }

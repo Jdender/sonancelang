@@ -24,8 +24,8 @@ impl AstVisitor for Expression {
     fn visit_ast(&self, (): Self::Argument) -> Self::Return {
         match self {
             Expression::Literal(num) => WasmExpression::Const(*num),
-            Expression::PrefixOp(op, expr) => op.visit_ast(expr.visit_ast(())),
-            Expression::InfixOp(x, op, y) => op.visit_ast((x.visit_ast(()), y.visit_ast(()))),
+            Expression::PrefixCall(op, expr) => op.visit_ast(expr.visit_ast(())),
+            Expression::InfixCall(x, op, y) => op.visit_ast((x.visit_ast(()), y.visit_ast(()))),
         }
     }
 }
@@ -47,11 +47,6 @@ impl AstVisitor for InfixOp {
     type Return = WasmExpression;
 
     fn visit_ast(&self, (x, y): Self::Argument) -> Self::Return {
-        match self {
-            InfixOp::Add => WasmExpression::Add(Box::new(x), Box::new(y)),
-            InfixOp::Subtract => WasmExpression::Subtract(Box::new(x), Box::new(y)),
-            InfixOp::Multiply => WasmExpression::Multiply(Box::new(x), Box::new(y)),
-            InfixOp::Divide => WasmExpression::Divide(Box::new(x), Box::new(y)),
-        }
+        WasmExpression::SimpleInfixCall(Box::new(x), self.clone(), Box::new(y))
     }
 }
