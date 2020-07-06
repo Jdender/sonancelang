@@ -4,9 +4,11 @@ fn compile(_input: &str) {
 
 #[test]
 fn return_int_test() {
-    compile(r"
+    compile(
+        r"
         func main() -> U32 {
             return 1234;
         }
-    ");
+    ",
+    );
 }
