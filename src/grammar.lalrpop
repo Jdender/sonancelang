@@ -6,12 +6,13 @@ grammar;
 match {
     "func", "return", "->", ";",
 
-    "main", "I32",
+    "I32",
 
     "(", ")", "{", "}", // Parens
 
     "-", "!", // Operators
 
+    r"[a-zA-Z_]\w*" => IDENTIFIER,
     r"[0-9]+" => INT_LITERAL,
 }
 
@@ -19,9 +20,11 @@ match {
 Boxed<T>: Box<T> = T => Box::new(<>);
 
 pub File: File =
-    "func" "main" "(" ")" "->" "I32" "{"
+    "func" <Identifier> "(" ")" "->" "I32" "{"
         "return" <Expression> ";"
     "}" => File(<>);
+
+pub Identifier: Identifier = IDENTIFIER => Identifier(<>.to_string());
 
 pub Expression: Expression = {
     IntLiteral => Expression::Literal(<>),

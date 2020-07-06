@@ -1,5 +1,5 @@
 use parity_wasm::{
-    builder::ModuleBuilder,
+    builder::module,
     elements::{BlockType, Instruction, Instructions, Module, ValueType},
 };
 
@@ -11,17 +11,22 @@ pub trait LowLevelVisitor {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct WasmModule(pub WasmExpression);
+pub struct WasmModule(pub String, pub WasmExpression);
 
 impl LowLevelVisitor for WasmModule {
     type Argument = ();
     type Return = Module;
 
     fn visit_lowlevel(&self, (): Self::Argument) -> Self::Return {
-        let mut inst = self.0.visit_lowlevel(());
+        let mut inst = self.1.visit_lowlevel(());
         inst.push(Instruction::End);
 
-        ModuleBuilder::new()
+        module()
+            .export()
+            .field(&self.0)
+            .internal()
+            .func(0)
+            .build()
             .function()
             .signature()
             .return_type()
@@ -66,6 +71,7 @@ impl LowLevelVisitor for WasmExpression {
                     Instruction::I32Const(1),
                     Instruction::Else,
                     Instruction::I32Const(0),
+                    Instruction::End,
                 ]);
                 inst
             }

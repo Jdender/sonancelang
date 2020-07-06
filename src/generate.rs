@@ -13,7 +13,7 @@ impl AstVisitor for File {
     type Return = WasmModule;
 
     fn visit_ast(&self, (): Self::Argument) -> Self::Return {
-        WasmModule(self.0.visit_ast(()))
+        WasmModule(self.0.to_string(), self.1.visit_ast(()))
     }
 }
 
