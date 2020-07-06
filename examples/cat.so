@@ -7,10 +7,10 @@ import std::{
 func main() -> Future[Void] {
     let files = args
         .split(" ")
-        .map(func (?) ->
-            join(pwd(), ?)
+        .map(func (file) {
+            join(pwd(), file)
                 .read_file()
-        )
+        })
         .all_for_one()
         .use;
 
