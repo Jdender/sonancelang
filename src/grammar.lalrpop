@@ -26,9 +26,31 @@ pub File: File =
 
 pub Identifier: Identifier = IDENTIFIER => Identifier(<>.to_string());
 
-pub Expression: Expression = {
+pub Expression = ExprPre2;
+
+ExprPre2: Expression = {
+    Boxed<ExprPre2> OpPre2 Boxed<ExprPre1> => Expression::InfixOp(<>),
+    ExprPre1,
+}
+
+OpPre2: InfixOp = {
+    "+" => InfixOp::Add,
+    "-" => InfixOp::Subtract,
+}
+
+ExprPre1: Expression = {
+    Boxed<ExprPre1> OpPre1 Boxed<ExprPre0> => Expression::InfixOp(<>),
+    ExprPre0,
+}
+
+OpPre1: InfixOp = {
+    "*" => InfixOp::Multiply,
+    "/" => InfixOp::Divide,
+}
+
+ExprPre0: Expression = {
     IntLiteral => Expression::Literal(<>),
-    PrefixOp Boxed<Expression> => Expression::PrefixOp(<>),
+    PrefixOp Boxed<ExprPre0> => Expression::PrefixOp(<>),
 }
 
 PrefixOp: PrefixOp = {

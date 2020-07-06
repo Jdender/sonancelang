@@ -33,13 +33,15 @@ impl Display for Identifier {
 pub enum Expression {
     Literal(i32),
     PrefixOp(PrefixOp, Box<Expression>),
+    InfixOp(Box<Expression>, InfixOp, Box<Expression>),
 }
 
 impl Display for Expression {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
         match self {
             Expression::Literal(num) => write!(f, "{}", num),
-            Expression::PrefixOp(op, num) => write!(f, "{}{}", op, num),
+            Expression::PrefixOp(op, expr) => write!(f, "{}{}", op, expr),
+            Expression::InfixOp(x, op, y) => write!(f, "{} {} {}", x, op, y),
         }
     }
 }
@@ -58,6 +60,29 @@ impl Display for PrefixOp {
             match self {
                 PrefixOp::Negate => "-",
                 PrefixOp::BooleanNot => "!",
+            }
+        )
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum InfixOp {
+    Add,
+    Subtract,
+    Multiply,
+    Divide,
+}
+
+impl Display for InfixOp {
+    fn fmt(&self, f: &mut Formatter) -> FmtResult {
+        write!(
+            f,
+            "{}",
+            match self {
+                InfixOp::Add => "+",
+                InfixOp::Subtract => "-",
+                InfixOp::Multiply => "*",
+                InfixOp::Divide => "/",
             }
         )
     }

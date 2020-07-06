@@ -45,6 +45,10 @@ pub enum WasmExpression {
     Const(i32),
     Negate(Box<WasmExpression>),
     BooleanNot(Box<WasmExpression>),
+    Add(Box<WasmExpression>, Box<WasmExpression>),
+    Subtract(Box<WasmExpression>, Box<WasmExpression>),
+    Multiply(Box<WasmExpression>, Box<WasmExpression>),
+    Divide(Box<WasmExpression>, Box<WasmExpression>),
 }
 
 impl LowLevelVisitor for WasmExpression {
@@ -52,17 +56,17 @@ impl LowLevelVisitor for WasmExpression {
     type Return = Vec<Instruction>;
 
     fn visit_lowlevel(&self, (): Self::Argument) -> Self::Return {
+        let mut inst = Vec::new();
         match self {
-            WasmExpression::Const(num) => vec![Instruction::I32Const(*num)],
+            WasmExpression::Const(num) => {
+                inst.push(Instruction::I32Const(*num));
+            }
             WasmExpression::Negate(expr) => {
-                let mut inst = Vec::new();
                 inst.push(Instruction::I32Const(0));
                 inst.append(&mut expr.visit_lowlevel(()));
                 inst.push(Instruction::I32Sub);
-                inst
             }
             WasmExpression::BooleanNot(expr) => {
-                let mut inst = Vec::new();
                 inst.append(&mut expr.visit_lowlevel(()));
                 inst.append(&mut vec![
                     Instruction::I32Const(0),
@@ -73,8 +77,28 @@ impl LowLevelVisitor for WasmExpression {
                     Instruction::I32Const(0),
                     Instruction::End,
                 ]);
-                inst
+            }
+            WasmExpression::Add(x, y) => {
+                inst.append(&mut x.visit_lowlevel(()));
+                inst.append(&mut y.visit_lowlevel(()));
+                inst.push(Instruction::I32Add);
+            }
+            WasmExpression::Subtract(x, y) => {
+                inst.append(&mut x.visit_lowlevel(()));
+                inst.append(&mut y.visit_lowlevel(()));
+                inst.push(Instruction::I32Sub);
+            }
+            WasmExpression::Multiply(x, y) => {
+                inst.append(&mut x.visit_lowlevel(()));
+                inst.append(&mut y.visit_lowlevel(()));
+                inst.push(Instruction::I32Mul);
+            }
+            WasmExpression::Divide(x, y) => {
+                inst.append(&mut x.visit_lowlevel(()));
+                inst.append(&mut y.visit_lowlevel(()));
+                inst.push(Instruction::I32DivS);
             }
         }
+        inst
     }
 }
