@@ -1,0 +1,21 @@
+use crate::parse::*;
+use std::str::FromStr;
+
+grammar;
+
+match {
+    "func", "return", "->",
+
+    "main", "U32",
+
+    "(", ")", "{", "}", // Parens
+
+    "[0-9]+" => INT_LITERAL,
+}
+
+pub File: File =
+    "func" "main" "(" ")" "->" "U32" "{"
+        "return" <IntLiteral>
+    "}" => File(<>);
+
+pub IntLiteral: u32 = INT_LITERAL => u32::from_str(<>).unwrap();
