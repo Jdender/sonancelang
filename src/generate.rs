@@ -1,8 +1,5 @@
+use crate::lowlevel::*;
 use crate::parse::*;
-use parity_wasm::{
-    builder::ModuleBuilder,
-    elements::{Instruction, Instructions, Module},
-};
 
 pub trait AstVisitor {
     type Argument;
@@ -13,22 +10,33 @@ pub trait AstVisitor {
 
 impl AstVisitor for File {
     type Argument = ();
-    type Return = Module;
+    type Return = WasmModule;
 
     fn visit_ast(&self, (): Self::Argument) -> Self::Return {
-        ModuleBuilder::new()
-            .function()
-            .signature()
-            .return_type()
-            .i32()
-            .build()
-            .body()
-            .with_instructions(Instructions::new(vec![
-                Instruction::I32Const(self.0),
-                Instruction::End,
-            ]))
-            .build()
-            .build()
-            .build()
+        WasmModule(self.0.visit_ast(()))
+    }
+}
+
+impl AstVisitor for Expression {
+    type Argument = ();
+    type Return = WasmExpression;
+
+    fn visit_ast(&self, (): Self::Argument) -> Self::Return {
+        match self {
+            Expression::Literal(num) => WasmExpression::Const(*num),
+            Expression::UnaryOp(op, expr) => op.visit_ast(expr.visit_ast(())),
+        }
+    }
+}
+
+impl AstVisitor for UnaryOp {
+    type Argument = WasmExpression;
+    type Return = WasmExpression;
+
+    fn visit_ast(&self, expr: Self::Argument) -> Self::Return {
+        match self {
+            UnaryOp::Negate => WasmExpression::Negate(Box::new(expr)),
+            UnaryOp::BooleanNot => WasmExpression::BooleanNot(Box::new(expr)),
+        }
     }
 }

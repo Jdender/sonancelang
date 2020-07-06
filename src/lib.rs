@@ -7,9 +7,11 @@ lalrpop_mod!(pub grammar);
 mod test;
 
 pub mod generate;
+pub mod lowlevel;
 pub mod parse;
 
 use generate::AstVisitor;
+use lowlevel::LowLevelVisitor;
 use parse::ParseError;
 
 use parity_wasm::elements::Module;
@@ -31,7 +33,7 @@ pub fn compile(input: &str) -> Result<CompilerOutput, CompilerError> {
         .map_err(CompilerError::ParseError)?;
 
     Ok(CompilerOutput {
-        wasm: parsed.visit_ast(()),
+        wasm: parsed.visit_ast(()).visit_lowlevel(()),
         formatted: parsed.to_string(),
     })
 }
