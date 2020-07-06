@@ -78,6 +78,9 @@ pub enum InfixOp {
     LessThan,
     GreaterOrEqual,
     LessOrEqual,
+
+    BooleanOr,
+    BooleanAnd,
 }
 
 impl Display for InfixOp {
@@ -97,6 +100,9 @@ impl Display for InfixOp {
                 InfixOp::LessThan => "<",
                 InfixOp::GreaterOrEqual => ">=",
                 InfixOp::LessOrEqual => "<=",
+
+                InfixOp::BooleanOr => "||",
+                InfixOp::BooleanAnd => "&&",
             }
         )
     }

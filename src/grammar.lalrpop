@@ -14,7 +14,7 @@ match {
 
     "==", "!=", "<", ">", "<=", ">=", // Comparison Operators
 
-    "!", // Boolean Operators
+    "!", "||", "&&", // Boolean Operators
 
     r"[a-zA-Z_]\w*" => IDENTIFIER,
     r"[0-9]+" => INT_LITERAL,
@@ -30,11 +30,23 @@ pub File: File =
 
 pub Identifier: Identifier = IDENTIFIER => Identifier(<>.to_string());
 
-pub Expression = ExprPre2;
+pub Expression = ExprPre6;
 
 ExprPreN<X, OP, Y>: Expression = {
     Boxed<X> OP Boxed<Y> => Expression::InfixCall(<>),
     Y,
+}
+
+ExprPre6 = ExprPreN<ExprPre6, OpPre6, ExprPre5>;
+
+OpPre6: InfixOp = {
+    "||" => InfixOp::BooleanOr,
+}
+
+ExprPre5 = ExprPreN<ExprPre5, OpPre5, ExprPre4>;
+
+OpPre5: InfixOp = {
+    "&&" => InfixOp::BooleanAnd,
 }
 
 ExprPre4 = ExprPreN<ExprPre4, OpPre4, ExprPre3>;

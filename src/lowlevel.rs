@@ -46,6 +46,8 @@ pub enum WasmExpression {
     SimpleInfixCall(Box<WasmExpression>, WasmSimpleInfix, Box<WasmExpression>),
     Negate(Box<WasmExpression>),
     BooleanNot(Box<WasmExpression>),
+    BooleanOr(Box<WasmExpression>, Box<WasmExpression>),
+    BooleanAnd(Box<WasmExpression>, Box<WasmExpression>),
 }
 
 impl LowLevelVisitor for WasmExpression {
@@ -71,14 +73,19 @@ impl LowLevelVisitor for WasmExpression {
             WasmExpression::BooleanNot(expr) => {
                 inst.append(&mut expr.visit_lowlevel(()));
                 inst.append(&mut vec![
-                    Instruction::I32Const(0),
-                    Instruction::I32Eq,
+                    Instruction::I32Eqz,
                     Instruction::If(BlockType::Value(ValueType::I32)),
                     Instruction::I32Const(1),
                     Instruction::Else,
                     Instruction::I32Const(0),
                     Instruction::End,
                 ]);
+            }
+            WasmExpression::BooleanOr(x, y) => {
+                unimplemented!();
+            }
+            WasmExpression::BooleanAnd(x, y) => {
+                unimplemented!();
             }
         }
         inst

@@ -47,22 +47,25 @@ impl AstVisitor for InfixOp {
     type Return = WasmExpression;
 
     fn visit_ast(&self, (x, y): Self::Argument) -> Self::Return {
-        WasmExpression::SimpleInfixCall(
-            Box::new(x),
-            match self {
-                InfixOp::Add => WasmSimpleInfix::Add,
-                InfixOp::Subtract => WasmSimpleInfix::Subtract,
-                InfixOp::Multiply => WasmSimpleInfix::Multiply,
-                InfixOp::Divide => WasmSimpleInfix::Divide,
+        let x = Box::new(x);
+        let y = Box::new(y);
+        let helper = |op| WasmExpression::SimpleInfixCall(x.clone(), op, y.clone());
 
-                InfixOp::Equal => WasmSimpleInfix::Equal,
-                InfixOp::NotEqual => WasmSimpleInfix::NotEqual,
-                InfixOp::GreaterThan => WasmSimpleInfix::GreaterThan,
-                InfixOp::LessThan => WasmSimpleInfix::LessThan,
-                InfixOp::GreaterOrEqual => WasmSimpleInfix::GreaterOrEqual,
-                InfixOp::LessOrEqual => WasmSimpleInfix::LessOrEqual,
-            },
-            Box::new(y),
-        )
+        match self {
+            InfixOp::Add => helper(WasmSimpleInfix::Add),
+            InfixOp::Subtract => helper(WasmSimpleInfix::Subtract),
+            InfixOp::Multiply => helper(WasmSimpleInfix::Multiply),
+            InfixOp::Divide => helper(WasmSimpleInfix::Divide),
+
+            InfixOp::Equal => helper(WasmSimpleInfix::Equal),
+            InfixOp::NotEqual => helper(WasmSimpleInfix::NotEqual),
+            InfixOp::GreaterThan => helper(WasmSimpleInfix::GreaterThan),
+            InfixOp::LessThan => helper(WasmSimpleInfix::LessThan),
+            InfixOp::GreaterOrEqual => helper(WasmSimpleInfix::GreaterOrEqual),
+            InfixOp::LessOrEqual => helper(WasmSimpleInfix::LessOrEqual),
+
+            InfixOp::BooleanOr => WasmExpression::BooleanOr(x, y),
+            InfixOp::BooleanAnd => WasmExpression::BooleanAnd(x, y),
+        }
     }
 }
