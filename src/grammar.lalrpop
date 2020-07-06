@@ -4,18 +4,18 @@ use std::str::FromStr;
 grammar;
 
 match {
-    "func", "return", "->",
+    "func", "return", "->", ";",
 
     "main", "I32",
 
     "(", ")", "{", "}", // Parens
 
-    "[0-9]+" => INT_LITERAL,
+    r"[0-9]+" => INT_LITERAL,
 }
 
 pub File: File =
     "func" "main" "(" ")" "->" "I32" "{"
-        "return" <IntLiteral>
+        "return" <IntLiteral> ";"
     "}" => File(<>);
 
 pub IntLiteral: i32 = INT_LITERAL => i32::from_str(<>).unwrap();

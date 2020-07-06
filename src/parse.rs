@@ -2,6 +2,7 @@ use lalrpop_util::lexer::Token;
 
 pub type ParseError<'a> = lalrpop_util::ParseError<usize, Token<'a>, &'a str>;
 
+#[derive(Debug, Clone, PartialEq)]
 pub struct File(pub i32);
 
 use std::fmt::{Display, Formatter, Result as FmtResult};

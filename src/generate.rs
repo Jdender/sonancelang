@@ -23,7 +23,10 @@ impl AstVisitor for File {
             .i32()
             .build()
             .body()
-            .with_instructions(Instructions::new(vec![Instruction::I32Const(self.0)]))
+            .with_instructions(Instructions::new(vec![
+                Instruction::I32Const(self.0),
+                Instruction::End,
+            ]))
             .build()
             .build()
             .build()

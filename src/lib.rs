@@ -14,6 +14,7 @@ use parse::ParseError;
 
 use parity_wasm::elements::Module;
 
+#[derive(Debug, Clone, PartialEq)]
 pub enum CompilerError<'input> {
     ParseError(ParseError<'input>),
 }
