@@ -6,7 +6,7 @@ fn compile(_input: &str) {
 fn return_int_test() {
     compile(
         r"
-        func main() -> U32 {
+        func main() -> I32 {
             return 1234;
         }
     ",

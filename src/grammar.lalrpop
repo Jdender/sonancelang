@@ -6,7 +6,7 @@ grammar;
 match {
     "func", "return", "->",
 
-    "main", "U32",
+    "main", "I32",
 
     "(", ")", "{", "}", // Parens
 
@@ -14,8 +14,8 @@ match {
 }
 
 pub File: File =
-    "func" "main" "(" ")" "->" "U32" "{"
+    "func" "main" "(" ")" "->" "I32" "{"
         "return" <IntLiteral>
     "}" => File(<>);
 
-pub IntLiteral: u32 = INT_LITERAL => u32::from_str(<>).unwrap();
+pub IntLiteral: i32 = INT_LITERAL => i32::from_str(<>).unwrap();
