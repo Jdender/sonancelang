@@ -71,6 +71,7 @@ pub enum InfixOp {
     Subtract,
     Multiply,
     Divide,
+
     Equal,
     NotEqual,
     GreaterThan,
@@ -89,6 +90,7 @@ impl Display for InfixOp {
                 InfixOp::Subtract => "-",
                 InfixOp::Multiply => "*",
                 InfixOp::Divide => "/",
+
                 InfixOp::Equal => "==",
                 InfixOp::NotEqual => "!=",
                 InfixOp::GreaterThan => ">",

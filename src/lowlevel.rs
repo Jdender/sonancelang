@@ -1,4 +1,3 @@
-use crate::parse::InfixOp;
 use parity_wasm::{
     builder::module,
     elements::{BlockType, Instruction, Instructions, Module, ValueType},
@@ -44,9 +43,9 @@ impl LowLevelVisitor for WasmModule {
 #[derive(Debug, Clone, PartialEq)]
 pub enum WasmExpression {
     Const(i32),
+    SimpleInfixCall(Box<WasmExpression>, WasmSimpleInfix, Box<WasmExpression>),
     Negate(Box<WasmExpression>),
     BooleanNot(Box<WasmExpression>),
-    SimpleInfixCall(Box<WasmExpression>, InfixOp, Box<WasmExpression>),
 }
 
 impl LowLevelVisitor for WasmExpression {
@@ -58,6 +57,11 @@ impl LowLevelVisitor for WasmExpression {
         match self {
             WasmExpression::Const(num) => {
                 inst.push(Instruction::I32Const(*num));
+            }
+            WasmExpression::SimpleInfixCall(x, op, y) => {
+                inst.append(&mut x.visit_lowlevel(()));
+                inst.append(&mut y.visit_lowlevel(()));
+                inst.push(op.visit_lowlevel(()));
             }
             WasmExpression::Negate(expr) => {
                 inst.push(Instruction::I32Const(0));
@@ -76,32 +80,43 @@ impl LowLevelVisitor for WasmExpression {
                     Instruction::End,
                 ]);
             }
-            WasmExpression::SimpleInfixCall(x, op, y) => {
-                inst.append(&mut x.visit_lowlevel(()));
-                inst.append(&mut y.visit_lowlevel(()));
-                inst.push(op.visit_lowlevel(()));
-            }
         }
         inst
     }
 }
 
-impl LowLevelVisitor for InfixOp {
+#[derive(Debug, Clone, PartialEq)]
+pub enum WasmSimpleInfix {
+    Add,
+    Subtract,
+    Multiply,
+    Divide,
+
+    Equal,
+    NotEqual,
+    GreaterThan,
+    LessThan,
+    GreaterOrEqual,
+    LessOrEqual,
+}
+
+impl LowLevelVisitor for WasmSimpleInfix {
     type Argument = ();
     type Return = Instruction;
 
     fn visit_lowlevel(&self, (): Self::Argument) -> Self::Return {
         match self {
-            InfixOp::Add => Instruction::I32Add,
-            InfixOp::Subtract => Instruction::I32Sub,
-            InfixOp::Multiply => Instruction::I32Mul,
-            InfixOp::Divide => Instruction::I32DivS,
-            InfixOp::Equal => Instruction::I32Eq,
-            InfixOp::NotEqual => Instruction::I32Ne,
-            InfixOp::GreaterThan => Instruction::I32GtS,
-            InfixOp::LessThan => Instruction::I32LtS,
-            InfixOp::GreaterOrEqual => Instruction::I32GeS,
-            InfixOp::LessOrEqual => Instruction::I32LeS,
+            WasmSimpleInfix::Add => Instruction::I32Add,
+            WasmSimpleInfix::Subtract => Instruction::I32Sub,
+            WasmSimpleInfix::Multiply => Instruction::I32Mul,
+            WasmSimpleInfix::Divide => Instruction::I32DivS,
+
+            WasmSimpleInfix::Equal => Instruction::I32Eq,
+            WasmSimpleInfix::NotEqual => Instruction::I32Ne,
+            WasmSimpleInfix::GreaterThan => Instruction::I32GtS,
+            WasmSimpleInfix::LessThan => Instruction::I32LtS,
+            WasmSimpleInfix::GreaterOrEqual => Instruction::I32GeS,
+            WasmSimpleInfix::LessOrEqual => Instruction::I32LeS,
         }
     }
 }

@@ -47,6 +47,22 @@ impl AstVisitor for InfixOp {
     type Return = WasmExpression;
 
     fn visit_ast(&self, (x, y): Self::Argument) -> Self::Return {
-        WasmExpression::SimpleInfixCall(Box::new(x), self.clone(), Box::new(y))
+        WasmExpression::SimpleInfixCall(
+            Box::new(x),
+            match self {
+                InfixOp::Add => WasmSimpleInfix::Add,
+                InfixOp::Subtract => WasmSimpleInfix::Subtract,
+                InfixOp::Multiply => WasmSimpleInfix::Multiply,
+                InfixOp::Divide => WasmSimpleInfix::Divide,
+
+                InfixOp::Equal => WasmSimpleInfix::Equal,
+                InfixOp::NotEqual => WasmSimpleInfix::NotEqual,
+                InfixOp::GreaterThan => WasmSimpleInfix::GreaterThan,
+                InfixOp::LessThan => WasmSimpleInfix::LessThan,
+                InfixOp::GreaterOrEqual => WasmSimpleInfix::GreaterOrEqual,
+                InfixOp::LessOrEqual => WasmSimpleInfix::LessOrEqual,
+            },
+            Box::new(y),
+        )
     }
 }
