@@ -10,7 +10,7 @@ match {
 
     "(", ")", "{", "}", // Parens
 
-    "-", "!", // Operators
+    "+", "-", "*", "/", "!", // Operators
 
     r"[a-zA-Z_]\w*" => IDENTIFIER,
     r"[0-9]+" => INT_LITERAL,
@@ -28,12 +28,12 @@ pub Identifier: Identifier = IDENTIFIER => Identifier(<>.to_string());
 
 pub Expression: Expression = {
     IntLiteral => Expression::Literal(<>),
-    UnaryOp Boxed<Expression> => Expression::UnaryOp(<>),
+    PrefixOp Boxed<Expression> => Expression::PrefixOp(<>),
 }
 
-UnaryOp: UnaryOp = {
-    "-" => UnaryOp::Negate,
-    "!" => UnaryOp::BooleanNot,
+PrefixOp: PrefixOp = {
+    "-" => PrefixOp::Negate,
+    "!" => PrefixOp::BooleanNot,
 }
 
 pub IntLiteral: i32 = INT_LITERAL => i32::from_str(<>).unwrap();

@@ -24,19 +24,19 @@ impl AstVisitor for Expression {
     fn visit_ast(&self, (): Self::Argument) -> Self::Return {
         match self {
             Expression::Literal(num) => WasmExpression::Const(*num),
-            Expression::UnaryOp(op, expr) => op.visit_ast(expr.visit_ast(())),
+            Expression::PrefixOp(op, expr) => op.visit_ast(expr.visit_ast(())),
         }
     }
 }
 
-impl AstVisitor for UnaryOp {
+impl AstVisitor for PrefixOp {
     type Argument = WasmExpression;
     type Return = WasmExpression;
 
     fn visit_ast(&self, expr: Self::Argument) -> Self::Return {
         match self {
-            UnaryOp::Negate => WasmExpression::Negate(Box::new(expr)),
-            UnaryOp::BooleanNot => WasmExpression::BooleanNot(Box::new(expr)),
+            PrefixOp::Negate => WasmExpression::Negate(Box::new(expr)),
+            PrefixOp::BooleanNot => WasmExpression::BooleanNot(Box::new(expr)),
         }
     }
 }

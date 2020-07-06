@@ -32,32 +32,32 @@ impl Display for Identifier {
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expression {
     Literal(i32),
-    UnaryOp(UnaryOp, Box<Expression>),
+    PrefixOp(PrefixOp, Box<Expression>),
 }
 
 impl Display for Expression {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
         match self {
             Expression::Literal(num) => write!(f, "{}", num),
-            Expression::UnaryOp(op, num) => write!(f, "{}{}", op, num),
+            Expression::PrefixOp(op, num) => write!(f, "{}{}", op, num),
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum UnaryOp {
+pub enum PrefixOp {
     Negate,
     BooleanNot,
 }
 
-impl Display for UnaryOp {
+impl Display for PrefixOp {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
         write!(
             f,
             "{}",
             match self {
-                UnaryOp::Negate => "-",
-                UnaryOp::BooleanNot => "!",
+                PrefixOp::Negate => "-",
+                PrefixOp::BooleanNot => "!",
             }
         )
     }
