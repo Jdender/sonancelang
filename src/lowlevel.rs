@@ -82,10 +82,28 @@ impl LowLevelVisitor for WasmExpression {
                 ]);
             }
             WasmExpression::BooleanOr(x, y) => {
-                unimplemented!();
+                inst.append(&mut x.visit_lowlevel(()));
+                inst.append(&mut vec![
+                    Instruction::I32Eqz,
+                    Instruction::If(BlockType::Value(ValueType::I32)),
+                ]);
+                inst.append(&mut y.visit_lowlevel(()));
+                inst.append(&mut vec![
+                    Instruction::Else,
+                    Instruction::I32Const(1),
+                    Instruction::End,
+                ]);
             }
             WasmExpression::BooleanAnd(x, y) => {
-                unimplemented!();
+                inst.append(&mut x.visit_lowlevel(()));
+                inst.append(&mut vec![
+                    Instruction::I32Eqz,
+                    Instruction::If(BlockType::Value(ValueType::I32)),
+                    Instruction::I32Const(0),
+                    Instruction::Else,
+                ]);
+                inst.append(&mut y.visit_lowlevel(()));
+                inst.push(Instruction::End);
             }
         }
         inst
