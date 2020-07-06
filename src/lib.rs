@@ -15,13 +15,23 @@ use parse::ParseError;
 use parity_wasm::elements::Module;
 
 #[derive(Debug, Clone, PartialEq)]
+pub struct CompilerOutput {
+    pub wasm: Module,
+    pub formatted: String,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub enum CompilerError<'input> {
     ParseError(ParseError<'input>),
 }
 
-pub fn compile(input: &str) -> Result<Module, CompilerError> {
-    Ok(grammar::FileParser::new()
+pub fn compile(input: &str) -> Result<CompilerOutput, CompilerError> {
+    let parsed = grammar::FileParser::new()
         .parse(input)
-        .map_err(CompilerError::ParseError)?
-        .visit_ast(()))
+        .map_err(CompilerError::ParseError)?;
+
+    Ok(CompilerOutput {
+        wasm: parsed.visit_ast(()),
+        formatted: parsed.to_string(),
+    })
 }
