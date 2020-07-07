@@ -43,6 +43,7 @@ impl LowLevelVisitor for WasmModule {
 #[derive(Debug, Clone, PartialEq)]
 pub enum WasmExpression {
     Const(i32),
+    Return(Box<WasmExpression>),
     SimpleInfixCall(Box<WasmExpression>, WasmSimpleInfix, Box<WasmExpression>),
     Negate(Box<WasmExpression>),
     BooleanNot(Box<WasmExpression>),
@@ -54,11 +55,15 @@ impl LowLevelVisitor for WasmExpression {
     type Argument = ();
     type Return = Vec<Instruction>;
 
-    fn visit_lowlevel(&self, (): Self::Argument) -> Self::Return {
+    fn visit_lowlevel(&self, (): Self::Argument) -> <Self as LowLevelVisitor>::Return {
         let mut inst = Vec::new();
         match self {
             WasmExpression::Const(num) => {
                 inst.push(Instruction::I32Const(*num));
+            }
+            WasmExpression::Return(expr) => {
+                inst.append(&mut expr.visit_lowlevel(()));
+                inst.push(Instruction::Return);
             }
             WasmExpression::SimpleInfixCall(x, op, y) => {
                 inst.append(&mut x.visit_lowlevel(()));

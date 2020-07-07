@@ -23,7 +23,7 @@ impl AstVisitor for Statement {
 
     fn visit_ast(&self, (): Self::Argument) -> <Self as AstVisitor>::Return {
         match self {
-            Statement::Return(expr) => expr.visit_ast(()),
+            Statement::Return(expr) => WasmExpression::Return(Box::new(expr.visit_ast(()))),
         }
     }
 }
