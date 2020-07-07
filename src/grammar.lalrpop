@@ -31,10 +31,13 @@ pub File: File =
 pub Identifier: Identifier = IDENTIFIER => Identifier(<>.to_string());
 
 pub Statement: Statement = {
-    "return" <Expression> ";" => Statement::Return(<>),
+    <Expression> ";" => Statement::Expression(<>),
 }
 
-pub Expression = ExprPre6;
+pub Expression = {
+    "return" <Boxed<Expression>> => Expression::Return(<>),
+    ExprPre6,
+}
 
 ExprPreN<X, OP, Y>: Expression = {
     Boxed<X> OP Boxed<Y> => Expression::InfixCall(<>),
@@ -84,9 +87,10 @@ OpPre1: InfixOp = {
 }
 
 ExprPre0: Expression = {
-    "(" <Expression> ")",
-    IntLiteral => Expression::Literal(<>),
     PrefixOp Boxed<ExprPre0> => Expression::PrefixCall(<>),
+    "(" <Expression> ")",
+
+    IntLiteral => Expression::Literal(<>),
 }
 
 PrefixOp: PrefixOp = {

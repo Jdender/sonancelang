@@ -32,13 +32,13 @@ impl Display for Identifier {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Statement {
-    Return(Expression),
+    Expression(Expression),
 }
 
 impl Display for Statement {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
         match self {
-            Statement::Return(expr) => write!(f, "return {};", expr),
+            Statement::Expression(expr) => write!(f, "{};", expr),
         }
     }
 }
@@ -46,6 +46,7 @@ impl Display for Statement {
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expression {
     Literal(i32),
+    Return(Box<Expression>),
     PrefixCall(PrefixOp, Box<Expression>),
     InfixCall(Box<Expression>, InfixOp, Box<Expression>),
 }
@@ -54,6 +55,7 @@ impl Display for Expression {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
         match self {
             Expression::Literal(num) => write!(f, "{}", num),
+            Expression::Return(expr) => write!(f, "return {}", expr),
             Expression::PrefixCall(op, expr) => write!(f, "{}{}", op, expr),
             Expression::InfixCall(x, op, y) => write!(f, "{} {} {}", x, op, y),
         }

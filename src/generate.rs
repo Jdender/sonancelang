@@ -24,9 +24,9 @@ impl AstVisitor for Statement {
     type Argument = ();
     type Return = WasmExpression;
 
-    fn visit_ast(&self, (): Self::Argument) -> <Self as AstVisitor>::Return {
+    fn visit_ast(&self, (): Self::Argument) -> Self::Return {
         match self {
-            Statement::Return(expr) => WasmExpression::Return(Box::new(expr.visit_ast(()))),
+            Statement::Expression(expr) => expr.visit_ast(()),
         }
     }
 }
@@ -35,9 +35,10 @@ impl AstVisitor for Expression {
     type Argument = ();
     type Return = WasmExpression;
 
-    fn visit_ast(&self, (): Self::Argument) -> Self::Return {
+    fn visit_ast(&self, (): Self::Argument) -> <Self as AstVisitor>::Return {
         match self {
             Expression::Literal(num) => WasmExpression::Const(*num),
+            Expression::Return(expr) => WasmExpression::Return(Box::new(expr.visit_ast(()))),
             Expression::PrefixCall(op, expr) => op.visit_ast(expr.visit_ast(())),
             Expression::InfixCall(x, op, y) => op.visit_ast((x.visit_ast(()), y.visit_ast(()))),
         }
