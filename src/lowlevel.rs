@@ -11,19 +11,26 @@ pub trait LowLevelVisitor {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct WasmModule(pub String, pub WasmExpression);
+pub struct WasmModule {
+    pub name: String,
+    pub body: Vec<WasmExpression>,
+}
 
 impl LowLevelVisitor for WasmModule {
     type Argument = ();
     type Return = Module;
 
     fn visit_lowlevel(&self, (): Self::Argument) -> Self::Return {
-        let mut inst = self.1.visit_lowlevel(());
-        inst.push(Instruction::End);
+        let inst = self
+            .body
+            .iter()
+            .flat_map(|expr| expr.visit_lowlevel(()))
+            .chain(std::iter::once(Instruction::End))
+            .collect();
 
         module()
             .export()
-            .field(&self.0)
+            .field(&self.name)
             .internal()
             .func(0)
             .build()

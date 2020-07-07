@@ -6,20 +6,18 @@ pub type ParseError<'a> = lalrpop_util::ParseError<usize, Token<'a>, &'a str>;
 #[derive(Debug, Clone, PartialEq)]
 pub struct File {
     pub name: Identifier,
-    pub body: Statement,
+    pub body: Vec<Statement>,
 }
 
 impl Display for File {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        write!(
-            f,
-            r"
-                func {}() -> I32 {{
-                    return {};
-                }}
-            ",
-            self.name, self.body,
-        )
+        let body = self
+            .body
+            .iter()
+            .map(|smt| format!("{:indent$}{}\n", "   ", smt, indent = 4))
+            .collect::<String>();
+
+        write!(f, "func {}() -> I32 {{\n{}}}\n", self.name, body,)
     }
 }
 
