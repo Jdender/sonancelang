@@ -35,12 +35,23 @@ fn process_int_helper(cases: Vec<(i32, &str)>) {
 }
 
 #[test]
-fn process_int_test() {
+fn process_numeric_expressions() {
     process_int_helper(vec![
         (12345, "12345"),
         (-308, "20 + 56 - 32 * 72 / 6"),
-        (1, "123 || 0"),
-        (456, "123 && 456"),
-        (0, "!0 && !1"),
+        (151201, "(231 * (1321 - 12) + 23) / 2"),
     ]);
+}
+
+#[test]
+fn process_boolean_expressions() {
+    process_int_helper(vec![
+        (1, "123 || 0"),
+        (0, "!0 && !1"),
+        (456, "123 && 456"),
+        (1, "123 || (return 456)"),
+        (456, "0 || (return 456)"),
+        (0, "0 && 456"),
+        (456, "1 && (return 456)"),
+    ])
 }
