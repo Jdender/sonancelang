@@ -20,18 +20,27 @@ fn compile_and_run(input: &str) -> i32 {
     }
 }
 
-fn compile_run_eq(num: i32, input: &str) {
-    assert_eq!(num, compile_and_run(input));
+fn process_int_helper(cases: Vec<(i32, &str)>) {
+    for (num, input) in cases {
+        assert_eq!(
+            num,
+            compile_and_run(&format!(
+                "func main() -> I32 {{
+                    return {};
+                }}",
+                input
+            ))
+        );
+    }
 }
 
 #[test]
-fn return_int_test() {
-    compile_run_eq(
-        1234,
-        r"
-             func main() -> I32 {
-                return 1234;
-            }
-        ",
-    );
+fn process_int_test() {
+    process_int_helper(vec![
+        (12345, "12345"),
+        (-308, "20 + 56 - 32 * 72 / 6"),
+        (1, "123 || 0"),
+        (456, "123 && 456"),
+        (0, "!0 && !1"),
+    ]);
 }
