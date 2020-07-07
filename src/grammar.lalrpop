@@ -24,11 +24,15 @@ match {
 Boxed<T>: Box<T> = T => Box::new(<>);
 
 pub File: File =
-    "func" <Identifier> "(" ")" "->" "I32" "{"
-        "return" <Expression> ";"
-    "}" => File(<>);
+    "func" <name: Identifier> "(" ")" "->" "I32" "{"
+        <body: Statement>
+    "}" => File { <> };
 
 pub Identifier: Identifier = IDENTIFIER => Identifier(<>.to_string());
+
+pub Statement: Statement = {
+    "return" <Expression> ";" => Statement::Return(<>),
+}
 
 pub Expression = ExprPre6;
 

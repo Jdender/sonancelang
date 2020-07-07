@@ -4,7 +4,10 @@ use std::fmt::{Display, Formatter, Result as FmtResult};
 pub type ParseError<'a> = lalrpop_util::ParseError<usize, Token<'a>, &'a str>;
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct File(pub Identifier, pub Expression);
+pub struct File {
+    pub name: Identifier,
+    pub body: Statement,
+}
 
 impl Display for File {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
@@ -15,7 +18,7 @@ impl Display for File {
                     return {};
                 }}
             ",
-            self.0, self.1,
+            self.name, self.body,
         )
     }
 }
@@ -26,6 +29,19 @@ pub struct Identifier(pub String);
 impl Display for Identifier {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
         write!(f, r"{}", self.0)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum Statement {
+    Return(Expression),
+}
+
+impl Display for Statement {
+    fn fmt(&self, f: &mut Formatter) -> FmtResult {
+        match self {
+            Statement::Return(expr) => write!(f, "return {};", expr),
+        }
     }
 }
 
