@@ -80,6 +80,7 @@ OpPre1: InfixOp = {
 }
 
 ExprPre0: Expression = {
+    "(" <Expression> ")",
     IntLiteral => Expression::Literal(<>),
     PrefixOp Boxed<ExprPre0> => Expression::PrefixCall(<>),
 }
