@@ -26,7 +26,9 @@ impl AstVisitor for Statement {
 
     fn visit_ast(&self, (): Self::Argument) -> Self::Return {
         match self {
-            Statement::LetBinding(..) => unimplemented!(),
+            Statement::LetBinding(name, expr) => {
+                WasmExpression::LocalDeclare(name.to_string(), Box::new(expr.visit_ast(())))
+            }
             Statement::Expression(expr) => expr.visit_ast(()),
         }
     }
@@ -39,7 +41,7 @@ impl AstVisitor for Expression {
     fn visit_ast(&self, (): Self::Argument) -> <Self as AstVisitor>::Return {
         match self {
             Expression::Literal(num) => WasmExpression::Const(*num),
-            Expression::Lookup(..) => unimplemented!(),
+            Expression::Lookup(name) => WasmExpression::LocalGet(name.to_string()),
             Expression::Return(expr) => WasmExpression::Return(Box::new(expr.visit_ast(()))),
             Expression::PrefixCall(op, expr) => op.visit_ast(expr.visit_ast(())),
             Expression::InfixCall(x, op, y) => op.visit_ast((x.visit_ast(()), y.visit_ast(()))),

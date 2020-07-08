@@ -1,13 +1,13 @@
 use parity_wasm::{
     builder::module,
-    elements::{BlockType, Instruction, Instructions, Module, ValueType},
+    elements::{BlockType, Instruction, Instructions, Local, Module, ValueType},
 };
 
 pub trait LowLevelVisitor {
     type Argument;
     type Return;
 
-    fn visit_lowlevel(&self, args: Self::Argument) -> Self::Return;
+    fn visit_lowlevel(self, args: Self::Argument) -> Self::Return;
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -20,13 +20,17 @@ impl LowLevelVisitor for WasmModule {
     type Argument = ();
     type Return = Module;
 
-    fn visit_lowlevel(&self, (): Self::Argument) -> Self::Return {
-        let inst = self
-            .body
-            .iter()
-            .flat_map(|expr| expr.visit_lowlevel(()))
-            .chain(std::iter::once(Instruction::End))
-            .collect();
+    fn visit_lowlevel(self, (): Self::Argument) -> Self::Return {
+        let mut inst = Vec::new();
+        let mut locals = Vec::new();
+
+        for stmt in self.body {
+            let mut stmt = stmt.visit_lowlevel(locals);
+            inst.append(&mut stmt.0);
+            locals = stmt.1;
+        }
+
+        inst.push(Instruction::End);
 
         module()
             .export()
@@ -40,6 +44,7 @@ impl LowLevelVisitor for WasmModule {
             .i32()
             .build()
             .body()
+            .with_locals(vec![Local::new(locals.len() as u32, ValueType::I32)])
             .with_instructions(Instructions::new(inst))
             .build()
             .build()
@@ -50,6 +55,9 @@ impl LowLevelVisitor for WasmModule {
 #[derive(Debug, Clone, PartialEq)]
 pub enum WasmExpression {
     Const(i32),
+    LocalGet(String),
+    LocalDeclare(String, Box<WasmExpression>),
+    LocalSet(String, Box<WasmExpression>),
     Return(Box<WasmExpression>),
     SimpleInfixCall(Box<WasmExpression>, WasmSimpleInfix, Box<WasmExpression>),
     Negate(Box<WasmExpression>),
@@ -59,31 +67,76 @@ pub enum WasmExpression {
 }
 
 impl LowLevelVisitor for WasmExpression {
-    type Argument = ();
-    type Return = Vec<Instruction>;
+    type Argument = Vec<String>;
+    type Return = (Vec<Instruction>, Vec<String>);
 
-    fn visit_lowlevel(&self, (): Self::Argument) -> <Self as LowLevelVisitor>::Return {
+    fn visit_lowlevel(self, mut locals: Self::Argument) -> <Self as LowLevelVisitor>::Return {
         let mut inst = Vec::new();
-        match self {
+        let locals = match self {
             WasmExpression::Const(num) => {
-                inst.push(Instruction::I32Const(*num));
+                inst.push(Instruction::I32Const(num));
+                locals
+            }
+            WasmExpression::LocalGet(name) => {
+                inst.push(Instruction::GetLocal(
+                    locals
+                        .iter()
+                        .position(|n| *n == name)
+                        .expect("Local not found") as u32,
+                ));
+                locals
+            }
+            WasmExpression::LocalDeclare(name, expr) => {
+                locals.push(name);
+
+                let (mut expr, locals) = expr.visit_lowlevel(locals);
+                inst.append(&mut expr);
+
+                inst.push(Instruction::SetLocal((locals.len() - 1) as u32));
+                locals
+            }
+            WasmExpression::LocalSet(name, expr) => {
+                let (mut expr, locals) = expr.visit_lowlevel(locals);
+                inst.append(&mut expr);
+
+                inst.push(Instruction::SetLocal(
+                    locals
+                        .iter()
+                        .position(|n| *n == name)
+                        .expect("Local not found") as u32,
+                ));
+                locals
             }
             WasmExpression::Return(expr) => {
-                inst.append(&mut expr.visit_lowlevel(()));
+                let (mut expr, locals) = expr.visit_lowlevel(locals);
+                inst.append(&mut expr);
+
                 inst.push(Instruction::Return);
+                locals
             }
             WasmExpression::SimpleInfixCall(x, op, y) => {
-                inst.append(&mut x.visit_lowlevel(()));
-                inst.append(&mut y.visit_lowlevel(()));
+                let (mut x, locals) = x.visit_lowlevel(locals);
+                inst.append(&mut x);
+
+                let (mut y, locals) = y.visit_lowlevel(locals);
+                inst.append(&mut y);
+
                 inst.push(op.visit_lowlevel(()));
+                locals
             }
             WasmExpression::Negate(expr) => {
                 inst.push(Instruction::I32Const(0));
-                inst.append(&mut expr.visit_lowlevel(()));
+
+                let (mut expr, locals) = expr.visit_lowlevel(locals);
+                inst.append(&mut expr);
+
                 inst.push(Instruction::I32Sub);
+                locals
             }
             WasmExpression::BooleanNot(expr) => {
-                inst.append(&mut expr.visit_lowlevel(()));
+                let (mut expr, locals) = expr.visit_lowlevel(locals);
+                inst.append(&mut expr);
+
                 inst.append(&mut vec![
                     Instruction::I32Eqz,
                     Instruction::If(BlockType::Value(ValueType::I32)),
@@ -92,33 +145,46 @@ impl LowLevelVisitor for WasmExpression {
                     Instruction::I32Const(0),
                     Instruction::End,
                 ]);
+                locals
             }
             WasmExpression::BooleanOr(x, y) => {
-                inst.append(&mut x.visit_lowlevel(()));
+                let (mut x, locals) = x.visit_lowlevel(locals);
+                inst.append(&mut x);
+
                 inst.append(&mut vec![
                     Instruction::I32Eqz,
                     Instruction::If(BlockType::Value(ValueType::I32)),
                 ]);
-                inst.append(&mut y.visit_lowlevel(()));
+
+                let (mut y, locals) = y.visit_lowlevel(locals);
+                inst.append(&mut y);
+
                 inst.append(&mut vec![
                     Instruction::Else,
                     Instruction::I32Const(1),
                     Instruction::End,
                 ]);
+                locals
             }
             WasmExpression::BooleanAnd(x, y) => {
-                inst.append(&mut x.visit_lowlevel(()));
+                let (mut x, locals) = x.visit_lowlevel(locals);
+                inst.append(&mut x);
+
                 inst.append(&mut vec![
                     Instruction::I32Eqz,
                     Instruction::If(BlockType::Value(ValueType::I32)),
                     Instruction::I32Const(0),
                     Instruction::Else,
                 ]);
-                inst.append(&mut y.visit_lowlevel(()));
+
+                let (mut y, locals) = y.visit_lowlevel(locals);
+                inst.append(&mut y);
+
                 inst.push(Instruction::End);
+                locals
             }
-        }
-        inst
+        };
+        (inst, locals)
     }
 }
 
@@ -141,7 +207,7 @@ impl LowLevelVisitor for WasmSimpleInfix {
     type Argument = ();
     type Return = Instruction;
 
-    fn visit_lowlevel(&self, (): Self::Argument) -> Self::Return {
+    fn visit_lowlevel(self, (): Self::Argument) -> Self::Return {
         match self {
             WasmSimpleInfix::Add => Instruction::I32Add,
             WasmSimpleInfix::Subtract => Instruction::I32Sub,
