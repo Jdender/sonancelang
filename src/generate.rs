@@ -42,6 +42,9 @@ impl AstVisitor for Expression {
         match self {
             Expression::Literal(num) => WasmExpression::Const(*num),
             Expression::Lookup(name) => WasmExpression::LocalGet(name.to_string()),
+            Expression::Assignment(name, expr) => {
+                WasmExpression::LocalSet(name.to_string(), Box::new(expr.visit_ast(())))
+            }
             Expression::Return(expr) => WasmExpression::Return(Box::new(expr.visit_ast(()))),
             Expression::PrefixCall(op, expr) => op.visit_ast(expr.visit_ast(())),
             Expression::InfixCall(x, op, y) => op.visit_ast((x.visit_ast(()), y.visit_ast(()))),
