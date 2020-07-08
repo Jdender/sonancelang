@@ -34,6 +34,18 @@ fn process_int_helper(cases: Vec<(i32, &str)>) {
     }
 }
 
+fn process_statements_helper(num: i32, input: &str) {
+    assert_eq!(
+        num,
+        compile_and_run(&format!(
+            "func main() -> I32 {{
+                    {}
+                }}",
+            input
+        ))
+    );
+}
+
 #[test]
 fn process_numeric_expressions() {
     process_int_helper(vec![
@@ -54,4 +66,10 @@ fn process_boolean_expressions() {
         (0, "0 && 456"),
         (456, "1 && (return 456)"),
     ])
+}
+
+#[test]
+fn process_variable_statements() {
+    process_statements_helper(123, "let foo = 123; let bar = foo; return bar;");
+    process_statements_helper(124, "let foo = 123; foo = foo + 1; return foo;");
 }
