@@ -4,9 +4,11 @@ use std::str::FromStr;
 grammar;
 
 match {
-    "func", "return", "->", ";",
+    "I32", // Temporary
 
-    "I32",
+    "func", "->", "let", ";", // Functions
+
+    "=", "return", // Special Operators
 
     "(", ")", "{", "}", // Parens
 
@@ -31,6 +33,7 @@ pub File: File =
 pub Identifier: Identifier = IDENTIFIER => Identifier(<>.to_string());
 
 pub Statement: Statement = {
+    "let" <Identifier> "=" <Expression> ";" => Statement::LetBinding(<>),
     <Expression> ";" => Statement::Expression(<>),
 }
 
@@ -91,6 +94,7 @@ ExprPre0: Expression = {
     "(" <Expression> ")",
 
     IntLiteral => Expression::Literal(<>),
+    Identifier => Expression::Lookup(<>),
 }
 
 PrefixOp: PrefixOp = {
