@@ -1,4 +1,4 @@
-use crate::parse::*;
+use crate::parse::structure::*;
 use std::str::FromStr;
 
 grammar;
@@ -26,9 +26,9 @@ match {
 Boxed<T>: Box<T> = T => Box::new(<>);
 
 pub File: File =
-    "func" <name: Identifier> "(" ")" "->" "I32" "{"
-        <body: Statement*>
-    "}" => File { <> };
+    "func" <name: Identifier> "(" ")" "->" "I32" <body: Block> => File { <> };
+
+pub Block: Block = "{" <Statement*> "}" => Block(<>);
 
 pub Identifier: Identifier = IDENTIFIER => Identifier(<>.to_string());
 

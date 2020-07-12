@@ -1,5 +1,5 @@
-use crate::lowlevel::*;
-use crate::parse::*;
+use super::super::lowlevel::structure::*;
+use super::structure::*;
 
 pub trait AstVisitor {
     type Argument;
@@ -15,8 +15,17 @@ impl AstVisitor for File {
     fn visit_ast(&self, (): Self::Argument) -> Self::Return {
         WasmModule {
             name: self.name.to_string(),
-            body: self.body.iter().map(|smt| smt.visit_ast(())).collect(),
+            body: self.body.visit_ast(()),
         }
+    }
+}
+
+impl AstVisitor for Block {
+    type Argument = ();
+    type Return = Vec<WasmExpression>;
+
+    fn visit_ast(&self, (): Self::Argument) -> Self::Return {
+        self.0.iter().map(|smt| smt.visit_ast(())).collect()
     }
 }
 

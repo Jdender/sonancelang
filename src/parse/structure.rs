@@ -1,23 +1,14 @@
-use lalrpop_util::lexer::Token;
 use std::fmt::{Display, Formatter, Result as FmtResult};
-
-pub type ParseError<'a> = lalrpop_util::ParseError<usize, Token<'a>, &'a str>;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct File {
     pub name: Identifier,
-    pub body: Vec<Statement>,
+    pub body: Block,
 }
 
 impl Display for File {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        let body = self
-            .body
-            .iter()
-            .map(|smt| format!("{:indent$}{}\n", "   ", smt, indent = 4))
-            .collect::<String>();
-
-        write!(f, "func {}() -> I32 {{\n{}}}\n", self.name, body,)
+        write!(f, "func {}() -> I32 {}", self.name, self.body)
     }
 }
 
@@ -27,6 +18,21 @@ pub struct Identifier(pub String);
 impl Display for Identifier {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
         write!(f, r"{}", self.0)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct Block(pub Vec<Statement>);
+
+impl Display for Block {
+    fn fmt(&self, f: &mut Formatter) -> FmtResult {
+        let body = self
+            .0
+            .iter()
+            .map(|smt| format!("{:indent$}{}\n", "   ", smt, indent = 4))
+            .collect::<String>();
+
+        write!(f, "{{\n{}}}\n", body)
     }
 }
 
