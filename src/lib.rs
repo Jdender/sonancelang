@@ -25,12 +25,5 @@ pub enum CompilerError<'input> {
 }
 
 pub fn compile(input: &str) -> Result<CompilerOutput, CompilerError> {
-    let parsed = grammar::FileParser::new()
-        .parse(input)
-        .map_err(CompilerError::ParseError)?;
-
-    Ok(CompilerOutput {
-        wasm: parsed.visit_ast(()).visit_lowlevel(()),
-        formatted: parsed.to_string(),
-    })
+    unimplemented!()
 }
