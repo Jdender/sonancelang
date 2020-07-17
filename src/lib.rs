@@ -7,10 +7,10 @@ lalrpop_mod!(pub grammar);
 mod test;
 
 pub mod ast;
-pub mod lowlevel;
+pub mod ir;
+pub mod semantic;
 
-use ast::{generate::AstVisitor, ParseError};
-use lowlevel::generate::LowLevelVisitor;
+use ast::ParseError;
 use parity_wasm::elements::Module;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -24,6 +24,6 @@ pub enum CompilerError<'input> {
     ParseError(ParseError<'input>),
 }
 
-pub fn compile(input: &str) -> Result<CompilerOutput, CompilerError> {
+pub fn compile(_input: &str) -> Result<CompilerOutput, CompilerError> {
     unimplemented!()
 }
