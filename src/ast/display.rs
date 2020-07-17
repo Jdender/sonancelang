@@ -40,7 +40,7 @@ impl Display for Expression {
             Expression::Literal(num) => write!(f, "{}", num),
             Expression::Lookup(ident) => write!(f, "{}", ident),
             Expression::Assignment(name, expr) => write!(f, "{} = {}", name, expr),
-            Expression::Return(expr) => write!(f, "return {}", expr),
+            Expression::ReturnValue(expr) => write!(f, "return {}", expr),
             Expression::PrefixCall(op, expr) => write!(f, "{}{}", op, expr),
             Expression::InfixCall(x, op, y) => write!(f, "{} {} {}", x, op, y),
         }

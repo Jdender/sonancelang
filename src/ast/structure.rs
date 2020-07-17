@@ -21,7 +21,7 @@ pub enum Expression {
     Literal(i32),
     Lookup(Identifier),
     Assignment(Identifier, Box<Expression>),
-    Return(Box<Expression>),
+    ReturnValue(Box<Expression>),
     PrefixCall(PrefixOp, Box<Expression>),
     InfixCall(Box<Expression>, InfixOp, Box<Expression>),
 }
