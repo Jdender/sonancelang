@@ -18,7 +18,7 @@ func main() -> Future[Void] {
         match result {
             Okay: file -> print(file.content),
             Error: reason -> {
-                print("An error occurred while trying to read a file: ${reason}");
+                print("An error occurred: ${reason}");
                 return;
             }
         }

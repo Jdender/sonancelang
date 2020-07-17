@@ -1,4 +1,4 @@
-use crate::parse::structure::*;
+use crate::ast::structure::*;
 use std::str::FromStr;
 
 grammar;

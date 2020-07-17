@@ -6,13 +6,11 @@ lalrpop_mod!(pub grammar);
 #[cfg(test)]
 mod test;
 
+pub mod ast;
 pub mod lowlevel;
-pub mod parse;
 
+use ast::{generate::AstVisitor, ParseError};
 use lowlevel::generate::LowLevelVisitor;
-use parse::generate::AstVisitor;
-use parse::ParseError;
-
 use parity_wasm::elements::Module;
 
 #[derive(Debug, Clone, PartialEq)]
