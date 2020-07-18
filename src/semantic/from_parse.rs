@@ -96,6 +96,7 @@ impl AstVisitor for ast::Expression {
                     .ok_or_else(|| SemanticError::VariableNotDeclared(ident.0.clone()))?;
                 semantic::Expression::Lookup(ident.visit_ast(ctx))
             }
+            Self::Block(block) => semantic::Expression::Block(block.visit_ast(ctx)?),
             Self::Assignment(ident, expr) => semantic::Expression::Assignment(
                 ident.visit_ast(ctx),
                 Box::new(expr.visit_ast(ctx)?),

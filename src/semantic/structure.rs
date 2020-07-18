@@ -20,6 +20,7 @@ pub enum Statement {
 pub enum Expression {
     Literal(i32),
     Lookup(Identifier),
+    Block(Block),
     Assignment(Identifier, Box<Expression>),
     ReturnValue(Box<Expression>),
     PrefixCall(PrefixOp, Box<Expression>),

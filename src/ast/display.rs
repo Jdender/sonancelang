@@ -39,6 +39,7 @@ impl Display for Expression {
         match self {
             Expression::Literal(num) => write!(f, "{}", num),
             Expression::Lookup(ident) => write!(f, "{}", ident),
+            Expression::Block(block) => write!(f, "{}", block),
             Expression::Assignment(name, expr) => write!(f, "{} = {}", name, expr),
             Expression::ReturnValue(expr) => write!(f, "return {}", expr),
             Expression::PrefixCall(op, expr) => write!(f, "{}{}", op, expr),

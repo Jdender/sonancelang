@@ -35,9 +35,15 @@ pub Identifier: Identifier = IDENTIFIER => Identifier(<>.to_string());
 pub Statement: Statement = {
     "let" <Identifier> "=" <Expression> ";" => Statement::LetBinding(<>),
     <Expression> ";" => Statement::Expression(<>),
+    <ExpressionWithBlock> => Statement::Expression(<>),
+}
+
+pub ExpressionWithBlock: Expression = {
+    Block => Expression::Block(<>),
 }
 
 pub Expression = {
+    ExpressionWithBlock,
     "return" <Boxed<Expression>> => Expression::ReturnValue(<>),
     <Identifier> "=" <Boxed<Expression>> => Expression::Assignment(<>),
     ExprPre6,
