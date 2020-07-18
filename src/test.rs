@@ -1,23 +1,5 @@
-use crate::compile;
-use wasmer_runtime::{imports, instantiate, DynFunc, Value};
-
-fn compile_and_run(input: &str) -> i32 {
-    let import_object = imports! {};
-    let wasm = compile(input).unwrap().wasm.to_bytes().unwrap();
-    let instance = instantiate(&wasm, &import_object).unwrap();
-
-    let values = instance
-        .exports
-        .get::<DynFunc>("main")
-        .unwrap()
-        .call(&[])
-        .unwrap();
-
-    if let Value::I32(num) = values[0] {
-        num
-    } else {
-        Err(()).unwrap()
-    }
+fn compile_and_run(_: &str) -> i32 {
+    unimplemented!()
 }
 
 fn process_int_helper(cases: Vec<(i32, &str)>) {

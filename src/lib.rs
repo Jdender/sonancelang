@@ -10,20 +10,13 @@ pub mod ast;
 pub mod ir;
 pub mod semantic;
 
-use ast::ParseError;
-use parity_wasm::elements::Module;
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct CompilerOutput {
-    pub wasm: Module,
-    pub formatted: String,
-}
-
 #[derive(Debug, Clone, PartialEq)]
 pub enum CompilerError<'input> {
-    ParseError(ParseError<'input>),
+    ParseError(ast::ParseError<'input>),
+    SemanticError(semantic::SemanticError),
 }
 
-pub fn compile(_input: &str) -> Result<CompilerOutput, CompilerError> {
-    unimplemented!()
+pub fn compile(input: &str) -> Result<semantic::File, CompilerError> {
+    use CompilerError::*;
+    semantic::semantic_pass(ast::ast_pass(input).map_err(ParseError)?).map_err(SemanticError)
 }

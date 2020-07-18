@@ -38,7 +38,7 @@ pub Statement: Statement = {
 }
 
 pub Expression = {
-    "return" <Boxed<Expression>> => Expression::Return(<>),
+    "return" <Boxed<Expression>> => Expression::ReturnValue(<>),
     <Identifier> "=" <Boxed<Expression>> => Expression::Assignment(<>),
     ExprPre6,
 }
