@@ -14,9 +14,14 @@ pub mod semantic;
 pub enum CompilerError<'input> {
     ParseError(ast::ParseError<'input>),
     SemanticError(semantic::SemanticError),
+    IrError(ir::IrError),
 }
 
-pub fn compile(input: &str) -> Result<semantic::File, CompilerError> {
+pub fn compile(input: &str) -> Result<ir::WasmModule, CompilerError> {
     use CompilerError::*;
-    semantic::semantic_pass(ast::ast_pass(input).map_err(ParseError)?).map_err(SemanticError)
+    ir::ir_pass(
+        semantic::semantic_pass(ast::ast_pass(input).map_err(ParseError)?)
+            .map_err(SemanticError)?,
+    )
+    .map_err(IrError)
 }

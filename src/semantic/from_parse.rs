@@ -1,11 +1,10 @@
 use super::{
-    super::semantic,
+    super::{ast, semantic},
     symbol_table::{SymbolInfo, SymbolTable},
     SemResult, SemanticError,
 };
-use crate::ast;
 
-pub fn semantic_pass(input: crate::ast::File) -> SemResult<semantic::File> {
+pub fn semantic_pass(input: ast::File) -> SemResult<semantic::File> {
     input.visit_ast(&AstContext {
         symbol_table: &SymbolTable::new(),
         arg: (),
