@@ -9,6 +9,7 @@ mod test;
 pub mod ast;
 pub mod ir;
 pub mod semantic;
+pub mod wasm;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum CompilerError<'input> {
@@ -17,11 +18,13 @@ pub enum CompilerError<'input> {
     IrError(ir::IrError),
 }
 
-pub fn compile(input: &str) -> Result<ir::WasmModule, CompilerError> {
+pub fn compile(input: &str) -> Result<wasm::Module, CompilerError> {
     use CompilerError::*;
-    ir::ir_pass(
-        semantic::semantic_pass(ast::ast_pass(input).map_err(ParseError)?)
-            .map_err(SemanticError)?,
-    )
-    .map_err(IrError)
+    Ok(wasm::wasm_pass(
+        ir::ir_pass(
+            semantic::semantic_pass(ast::ast_pass(input).map_err(ParseError)?)
+                .map_err(SemanticError)?,
+        )
+        .map_err(IrError)?,
+    ))
 }
