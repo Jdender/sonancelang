@@ -1,5 +1,23 @@
-fn compile_and_run(_: &str) -> i32 {
-    unimplemented!()
+use crate::compile;
+use wasmer_runtime::{imports, instantiate, DynFunc, Value};
+
+fn compile_and_run(input: &str) -> i32 {
+    let import_object = imports! {};
+    let wasm = compile(input).unwrap().to_bytes().unwrap();
+    let instance = instantiate(&wasm, &import_object).unwrap();
+
+    let values = instance
+        .exports
+        .get::<DynFunc>("main")
+        .unwrap()
+        .call(&[])
+        .unwrap();
+
+    if let Value::I32(num) = values[0] {
+        num
+    } else {
+        Err(()).unwrap()
+    }
 }
 
 fn process_int_helper(cases: Vec<(i32, &str)>) {
@@ -54,4 +72,13 @@ fn process_boolean_expressions() {
 fn process_variable_statements() {
     process_statements_helper(123, "let foo = 123; let bar = foo; return bar;");
     process_statements_helper(124, "let foo = 123; foo = foo + 1; return foo;");
+}
+
+#[test]
+fn process_block_and_variable_statements() {
+    process_statements_helper(
+        123,
+        "let foo = 123; { let bar = 456; foo = bar; } return foo;",
+    );
+    process_statements_helper(123, "let foo = 123; { let foo = 456; } return foo;");
 }

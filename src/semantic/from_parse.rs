@@ -76,8 +76,6 @@ impl AstVisitor for ast::Block {
             });
         }
 
-        dbg!(symbol_table);
-
         Ok(semantic::Block(statements))
     }
 }
