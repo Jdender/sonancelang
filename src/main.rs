@@ -1,4 +1,5 @@
 use clap::Clap;
+use parity_wasm::serialize_to_file;
 use sonancelang::compile;
 use std::{env::current_dir, fs::read_to_string};
 
@@ -7,6 +8,9 @@ use std::{env::current_dir, fs::read_to_string};
 struct Options {
     #[clap(default_value = "test/input.txt")]
     input: String,
+
+    #[clap(default_value = "test/output.wasm")]
+    wasm_output: String,
 }
 
 fn main() {
@@ -16,5 +20,6 @@ fn main() {
     let input = read_to_string(cwd.join(options.input)).expect("File not found.");
     let compiled = compile(&input).expect("Failed to compile");
 
-    dbg!(compiled);
+    serialize_to_file(cwd.join(options.wasm_output), compiled)
+        .expect("Failed to write to output file.");
 }
