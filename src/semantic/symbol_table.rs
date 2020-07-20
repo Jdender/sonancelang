@@ -1,38 +1,69 @@
 use std::collections::HashMap;
 
+#[derive(Debug, Clone, Copy)]
+pub struct ScopeIndex(usize);
+
+#[derive(Debug, Clone, Default)]
+struct Scope {
+    parent: Option<ScopeIndex>,
+    children: Vec<ScopeIndex>,
+    symbols: HashMap<String, SymbolInfo>,
+}
+
 #[derive(Debug, Clone)]
 pub struct SymbolInfo;
 
 #[derive(Debug, Clone, Default)]
-pub struct SymbolTable<'a> {
-    members: HashMap<String, SymbolInfo>,
-    parent: Option<&'a SymbolTable<'a>>,
+pub struct SymbolTable {
+    scopes: Vec<Scope>,
 }
 
-impl<'a> SymbolTable<'a> {
+impl SymbolTable {
     pub fn new() -> Self {
         SymbolTable {
-            members: HashMap::new(),
-            parent: None,
+            scopes: vec![Scope::default()],
         }
     }
 
-    pub fn fork(&'a self) -> Self {
-        SymbolTable {
-            members: HashMap::new(),
-            parent: Some(self),
-        }
+    pub fn root() -> ScopeIndex {
+        ScopeIndex(0)
     }
 
-    pub fn set(&mut self, key: String, value: SymbolInfo) {
-        self.members.insert(key, value);
+    fn get_scope(&self, scope: ScopeIndex) -> &Scope {
+        self.scopes
+            .get(scope.0)
+            .expect("Shouldn't ask for a invalid scope")
     }
 
-    pub fn get(&self, key: &str) -> Option<&SymbolInfo> {
-        match (self.members.get(key), self.parent) {
+    fn get_scope_mut(&mut self, scope: ScopeIndex) -> &mut Scope {
+        self.scopes
+            .get_mut(scope.0)
+            .expect("Shouldn't ask for a invalid scope")
+    }
+
+    pub fn set(&mut self, scope: ScopeIndex, key: String, value: SymbolInfo) {
+        self.get_scope_mut(scope).symbols.insert(key, value);
+    }
+
+    pub fn get(&self, scope: ScopeIndex, key: &str) -> Option<&SymbolInfo> {
+        let scope = self.get_scope(scope);
+        match (scope.symbols.get(key), scope.parent) {
             (Some(value), _) => Some(value),
-            (None, Some(parent)) => parent.get(key),
+            (None, Some(parent)) => self.get(parent, key),
             _ => None,
         }
+    }
+
+    pub fn fork(&mut self, parent: ScopeIndex) -> ScopeIndex {
+        let id = ScopeIndex(self.scopes.len());
+
+        self.scopes.push(Scope {
+            parent: Some(parent),
+            symbols: HashMap::new(),
+            children: Vec::new(),
+        });
+        self.get_scope_mut(parent).children.push(id);
+
+        id
     }
 }
