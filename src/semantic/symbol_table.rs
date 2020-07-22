@@ -1,69 +1,47 @@
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, Copy)]
-pub struct ScopeIndex(usize);
+pub struct SymbolId(usize);
 
-#[derive(Debug, Clone, Default)]
-struct Scope {
-    parent: Option<ScopeIndex>,
-    children: Vec<ScopeIndex>,
-    symbols: HashMap<String, SymbolInfo>,
+pub fn new_symbol_id() -> SymbolId {
+    use std::sync::atomic::{AtomicUsize, Ordering::Relaxed};
+
+    static COUNTER: AtomicUsize = AtomicUsize::new(0);
+
+    COUNTER.fetch_add(1, Relaxed);
+    SymbolId(COUNTER.load(Relaxed))
 }
 
-#[derive(Debug, Clone)]
-pub struct SymbolInfo;
-
 #[derive(Debug, Clone, Default)]
-pub struct SymbolTable {
-    scopes: Vec<Scope>,
+pub struct SymbolTable<'a> {
+    members: HashMap<String, SymbolId>,
+    parent: Option<&'a SymbolTable<'a>>,
 }
 
-impl SymbolTable {
+impl<'a> SymbolTable<'a> {
     pub fn new() -> Self {
         SymbolTable {
-            scopes: vec![Scope::default()],
+            members: HashMap::new(),
+            parent: None,
         }
     }
 
-    pub fn root() -> ScopeIndex {
-        ScopeIndex(0)
+    pub fn fork(&'a self) -> Self {
+        SymbolTable {
+            members: HashMap::new(),
+            parent: Some(self),
+        }
     }
 
-    fn get_scope(&self, scope: ScopeIndex) -> &Scope {
-        self.scopes
-            .get(scope.0)
-            .expect("Shouldn't ask for a invalid scope")
+    pub fn set(&mut self, key: String) {
+        self.members.insert(key, new_symbol_id());
     }
 
-    fn get_scope_mut(&mut self, scope: ScopeIndex) -> &mut Scope {
-        self.scopes
-            .get_mut(scope.0)
-            .expect("Shouldn't ask for a invalid scope")
-    }
-
-    pub fn set(&mut self, scope: ScopeIndex, key: String, value: SymbolInfo) {
-        self.get_scope_mut(scope).symbols.insert(key, value);
-    }
-
-    pub fn get(&self, scope: ScopeIndex, key: &str) -> Option<&SymbolInfo> {
-        let scope = self.get_scope(scope);
-        match (scope.symbols.get(key), scope.parent) {
-            (Some(value), _) => Some(value),
-            (None, Some(parent)) => self.get(parent, key),
+    pub fn get(&self, key: &str) -> Option<SymbolId> {
+        match (self.members.get(key), self.parent) {
+            (Some(value), _) => Some(*value),
+            (None, Some(parent)) => parent.get(key),
             _ => None,
         }
-    }
-
-    pub fn fork(&mut self, parent: ScopeIndex) -> ScopeIndex {
-        let id = ScopeIndex(self.scopes.len());
-
-        self.scopes.push(Scope {
-            parent: Some(parent),
-            symbols: HashMap::new(),
-            children: Vec::new(),
-        });
-        self.get_scope_mut(parent).children.push(id);
-
-        id
     }
 }
