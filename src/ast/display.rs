@@ -43,11 +43,13 @@ impl Display for Expression {
             Expression::Assignment { place, operand } => write!(f, "{} = {}", place, operand),
             Expression::ReturnValue(expr) => write!(f, "return {}", expr),
             Expression::PrefixCall { operator, operand } => write!(f, "{}{}", operator, operand),
+
             Expression::InfixCall {
                 operator,
                 x_operand,
                 y_operand,
             } => write!(f, "{} {} {}", x_operand, operator, y_operand),
+
             Expression::Conditional {
                 predicate,
                 when_true,

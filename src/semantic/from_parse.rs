@@ -70,13 +70,16 @@ impl AstVisitor for ast::Expression {
     fn visit_ast(&self, symbol_table: &SymbolTable) -> Self::Return {
         Ok(match self {
             Self::Literal(num) => semantic::Expression::Literal(*num),
+
             Self::Lookup(place) => semantic::Expression::Lookup {
                 place: place.visit_ast(symbol_table),
                 symbol_id: symbol_table
                     .get(&place.0)
                     .ok_or_else(|| SemanticError::VariableNotDeclared(place.to_string()))?,
             },
+
             Self::Block(block) => semantic::Expression::Block(block.visit_ast(symbol_table)?),
+
             Self::Assignment { place, operand } => semantic::Expression::Assignment {
                 place: place.visit_ast(symbol_table),
                 symbol_id: symbol_table
@@ -84,13 +87,16 @@ impl AstVisitor for ast::Expression {
                     .ok_or_else(|| SemanticError::VariableNotDeclared(place.to_string()))?,
                 operand: Box::new(operand.visit_ast(symbol_table)?),
             },
+
             Self::ReturnValue(expr) => {
                 semantic::Expression::ReturnValue(Box::new(expr.visit_ast(symbol_table)?))
             }
+
             Self::PrefixCall { operator, operand } => semantic::Expression::PrefixCall {
                 operator: operator.visit_ast(symbol_table),
                 operand: Box::new(operand.visit_ast(symbol_table)?),
             },
+
             Self::InfixCall {
                 operator,
                 x_operand,
@@ -100,6 +106,7 @@ impl AstVisitor for ast::Expression {
                 x_operand: Box::new(x_operand.visit_ast(symbol_table)?),
                 y_operand: Box::new(y_operand.visit_ast(symbol_table)?),
             },
+
             Self::Conditional {
                 predicate,
                 when_true,

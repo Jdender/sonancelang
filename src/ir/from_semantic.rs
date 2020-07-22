@@ -61,16 +61,20 @@ impl SemanticVisitor for semantic::Expression {
             Self::Literal(num) => ir::Expression::Const(*num),
             Self::Lookup { symbol_id, .. } => ir::Expression::LocalGet(*symbol_id),
             Self::Block(block) => ir::Expression::Block(block.visit_sem(())),
+
             Self::Assignment {
                 symbol_id, operand, ..
             } => ir::Expression::LocalSet(*symbol_id, Box::new(operand.visit_sem(()))),
+
             Self::ReturnValue(expr) => ir::Expression::Return(Box::new(expr.visit_sem(()))),
             Self::PrefixCall { operator, operand } => operator.visit_sem(operand.visit_sem(())),
+
             Self::InfixCall {
                 operator,
                 x_operand,
                 y_operand,
             } => operator.visit_sem((x_operand.visit_sem(()), y_operand.visit_sem(()))),
+
             Self::Conditional {
                 predicate,
                 when_true,

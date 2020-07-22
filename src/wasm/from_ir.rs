@@ -78,6 +78,7 @@ impl IrVisitor for ir::Expression {
                 inst.push(wasm::Instruction::I32Const(num));
                 locals
             }
+
             Self::LocalGet(symbol_id) => {
                 inst.push(wasm::Instruction::GetLocal(
                     locals
@@ -87,6 +88,7 @@ impl IrVisitor for ir::Expression {
                 ));
                 locals
             }
+
             Self::LocalDeclare(symbol_id, expr) => {
                 locals.push(symbol_id);
 
@@ -96,6 +98,7 @@ impl IrVisitor for ir::Expression {
                 inst.push(wasm::Instruction::SetLocal((locals.len() - 1) as u32));
                 locals
             }
+
             Self::LocalSet(symbol_id, expr) => {
                 let (mut expr, locals) = expr.visit_ir(locals);
                 inst.append(&mut expr);
@@ -108,11 +111,13 @@ impl IrVisitor for ir::Expression {
                 ));
                 locals
             }
+
             Self::Block(block) => {
                 let (mut block, locals) = block.visit_ir(locals);
                 inst.append(&mut block);
                 locals
             }
+
             Self::Return(expr) => {
                 let (mut expr, locals) = expr.visit_ir(locals);
                 inst.append(&mut expr);
@@ -120,6 +125,7 @@ impl IrVisitor for ir::Expression {
                 inst.push(wasm::Instruction::Return);
                 locals
             }
+
             Self::SimpleInfixCall {
                 operator,
                 x_operand,
@@ -134,6 +140,7 @@ impl IrVisitor for ir::Expression {
                 inst.push(operator.visit_ir(()));
                 locals
             }
+
             Self::Negate(expr) => {
                 inst.push(wasm::Instruction::I32Const(0));
 
@@ -143,6 +150,7 @@ impl IrVisitor for ir::Expression {
                 inst.push(wasm::Instruction::I32Sub);
                 locals
             }
+
             Self::BooleanNot(expr) => {
                 let (mut expr, locals) = expr.visit_ir(locals);
                 inst.append(&mut expr);
@@ -157,6 +165,7 @@ impl IrVisitor for ir::Expression {
                 ]);
                 locals
             }
+
             Self::BooleanOr(x, y) => {
                 let (mut x, locals) = x.visit_ir(locals);
                 inst.append(&mut x);
@@ -176,6 +185,7 @@ impl IrVisitor for ir::Expression {
                 ]);
                 locals
             }
+
             Self::BooleanAnd(x, y) => {
                 let (mut x, locals) = x.visit_ir(locals);
                 inst.append(&mut x);
@@ -193,6 +203,7 @@ impl IrVisitor for ir::Expression {
                 inst.push(wasm::Instruction::End);
                 locals
             }
+
             Self::Conditional {
                 predicate,
                 when_true,
