@@ -57,6 +57,7 @@ impl IrVisitor for ir::Block {
         for stmt in self.body {
             let (mut new_inst, new_locals) = stmt.visit_ir(locals);
             inst.append(&mut new_inst);
+            inst.push(wasm::Instruction::Drop);
             locals = new_locals;
         }
 
@@ -95,7 +96,10 @@ impl IrVisitor for ir::Expression {
                 let (mut expr, locals) = expr.visit_ir(locals);
                 inst.append(&mut expr);
 
-                inst.push(wasm::Instruction::SetLocal((locals.len() - 1) as u32));
+                inst.append(&mut vec![
+                    wasm::Instruction::SetLocal((locals.len() - 1) as u32),
+                    wasm::Instruction::I32Const(0),
+                ]);
                 locals
             }
 
@@ -103,12 +107,15 @@ impl IrVisitor for ir::Expression {
                 let (mut expr, locals) = expr.visit_ir(locals);
                 inst.append(&mut expr);
 
-                inst.push(wasm::Instruction::SetLocal(
-                    locals
-                        .iter()
-                        .position(|s| *s == symbol_id)
-                        .expect("Local not found") as u32,
-                ));
+                inst.append(&mut vec![
+                    wasm::Instruction::SetLocal(
+                        locals
+                            .iter()
+                            .position(|s| *s == symbol_id)
+                            .expect("Local not found") as u32,
+                    ),
+                    wasm::Instruction::I32Const(0),
+                ]);
                 locals
             }
 
@@ -122,7 +129,10 @@ impl IrVisitor for ir::Expression {
                 let (mut expr, locals) = expr.visit_ir(locals);
                 inst.append(&mut expr);
 
-                inst.push(wasm::Instruction::Return);
+                inst.append(&mut vec![
+                    wasm::Instruction::Return,
+                    wasm::Instruction::I32Const(0),
+                ]);
                 locals
             }
 
