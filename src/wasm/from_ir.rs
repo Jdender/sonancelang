@@ -19,9 +19,32 @@ impl IrVisitor for ir::WasmModule {
     type Return = wasm::Module;
 
     fn visit_ir(self, (): Self::Argument) -> Self::Return {
-        let (mut inst, locals) = self.body.visit_ir(Vec::new());
+        let (raw, locals) = self.body.visit_ir(Vec::new());
 
-        inst.push(wasm::Instruction::End);
+        let optimized = {
+            use wasm::Instruction::*;
+
+            let mut optimized = Vec::with_capacity(raw.len());
+
+            // If any const followed by drop, remove both
+            for (i, inst) in raw.iter().enumerate() {
+                match (raw.get(i.saturating_sub(1)), inst, raw.get(i + 1)) {
+                    (_, I32Const(_), Some(Drop)) => continue,
+                    (Some(I32Const(_)), Drop, _) => continue,
+                    _ => optimized.push(inst.clone()),
+                }
+            }
+
+            // Remove trailing return
+            if let Some(Return) = optimized.iter().last() {
+                optimized.pop();
+            }
+
+            // Add end instruction
+            optimized.push(wasm::Instruction::End);
+
+            optimized
+        };
 
         module()
             .export()
@@ -39,7 +62,7 @@ impl IrVisitor for ir::WasmModule {
                 locals.len() as u32,
                 wasm::ValueType::I32,
             )])
-            .with_instructions(wasm::Instructions::new(inst))
+            .with_instructions(wasm::Instructions::new(optimized))
             .build()
             .build()
             .build()
