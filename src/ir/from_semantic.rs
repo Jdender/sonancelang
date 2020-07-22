@@ -124,8 +124,30 @@ impl SemanticVisitor for semantic::InfixOperator {
             Self::LessThan => helper(ir::SimpleInfix::LessThan),
             Self::GreaterOrEqual => helper(ir::SimpleInfix::GreaterOrEqual),
             Self::LessOrEqual => helper(ir::SimpleInfix::LessOrEqual),
-            Self::BooleanOr => ir::Expression::BooleanOr(x, y),
-            Self::BooleanAnd => ir::Expression::BooleanAnd(x, y),
+
+            Self::BooleanOr => ir::Expression::Conditional {
+                predicate: x,
+                when_true: ir::Block {
+                    body: vec![],
+                    trailing: Box::new(ir::Expression::Const(1)),
+                },
+                when_false: ir::Block {
+                    body: vec![],
+                    trailing: y,
+                },
+            },
+
+            Self::BooleanAnd => ir::Expression::Conditional {
+                predicate: x,
+                when_true: ir::Block {
+                    body: vec![],
+                    trailing: y,
+                },
+                when_false: ir::Block {
+                    body: vec![],
+                    trailing: Box::new(ir::Expression::Const(0)),
+                },
+            },
         }
     }
 }

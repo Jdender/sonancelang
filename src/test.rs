@@ -26,7 +26,7 @@ fn process_int_helper(cases: Vec<(i32, &str)>) {
             num,
             compile_and_run(&format!(
                 "func main() -> I32 {{
-                    return {};
+                    {}
                 }}",
                 input
             ))
@@ -70,15 +70,12 @@ fn process_boolean_expressions() {
 
 #[test]
 fn process_variable_statements() {
-    process_statements_helper(123, "let foo = 123; let bar = foo; return bar;");
-    process_statements_helper(124, "let foo = 123; foo = foo + 1; return foo;");
+    process_statements_helper(123, "let foo = 123; let bar = foo; bar");
+    process_statements_helper(124, "let foo = 123; foo = foo + 1; foo");
 }
 
 #[test]
 fn process_block_and_variable_statements() {
-    process_statements_helper(123, "let foo = 123; { let foo = 456; } return foo;");
-    process_statements_helper(
-        456,
-        "let foo = 123; { let bar = 456; foo = bar; } return foo;",
-    );
+    process_statements_helper(123, "let foo = 123; { let foo = 456; 0 } foo");
+    process_statements_helper(456, "let foo = 123; { let bar = 456; foo = bar; 0 } foo");
 }

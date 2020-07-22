@@ -166,44 +166,6 @@ impl IrVisitor for ir::Expression {
                 locals
             }
 
-            Self::BooleanOr(x, y) => {
-                let (mut x, locals) = x.visit_ir(locals);
-                inst.append(&mut x);
-
-                inst.append(&mut vec![
-                    wasm::Instruction::I32Eqz,
-                    wasm::Instruction::If(wasm::BlockType::Value(wasm::ValueType::I32)),
-                ]);
-
-                let (mut y, locals) = y.visit_ir(locals);
-                inst.append(&mut y);
-
-                inst.append(&mut vec![
-                    wasm::Instruction::Else,
-                    wasm::Instruction::I32Const(1),
-                    wasm::Instruction::End,
-                ]);
-                locals
-            }
-
-            Self::BooleanAnd(x, y) => {
-                let (mut x, locals) = x.visit_ir(locals);
-                inst.append(&mut x);
-
-                inst.append(&mut vec![
-                    wasm::Instruction::I32Eqz,
-                    wasm::Instruction::If(wasm::BlockType::Value(wasm::ValueType::I32)),
-                    wasm::Instruction::I32Const(0),
-                    wasm::Instruction::Else,
-                ]);
-
-                let (mut y, locals) = y.visit_ir(locals);
-                inst.append(&mut y);
-
-                inst.push(wasm::Instruction::End);
-                locals
-            }
-
             Self::Conditional {
                 predicate,
                 when_true,
