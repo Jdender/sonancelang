@@ -16,12 +16,12 @@ impl Display for Identifier {
 impl Display for Block {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
         let body = self
-            .0
+            .body
             .iter()
             .map(|smt| format!("{:indent$}{}\n", "   ", smt, indent = 4))
             .collect::<String>();
 
-        write!(f, "{{\n{}}}\n", body)
+        write!(f, "{{\n{} {}\n}}\n", body, self.trailing)
     }
 }
 

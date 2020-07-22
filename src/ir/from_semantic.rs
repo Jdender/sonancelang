@@ -28,10 +28,13 @@ impl SemanticVisitor for semantic::File {
 
 impl SemanticVisitor for semantic::Block {
     type Argument = ();
-    type Return = Vec<ir::Expression>;
+    type Return = ir::Block;
 
     fn visit_sem(&self, (): Self::Argument) -> Self::Return {
-        self.0.iter().map(|smt| smt.visit_sem(())).collect()
+        ir::Block(
+            self.0.iter().map(|smt| smt.visit_sem(())).collect(),
+            Box::new(self.1.visit_sem(())),
+        )
     }
 }
 

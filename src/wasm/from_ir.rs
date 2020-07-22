@@ -12,19 +12,14 @@ pub trait IrVisitor {
     fn visit_ir(self, args: Self::Argument) -> Self::Return;
 }
 
+type Locals = Vec<SymbolId>;
+
 impl IrVisitor for ir::WasmModule {
     type Argument = ();
     type Return = wasm::Module;
 
     fn visit_ir(self, (): Self::Argument) -> Self::Return {
-        let mut inst = Vec::new();
-        let mut locals = Vec::new();
-
-        for stmt in self.body {
-            let mut stmt = stmt.visit_ir(locals);
-            inst.append(&mut stmt.0);
-            locals = stmt.1;
-        }
+        let (mut inst, locals) = self.body.visit_ir(Vec::new());
 
         inst.push(wasm::Instruction::End);
 
@@ -51,9 +46,30 @@ impl IrVisitor for ir::WasmModule {
     }
 }
 
+impl IrVisitor for ir::Block {
+    type Argument = Locals;
+    type Return = (Vec<wasm::Instruction>, Locals);
+
+    fn visit_ir(self, locals: Self::Argument) -> Self::Return {
+        let mut inst = Vec::new();
+        let mut locals = locals;
+
+        for stmt in self.0 {
+            let (mut new_inst, new_locals) = stmt.visit_ir(locals);
+            inst.append(&mut new_inst);
+            locals = new_locals;
+        }
+
+        let (mut expr, locals) = self.1.visit_ir(locals);
+        inst.append(&mut expr);
+
+        (inst, locals)
+    }
+}
+
 impl IrVisitor for ir::Expression {
-    type Argument = Vec<SymbolId>;
-    type Return = (Vec<wasm::Instruction>, Vec<SymbolId>);
+    type Argument = Locals;
+    type Return = (Vec<wasm::Instruction>, Locals);
 
     fn visit_ir(self, mut locals: Self::Argument) -> <Self as IrVisitor>::Return {
         let mut inst = Vec::new();
@@ -93,12 +109,8 @@ impl IrVisitor for ir::Expression {
                 locals
             }
             Self::Block(block) => {
-                let mut locals = locals;
-                for stmt in block {
-                    let (mut new_inst, new_locals) = stmt.visit_ir(locals);
-                    inst.append(&mut new_inst);
-                    locals = new_locals;
-                }
+                let (mut block, locals) = block.visit_ir(locals);
+                inst.append(&mut block);
                 locals
             }
             Self::Return(expr) => {
@@ -177,8 +189,8 @@ impl IrVisitor for ir::Expression {
                 inst.push(wasm::Instruction::End);
                 locals
             }
-            Self::Conditional(expr, then, otherwise) => {
-                let (mut expr, mut locals) = expr.visit_ir(locals);
+            Self::Conditional(expr, when_true, when_false) => {
+                let (mut expr, locals) = expr.visit_ir(locals);
 
                 inst.append(&mut expr);
 
@@ -187,19 +199,13 @@ impl IrVisitor for ir::Expression {
                     wasm::Instruction::If(wasm::BlockType::Value(wasm::ValueType::I32)),
                 ]);
 
-                for stmt in otherwise {
-                    let (mut new_inst, new_locals) = stmt.visit_ir(locals);
-                    inst.append(&mut new_inst);
-                    locals = new_locals;
-                }
+                let (mut when_false, locals) = when_false.visit_ir(locals);
+                inst.append(&mut when_false);
 
                 inst.push(wasm::Instruction::Else);
 
-                for stmt in then {
-                    let (mut new_inst, new_locals) = stmt.visit_ir(locals);
-                    inst.append(&mut new_inst);
-                    locals = new_locals;
-                }
+                let (mut when_true, locals) = when_true.visit_ir(locals);
+                inst.append(&mut when_true);
 
                 inst.push(wasm::Instruction::End);
 

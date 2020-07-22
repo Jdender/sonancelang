@@ -40,7 +40,7 @@ impl AstVisitor for ast::Block {
         let mut symbol_table = symbol_table.fork();
         let mut statements = Vec::new();
 
-        for stmt in self.0.iter() {
+        for stmt in self.body.iter() {
             statements.push(match stmt {
                 ast::Statement::LetBinding(ident, expr) => {
                     let symbol_id = symbol_table.set(ident.0.clone());
@@ -57,7 +57,10 @@ impl AstVisitor for ast::Block {
             });
         }
 
-        Ok(semantic::Block(statements))
+        Ok(semantic::Block(
+            statements,
+            Box::new(self.trailing.visit_ast(&symbol_table)?),
+        ))
     }
 }
 

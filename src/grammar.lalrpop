@@ -28,7 +28,7 @@ Boxed<T>: Box<T> = T => Box::new(<>);
 pub File: File =
     "func" <name: Identifier> "(" ")" "->" "I32" <body: Block> => File { <> };
 
-pub Block: Block = "{" <Statement*> "}" => Block(<>);
+pub Block: Block = "{" <body: Statement*> <trailing: Boxed<Expression>> "}" => Block { <> };
 
 pub Identifier: Identifier = IDENTIFIER => Identifier(<>.to_string());
 

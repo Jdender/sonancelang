@@ -3,8 +3,11 @@ use crate::semantic::SymbolId;
 #[derive(Debug, Clone, PartialEq)]
 pub struct WasmModule {
     pub name: String,
-    pub body: Vec<Expression>,
+    pub body: Block,
 }
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct Block(pub Vec<Expression>, pub Box<Expression>);
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expression {
@@ -12,14 +15,14 @@ pub enum Expression {
     LocalGet(SymbolId),
     LocalDeclare(SymbolId, Box<Expression>),
     LocalSet(SymbolId, Box<Expression>),
-    Block(Vec<Expression>),
+    Block(Block),
     Return(Box<Expression>),
     SimpleInfixCall(Box<Expression>, SimpleInfix, Box<Expression>),
     Negate(Box<Expression>),
     BooleanNot(Box<Expression>),
     BooleanOr(Box<Expression>, Box<Expression>),
     BooleanAnd(Box<Expression>, Box<Expression>),
-    Conditional(Box<Expression>, Vec<Expression>, Vec<Expression>),
+    Conditional(Box<Expression>, Block, Block),
 }
 
 #[derive(Debug, Clone, PartialEq)]
