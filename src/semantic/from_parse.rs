@@ -43,10 +43,11 @@ impl AstVisitor for ast::Block {
         for stmt in self.0.iter() {
             statements.push(match stmt {
                 ast::Statement::LetBinding(ident, expr) => {
-                    symbol_table.set(ident.0.clone());
+                    let symbol_id = symbol_table.set(ident.0.clone());
 
                     semantic::Statement::LetBinding(
                         ident.visit_ast(&symbol_table),
+                        symbol_id,
                         expr.visit_ast(&symbol_table)?,
                     )
                 }
@@ -66,15 +67,18 @@ impl AstVisitor for ast::Expression {
     fn visit_ast(&self, symbol_table: &SymbolTable) -> Self::Return {
         Ok(match self {
             Self::Literal(num) => semantic::Expression::Literal(*num),
-            Self::Lookup(ident) => {
+            Self::Lookup(ident) => semantic::Expression::Lookup(
+                ident.visit_ast(symbol_table),
                 symbol_table
                     .get(&ident.0)
-                    .ok_or_else(|| SemanticError::VariableNotDeclared(ident.0.clone()))?;
-                semantic::Expression::Lookup(ident.visit_ast(symbol_table))
-            }
+                    .ok_or_else(|| SemanticError::VariableNotDeclared(ident.0.clone()))?,
+            ),
             Self::Block(block) => semantic::Expression::Block(block.visit_ast(symbol_table)?),
             Self::Assignment(ident, expr) => semantic::Expression::Assignment(
                 ident.visit_ast(symbol_table),
+                symbol_table
+                    .get(&ident.0)
+                    .ok_or_else(|| SemanticError::VariableNotDeclared(ident.0.clone()))?,
                 Box::new(expr.visit_ast(symbol_table)?),
             ),
             Self::ReturnValue(expr) => {

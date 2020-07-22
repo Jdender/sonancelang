@@ -1,3 +1,5 @@
+use super::SymbolId;
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct File {
     pub name: Identifier,
@@ -12,16 +14,16 @@ pub struct Block(pub Vec<Statement>);
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Statement {
-    LetBinding(Identifier, Expression),
+    LetBinding(Identifier, SymbolId, Expression),
     Expression(Expression),
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expression {
     Literal(i32),
-    Lookup(Identifier),
+    Lookup(Identifier, SymbolId),
     Block(Block),
-    Assignment(Identifier, Box<Expression>),
+    Assignment(Identifier, SymbolId, Box<Expression>),
     ReturnValue(Box<Expression>),
     PrefixCall(PrefixOp, Box<Expression>),
     InfixCall(Box<Expression>, InfixOp, Box<Expression>),

@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SymbolId(usize);
 
-pub fn new_symbol_id() -> SymbolId {
+fn new_symbol_id() -> SymbolId {
     use std::sync::atomic::{AtomicUsize, Ordering::Relaxed};
 
     static COUNTER: AtomicUsize = AtomicUsize::new(0);
@@ -33,8 +33,9 @@ impl<'a> SymbolTable<'a> {
         }
     }
 
-    pub fn set(&mut self, key: String) {
+    pub fn set(&mut self, key: String) -> SymbolId {
         self.members.insert(key, new_symbol_id());
+        *self.members.get(&key).expect("Just inserted on above line")
     }
 
     pub fn get(&self, key: &str) -> Option<SymbolId> {

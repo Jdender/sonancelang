@@ -4,6 +4,7 @@ pub mod symbol_table;
 
 pub use from_parse::semantic_pass;
 pub use structure::*;
+pub use symbol_table::SymbolId;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum SemanticError {
