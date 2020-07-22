@@ -76,9 +76,9 @@ fn process_variable_statements() {
 
 #[test]
 fn process_block_and_variable_statements() {
+    process_statements_helper(123, "let foo = 123; { let foo = 456; } return foo;");
     process_statements_helper(
-        123,
+        456,
         "let foo = 123; { let bar = 456; foo = bar; } return foo;",
     );
-    process_statements_helper(123, "let foo = 123; { let foo = 456; } return foo;");
 }
