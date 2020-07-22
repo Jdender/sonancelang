@@ -177,6 +177,34 @@ impl IrVisitor for ir::Expression {
                 inst.push(wasm::Instruction::End);
                 locals
             }
+            Self::Conditional(expr, then, otherwise) => {
+                let (mut expr, mut locals) = expr.visit_ir(locals);
+
+                inst.append(&mut expr);
+
+                inst.append(&mut vec![
+                    wasm::Instruction::I32Eqz,
+                    wasm::Instruction::If(wasm::BlockType::Value(wasm::ValueType::I32)),
+                ]);
+
+                for stmt in otherwise {
+                    let (mut new_inst, new_locals) = stmt.visit_ir(locals);
+                    inst.append(&mut new_inst);
+                    locals = new_locals;
+                }
+
+                inst.push(wasm::Instruction::Else);
+
+                for stmt in then {
+                    let (mut new_inst, new_locals) = stmt.visit_ir(locals);
+                    inst.append(&mut new_inst);
+                    locals = new_locals;
+                }
+
+                inst.push(wasm::Instruction::End);
+
+                locals
+            }
         };
         (inst, locals)
     }

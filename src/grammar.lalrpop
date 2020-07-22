@@ -8,7 +8,7 @@ match {
 
     "func", "->", "let", ";", // Functions
 
-    "=", "return", // Special Operators
+    "=", "return", "if", "else", // Special Operators
 
     "(", ")", "{", "}", // Parens
 
@@ -40,6 +40,7 @@ pub Statement: Statement = {
 
 pub ExpressionWithBlock: Expression = {
     Block => Expression::Block(<>),
+    "if" <Boxed<Expression>> <Block> "else" <Block> => Expression::Conditional(<>),
 }
 
 pub Expression = {

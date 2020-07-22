@@ -44,6 +44,9 @@ impl Display for Expression {
             Expression::ReturnValue(expr) => write!(f, "return {}", expr),
             Expression::PrefixCall(op, expr) => write!(f, "{}{}", op, expr),
             Expression::InfixCall(x, op, y) => write!(f, "{} {} {}", x, op, y),
+            Expression::Conditional(expr, then, otherwise) => {
+                write!(f, "if {} {} else {}", expr, then, otherwise)
+            }
         }
     }
 }
