@@ -67,11 +67,15 @@ impl SemanticVisitor for semantic::Expression {
             Self::ReturnValue(expr) => ir::Expression::Return(Box::new(expr.visit_sem(()))),
             Self::PrefixCall(op, expr) => op.visit_sem(expr.visit_sem(())),
             Self::InfixCall(x, op, y) => op.visit_sem((x.visit_sem(()), y.visit_sem(()))),
-            Self::Conditional(expr, then, otherwise) => ir::Expression::Conditional(
-                Box::new(expr.visit_sem(())),
-                then.visit_sem(()),
-                otherwise.visit_sem(()),
-            ),
+            Self::Conditional {
+                predicate,
+                when_true,
+                when_false,
+            } => ir::Expression::Conditional {
+                predicate: Box::new(predicate.visit_sem(())),
+                when_true: when_true.visit_sem(()),
+                when_false: when_false.visit_sem(()),
+            },
         }
     }
 }

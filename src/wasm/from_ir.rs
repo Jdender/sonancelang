@@ -189,10 +189,14 @@ impl IrVisitor for ir::Expression {
                 inst.push(wasm::Instruction::End);
                 locals
             }
-            Self::Conditional(expr, when_true, when_false) => {
-                let (mut expr, locals) = expr.visit_ir(locals);
+            Self::Conditional {
+                predicate,
+                when_true,
+                when_false,
+            } => {
+                let (mut predicate, locals) = predicate.visit_ir(locals);
 
-                inst.append(&mut expr);
+                inst.append(&mut predicate);
 
                 inst.append(&mut vec![
                     wasm::Instruction::I32Eqz,

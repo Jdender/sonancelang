@@ -30,7 +30,11 @@ pub enum Expression {
     ReturnValue(Box<Expression>),
     PrefixCall(PrefixOp, Box<Expression>),
     InfixCall(Box<Expression>, InfixOp, Box<Expression>),
-    Conditional(Box<Expression>, Block, Block),
+    Conditional {
+        predicate: Box<Expression>,
+        when_true: Block,
+        when_false: Block,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq)]

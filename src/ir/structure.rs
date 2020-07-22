@@ -25,7 +25,11 @@ pub enum Expression {
     BooleanNot(Box<Expression>),
     BooleanOr(Box<Expression>, Box<Expression>),
     BooleanAnd(Box<Expression>, Box<Expression>),
-    Conditional(Box<Expression>, Block, Block),
+    Conditional {
+        predicate: Box<Expression>,
+        when_true: Block,
+        when_false: Block,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq)]

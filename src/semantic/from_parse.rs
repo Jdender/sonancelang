@@ -96,11 +96,15 @@ impl AstVisitor for ast::Expression {
                 op.visit_ast(symbol_table),
                 Box::new(y.visit_ast(symbol_table)?),
             ),
-            Self::Conditional(expr, then, otherwise) => semantic::Expression::Conditional(
-                Box::new(expr.visit_ast(symbol_table)?),
-                then.visit_ast(symbol_table)?,
-                otherwise.visit_ast(symbol_table)?,
-            ),
+            Self::Conditional {
+                predicate,
+                when_true,
+                when_false,
+            } => semantic::Expression::Conditional {
+                predicate: Box::new(predicate.visit_ast(symbol_table)?),
+                when_true: when_true.visit_ast(symbol_table)?,
+                when_false: when_false.visit_ast(symbol_table)?,
+            },
         })
     }
 }
