@@ -54,13 +54,13 @@ impl IrVisitor for ir::Block {
         let mut inst = Vec::new();
         let mut locals = locals;
 
-        for stmt in self.0 {
+        for stmt in self.body {
             let (mut new_inst, new_locals) = stmt.visit_ir(locals);
             inst.append(&mut new_inst);
             locals = new_locals;
         }
 
-        let (mut expr, locals) = self.1.visit_ir(locals);
+        let (mut expr, locals) = self.trailing.visit_ir(locals);
         inst.append(&mut expr);
 
         (inst, locals)

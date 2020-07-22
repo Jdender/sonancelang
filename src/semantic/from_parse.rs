@@ -57,10 +57,10 @@ impl AstVisitor for ast::Block {
             });
         }
 
-        Ok(semantic::Block(
-            statements,
-            Box::new(self.trailing.visit_ast(&symbol_table)?),
-        ))
+        Ok(semantic::Block {
+            body: statements,
+            trailing: Box::new(self.trailing.visit_ast(&symbol_table)?),
+        })
     }
 }
 

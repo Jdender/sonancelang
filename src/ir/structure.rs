@@ -7,7 +7,10 @@ pub struct WasmModule {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct Block(pub Vec<Expression>, pub Box<Expression>);
+pub struct Block {
+    pub body: Vec<Expression>,
+    pub trailing: Box<Expression>,
+}
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expression {

@@ -10,7 +10,10 @@ pub struct File {
 pub struct Identifier(pub String);
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct Block(pub Vec<Statement>, pub Box<Expression>);
+pub struct Block {
+    pub body: Vec<Statement>,
+    pub trailing: Box<Expression>,
+}
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Statement {
