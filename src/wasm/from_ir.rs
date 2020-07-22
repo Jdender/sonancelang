@@ -1,4 +1,4 @@
-use super::super::{ir, wasm};
+use crate::{ir, semantic::SymbolId, wasm};
 use parity_wasm::builder::module;
 
 pub fn wasm_pass(input: ir::WasmModule) -> wasm::Module {
@@ -52,8 +52,8 @@ impl IrVisitor for ir::WasmModule {
 }
 
 impl IrVisitor for ir::Expression {
-    type Argument = Vec<String>;
-    type Return = (Vec<wasm::Instruction>, Vec<String>);
+    type Argument = Vec<SymbolId>;
+    type Return = (Vec<wasm::Instruction>, Vec<SymbolId>);
 
     fn visit_ir(self, mut locals: Self::Argument) -> <Self as IrVisitor>::Return {
         let mut inst = Vec::new();
@@ -62,17 +62,17 @@ impl IrVisitor for ir::Expression {
                 inst.push(wasm::Instruction::I32Const(num));
                 locals
             }
-            Self::LocalGet(name) => {
+            Self::LocalGet(symbol_id) => {
                 inst.push(wasm::Instruction::GetLocal(
                     locals
                         .iter()
-                        .position(|n| *n == name)
+                        .position(|s| *s == symbol_id)
                         .expect("Local not found") as u32,
                 ));
                 locals
             }
-            Self::LocalDeclare(name, expr) => {
-                locals.push(name);
+            Self::LocalDeclare(symbol_id, expr) => {
+                locals.push(symbol_id);
 
                 let (mut expr, locals) = expr.visit_ir(locals);
                 inst.append(&mut expr);
@@ -80,14 +80,14 @@ impl IrVisitor for ir::Expression {
                 inst.push(wasm::Instruction::SetLocal((locals.len() - 1) as u32));
                 locals
             }
-            Self::LocalSet(name, expr) => {
+            Self::LocalSet(symbol_id, expr) => {
                 let (mut expr, locals) = expr.visit_ir(locals);
                 inst.append(&mut expr);
 
                 inst.push(wasm::Instruction::SetLocal(
                     locals
                         .iter()
-                        .position(|n| *n == name)
+                        .position(|s| *s == symbol_id)
                         .expect("Local not found") as u32,
                 ));
                 locals

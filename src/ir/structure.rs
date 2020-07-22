@@ -1,3 +1,5 @@
+use crate::semantic::SymbolId;
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct WasmModule {
     pub name: String,
@@ -7,9 +9,9 @@ pub struct WasmModule {
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expression {
     Const(i32),
-    LocalGet(String),
-    LocalDeclare(String, Box<Expression>),
-    LocalSet(String, Box<Expression>),
+    LocalGet(SymbolId),
+    LocalDeclare(SymbolId, Box<Expression>),
+    LocalSet(SymbolId, Box<Expression>),
     Block(Vec<Expression>),
     Return(Box<Expression>),
     SimpleInfixCall(Box<Expression>, SimpleInfix, Box<Expression>),

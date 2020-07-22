@@ -41,8 +41,8 @@ impl SemanticVisitor for semantic::Statement {
 
     fn visit_sem(&self, (): Self::Argument) -> Self::Return {
         match self {
-            Self::LetBinding(name, expr) => {
-                ir::Expression::LocalDeclare(name.0.clone(), Box::new(expr.visit_sem(())))
+            Self::LetBinding(_name, symbol_id, expr) => {
+                ir::Expression::LocalDeclare(*symbol_id, Box::new(expr.visit_sem(())))
             }
             Self::Expression(expr) => expr.visit_sem(()),
         }
@@ -56,10 +56,10 @@ impl SemanticVisitor for semantic::Expression {
     fn visit_sem(&self, (): Self::Argument) -> <Self as SemanticVisitor>::Return {
         match self {
             Self::Literal(num) => ir::Expression::Const(*num),
-            Self::Lookup(name) => ir::Expression::LocalGet(name.0.clone()),
+            Self::Lookup(_name, symbol_id) => ir::Expression::LocalGet(*symbol_id),
             Self::Block(block) => ir::Expression::Block(block.visit_sem(())),
-            Self::Assignment(name, expr) => {
-                ir::Expression::LocalSet(name.0.clone(), Box::new(expr.visit_sem(())))
+            Self::Assignment(_name, symbol_id, expr) => {
+                ir::Expression::LocalSet(*symbol_id, Box::new(expr.visit_sem(())))
             }
             Self::ReturnValue(expr) => ir::Expression::Return(Box::new(expr.visit_sem(()))),
             Self::PrefixCall(op, expr) => op.visit_sem(expr.visit_sem(())),

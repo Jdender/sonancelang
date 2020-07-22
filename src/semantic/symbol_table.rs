@@ -34,8 +34,9 @@ impl<'a> SymbolTable<'a> {
     }
 
     pub fn set(&mut self, key: String) -> SymbolId {
-        self.members.insert(key, new_symbol_id());
-        *self.members.get(&key).expect("Just inserted on above line")
+        let symbol_id = new_symbol_id();
+        self.members.insert(key, symbol_id);
+        symbol_id
     }
 
     pub fn get(&self, key: &str) -> Option<SymbolId> {
