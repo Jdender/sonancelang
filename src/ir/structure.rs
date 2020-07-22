@@ -21,7 +21,7 @@ pub enum Expression {
     Block(Block),
     Return(Box<Expression>),
     SimpleInfixCall {
-        op: SimpleInfix,
+        operator: SimpleInfix,
         x_operand: Box<Expression>,
         y_operand: Box<Expression>,
     },

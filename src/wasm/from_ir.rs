@@ -121,7 +121,7 @@ impl IrVisitor for ir::Expression {
                 locals
             }
             Self::SimpleInfixCall {
-                op,
+                operator,
                 x_operand,
                 y_operand,
             } => {
@@ -131,7 +131,7 @@ impl IrVisitor for ir::Expression {
                 let (mut y_operand, locals) = y_operand.visit_ir(locals);
                 inst.append(&mut y_operand);
 
-                inst.push(op.visit_ir(()));
+                inst.push(operator.visit_ir(()));
                 locals
             }
             Self::Negate(expr) => {

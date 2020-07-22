@@ -50,64 +50,64 @@ pub Expression = {
     ExprPre6,
 }
 
-ExprPreN<X, OP, Y>: Expression = {
-    <x_operand: Boxed<X>> <op: OP> <y_operand: Boxed<Y>> => Expression::InfixCall { <> },
+ExprPreN<X, Op, Y>: Expression = {
+    <x_operand: Boxed<X>> <operator: Op> <y_operand: Boxed<Y>> => Expression::InfixCall { <> },
     Y,
 }
 
 ExprPre6 = ExprPreN<ExprPre6, OpPre6, ExprPre5>;
 
-OpPre6: InfixOp = {
-    "||" => InfixOp::BooleanOr,
+OpPre6: InfixOperator = {
+    "||" => InfixOperator::BooleanOr,
 }
 
 ExprPre5 = ExprPreN<ExprPre5, OpPre5, ExprPre4>;
 
-OpPre5: InfixOp = {
-    "&&" => InfixOp::BooleanAnd,
+OpPre5: InfixOperator = {
+    "&&" => InfixOperator::BooleanAnd,
 }
 
 ExprPre4 = ExprPreN<ExprPre4, OpPre4, ExprPre3>;
 
-OpPre4: InfixOp = {
-    "==" => InfixOp::Equal,
-    "!="=> InfixOp::NotEqual,
+OpPre4: InfixOperator = {
+    "==" => InfixOperator::Equal,
+    "!="=> InfixOperator::NotEqual,
 }
 
 ExprPre3 = ExprPreN<ExprPre3, OpPre3, ExprPre2>;
 
-OpPre3: InfixOp = {
-    ">"=> InfixOp::GreaterThan,
-    "<"=> InfixOp::LessThan,
-    ">="=> InfixOp::GreaterOrEqual,
-    "<="=> InfixOp::LessOrEqual,
+OpPre3: InfixOperator = {
+    ">"=> InfixOperator::GreaterThan,
+    "<"=> InfixOperator::LessThan,
+    ">="=> InfixOperator::GreaterOrEqual,
+    "<="=> InfixOperator::LessOrEqual,
 }
 
 ExprPre2 = ExprPreN<ExprPre2, OpPre2, ExprPre1>;
 
-OpPre2: InfixOp = {
-    "+" => InfixOp::Add,
-    "-" => InfixOp::Subtract,
+OpPre2: InfixOperator = {
+    "+" => InfixOperator::Add,
+    "-" => InfixOperator::Subtract,
 }
 
 ExprPre1 = ExprPreN<ExprPre1, OpPre1, ExprPre0>;
 
-OpPre1: InfixOp = {
-    "*" => InfixOp::Multiply,
-    "/" => InfixOp::Divide,
+OpPre1: InfixOperator = {
+    "*" => InfixOperator::Multiply,
+    "/" => InfixOperator::Divide,
 }
 
 ExprPre0: Expression = {
-    <op: PrefixOp> <operand: Boxed<ExprPre0>> => Expression::PrefixCall { <> },
+    <operator: PrefixOperator> <operand: Boxed<ExprPre0>> => Expression::PrefixCall { <> },
     "(" <Expression> ")",
 
     IntLiteral => Expression::Literal(<>),
     Identifier => Expression::Lookup(<>),
 }
 
-PrefixOp: PrefixOp = {
-    "-" => PrefixOp::Negate,
-    "!" => PrefixOp::BooleanNot,
+PrefixOperator: PrefixOperator = {
+    "-" => PrefixOperator::Negate,
+    "!" => PrefixOperator::BooleanNot,
 }
 
 pub IntLiteral: i32 = INT_LITERAL => i32::from_str(<>).unwrap();

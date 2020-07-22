@@ -42,12 +42,12 @@ impl Display for Expression {
             Expression::Block(block) => write!(f, "{}", block),
             Expression::Assignment { place, operand } => write!(f, "{} = {}", place, operand),
             Expression::ReturnValue(expr) => write!(f, "return {}", expr),
-            Expression::PrefixCall { op, operand } => write!(f, "{}{}", op, operand),
+            Expression::PrefixCall { operator, operand } => write!(f, "{}{}", operator, operand),
             Expression::InfixCall {
-                op,
+                operator,
                 x_operand,
                 y_operand,
-            } => write!(f, "{} {} {}", x_operand, op, y_operand),
+            } => write!(f, "{} {} {}", x_operand, operator, y_operand),
             Expression::Conditional {
                 predicate,
                 when_true,
@@ -57,39 +57,39 @@ impl Display for Expression {
     }
 }
 
-impl Display for PrefixOp {
+impl Display for PrefixOperator {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
         write!(
             f,
             "{}",
             match self {
-                PrefixOp::Negate => "-",
-                PrefixOp::BooleanNot => "!",
+                PrefixOperator::Negate => "-",
+                PrefixOperator::BooleanNot => "!",
             }
         )
     }
 }
 
-impl Display for InfixOp {
+impl Display for InfixOperator {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
         write!(
             f,
             "{}",
             match self {
-                InfixOp::Add => "+",
-                InfixOp::Subtract => "-",
-                InfixOp::Multiply => "*",
-                InfixOp::Divide => "/",
+                InfixOperator::Add => "+",
+                InfixOperator::Subtract => "-",
+                InfixOperator::Multiply => "*",
+                InfixOperator::Divide => "/",
 
-                InfixOp::Equal => "==",
-                InfixOp::NotEqual => "!=",
-                InfixOp::GreaterThan => ">",
-                InfixOp::LessThan => "<",
-                InfixOp::GreaterOrEqual => ">=",
-                InfixOp::LessOrEqual => "<=",
+                InfixOperator::Equal => "==",
+                InfixOperator::NotEqual => "!=",
+                InfixOperator::GreaterThan => ">",
+                InfixOperator::LessThan => "<",
+                InfixOperator::GreaterOrEqual => ">=",
+                InfixOperator::LessOrEqual => "<=",
 
-                InfixOp::BooleanOr => "||",
-                InfixOp::BooleanAnd => "&&",
+                InfixOperator::BooleanOr => "||",
+                InfixOperator::BooleanAnd => "&&",
             }
         )
     }

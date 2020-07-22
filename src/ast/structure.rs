@@ -33,11 +33,11 @@ pub enum Expression {
     },
     ReturnValue(Box<Expression>),
     PrefixCall {
-        op: PrefixOp,
+        operator: PrefixOperator,
         operand: Box<Expression>,
     },
     InfixCall {
-        op: InfixOp,
+        operator: InfixOperator,
         x_operand: Box<Expression>,
         y_operand: Box<Expression>,
     },
@@ -49,13 +49,13 @@ pub enum Expression {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum PrefixOp {
+pub enum PrefixOperator {
     Negate,
     BooleanNot,
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum InfixOp {
+pub enum InfixOperator {
     Add,
     Subtract,
     Multiply,
