@@ -3,7 +3,7 @@ use wasmer_runtime::{imports, instantiate, DynFunc, Value};
 
 fn compile_and_run(input: &str) -> i32 {
     let import_object = imports! {};
-    let wasm = compile(input).unwrap().to_bytes().unwrap();
+    let wasm = compile(input).unwrap().wasm.to_bytes().unwrap();
     let instance = instantiate(&wasm, &import_object).unwrap();
 
     let values = instance

@@ -18,13 +18,21 @@ pub enum CompilerError<'input> {
     IrError(ir::IrError),
 }
 
-pub fn compile(input: &str) -> Result<wasm::Module, CompilerError> {
+#[derive(Debug, Clone, PartialEq)]
+pub struct CompilerOutput {
+    pub wasm: wasm::Module,
+    pub formatted: String,
+}
+
+pub fn compile(input: &str) -> Result<CompilerOutput, CompilerError> {
     use CompilerError::*;
-    Ok(wasm::wasm_pass(
-        ir::ir_pass(
-            semantic::semantic_pass(ast::ast_pass(input).map_err(ParseError)?)
-                .map_err(SemanticError)?,
-        )
-        .map_err(IrError)?,
-    ))
+
+    let ast = ast::ast_pass(input).map_err(ParseError)?;
+    let formatted = ast.to_string();
+
+    let wasm = wasm::wasm_pass(
+        ir::ir_pass(semantic::semantic_pass(ast).map_err(SemanticError)?).map_err(IrError)?,
+    );
+
+    Ok(CompilerOutput { wasm, formatted })
 }
