@@ -33,25 +33,25 @@ pub Block: Block = "{" <body: Statement*> <trailing: Boxed<Expression>> "}" => B
 pub Identifier: Identifier = IDENTIFIER => Identifier(<>.to_string());
 
 pub Statement: Statement = {
-    "let" <Identifier> "=" <Expression> ";" => Statement::LetBinding(<>),
+    "let" <place: Identifier> "=" <operand: Expression> ";" => Statement::LetBinding { <> },
     <Expression> ";" => Statement::Expression(<>),
     <ExpressionWithBlock> => Statement::Expression(<>),
 }
 
 pub ExpressionWithBlock: Expression = {
     Block => Expression::Block(<>),
-    "if" <Boxed<Expression>> <Block> "else" <Block> => Expression::Conditional(<>),
+    "if" <predicate: Boxed<Expression>> <when_true: Block> "else" <when_false: Block> => Expression::Conditional {<>},
 }
 
 pub Expression = {
     ExpressionWithBlock,
     "return" <Boxed<Expression>> => Expression::ReturnValue(<>),
-    <Identifier> "=" <Boxed<Expression>> => Expression::Assignment(<>),
+    <place: Identifier> "=" <operand: Boxed<Expression>> => Expression::Assignment { <> },
     ExprPre6,
 }
 
 ExprPreN<X, OP, Y>: Expression = {
-    Boxed<X> OP Boxed<Y> => Expression::InfixCall(<>),
+    <x_operand: Boxed<X>> <op: OP> <y_operand: Boxed<Y>> => Expression::InfixCall { <> },
     Y,
 }
 
@@ -98,7 +98,7 @@ OpPre1: InfixOp = {
 }
 
 ExprPre0: Expression = {
-    PrefixOp Boxed<ExprPre0> => Expression::PrefixCall(<>),
+    <op: PrefixOp> <operand: Boxed<ExprPre0>> => Expression::PrefixCall { <> },
     "(" <Expression> ")",
 
     IntLiteral => Expression::Literal(<>),

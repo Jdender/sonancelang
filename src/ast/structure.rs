@@ -15,7 +15,10 @@ pub struct Block {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Statement {
-    LetBinding(Identifier, Expression),
+    LetBinding {
+        place: Identifier,
+        operand: Expression,
+    },
     Expression(Expression),
 }
 
@@ -24,10 +27,20 @@ pub enum Expression {
     Literal(i32),
     Lookup(Identifier),
     Block(Block),
-    Assignment(Identifier, Box<Expression>),
+    Assignment {
+        place: Identifier,
+        operand: Box<Expression>,
+    },
     ReturnValue(Box<Expression>),
-    PrefixCall(PrefixOp, Box<Expression>),
-    InfixCall(Box<Expression>, InfixOp, Box<Expression>),
+    PrefixCall {
+        op: PrefixOp,
+        operand: Box<Expression>,
+    },
+    InfixCall {
+        op: InfixOp,
+        x_operand: Box<Expression>,
+        y_operand: Box<Expression>,
+    },
     Conditional {
         predicate: Box<Expression>,
         when_true: Block,

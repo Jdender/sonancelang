@@ -29,7 +29,7 @@ impl AstVisitor for ast::Identifier {
     type Return = semantic::Identifier;
 
     fn visit_ast(&self, _symbol_table: &SymbolTable) -> Self::Return {
-        semantic::Identifier(self.0.clone())
+        semantic::Identifier(self.to_string())
     }
 }
 
@@ -42,14 +42,14 @@ impl AstVisitor for ast::Block {
 
         for stmt in self.body.iter() {
             statements.push(match stmt {
-                ast::Statement::LetBinding(ident, expr) => {
-                    let symbol_id = symbol_table.set(ident.0.clone());
+                ast::Statement::LetBinding { place, operand } => {
+                    let symbol_id = symbol_table.set(place.to_string());
 
-                    semantic::Statement::LetBinding(
-                        ident.visit_ast(&symbol_table),
+                    semantic::Statement::LetBinding {
+                        place: place.visit_ast(&symbol_table),
                         symbol_id,
-                        expr.visit_ast(&symbol_table)?,
-                    )
+                        operand: operand.visit_ast(&symbol_table)?,
+                    }
                 }
                 ast::Statement::Expression(expr) => {
                     semantic::Statement::Expression(expr.visit_ast(&symbol_table)?)
@@ -74,28 +74,32 @@ impl AstVisitor for ast::Expression {
                 ident.visit_ast(symbol_table),
                 symbol_table
                     .get(&ident.0)
-                    .ok_or_else(|| SemanticError::VariableNotDeclared(ident.0.clone()))?,
+                    .ok_or_else(|| SemanticError::VariableNotDeclared(ident.to_string()))?,
             ),
             Self::Block(block) => semantic::Expression::Block(block.visit_ast(symbol_table)?),
-            Self::Assignment(ident, expr) => semantic::Expression::Assignment(
-                ident.visit_ast(symbol_table),
-                symbol_table
-                    .get(&ident.0)
-                    .ok_or_else(|| SemanticError::VariableNotDeclared(ident.0.clone()))?,
-                Box::new(expr.visit_ast(symbol_table)?),
-            ),
+            Self::Assignment { place, operand } => semantic::Expression::Assignment {
+                place: place.visit_ast(symbol_table),
+                symbol_id: symbol_table
+                    .get(&place.0)
+                    .ok_or_else(|| SemanticError::VariableNotDeclared(place.to_string()))?,
+                operand: Box::new(operand.visit_ast(symbol_table)?),
+            },
             Self::ReturnValue(expr) => {
                 semantic::Expression::ReturnValue(Box::new(expr.visit_ast(symbol_table)?))
             }
-            Self::PrefixCall(op, expr) => semantic::Expression::PrefixCall(
-                op.visit_ast(symbol_table),
-                Box::new(expr.visit_ast(symbol_table)?),
-            ),
-            Self::InfixCall(x, op, y) => semantic::Expression::InfixCall(
-                Box::new(x.visit_ast(symbol_table)?),
-                op.visit_ast(symbol_table),
-                Box::new(y.visit_ast(symbol_table)?),
-            ),
+            Self::PrefixCall { op, operand } => semantic::Expression::PrefixCall {
+                op: op.visit_ast(symbol_table),
+                operand: Box::new(operand.visit_ast(symbol_table)?),
+            },
+            Self::InfixCall {
+                op,
+                x_operand,
+                y_operand,
+            } => semantic::Expression::InfixCall {
+                op: op.visit_ast(symbol_table),
+                x_operand: Box::new(x_operand.visit_ast(symbol_table)?),
+                y_operand: Box::new(y_operand.visit_ast(symbol_table)?),
+            },
             Self::Conditional {
                 predicate,
                 when_true,

@@ -28,7 +28,7 @@ impl Display for Block {
 impl Display for Statement {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
         match self {
-            Statement::LetBinding(name, expr) => write!(f, "let {} = {};", name, expr),
+            Statement::LetBinding { place, operand } => write!(f, "let {} = {};", place, operand),
             Statement::Expression(expr) => write!(f, "{};", expr),
         }
     }
@@ -40,10 +40,14 @@ impl Display for Expression {
             Expression::Literal(num) => write!(f, "{}", num),
             Expression::Lookup(ident) => write!(f, "{}", ident),
             Expression::Block(block) => write!(f, "{}", block),
-            Expression::Assignment(name, expr) => write!(f, "{} = {}", name, expr),
+            Expression::Assignment { place, operand } => write!(f, "{} = {}", place, operand),
             Expression::ReturnValue(expr) => write!(f, "return {}", expr),
-            Expression::PrefixCall(op, expr) => write!(f, "{}{}", op, expr),
-            Expression::InfixCall(x, op, y) => write!(f, "{} {} {}", x, op, y),
+            Expression::PrefixCall { op, operand } => write!(f, "{}{}", op, operand),
+            Expression::InfixCall {
+                op,
+                x_operand,
+                y_operand,
+            } => write!(f, "{} {} {}", x_operand, op, y_operand),
             Expression::Conditional {
                 predicate,
                 when_true,

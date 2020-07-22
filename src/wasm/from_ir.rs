@@ -120,12 +120,16 @@ impl IrVisitor for ir::Expression {
                 inst.push(wasm::Instruction::Return);
                 locals
             }
-            Self::SimpleInfixCall(x, op, y) => {
-                let (mut x, locals) = x.visit_ir(locals);
-                inst.append(&mut x);
+            Self::SimpleInfixCall {
+                op,
+                x_operand,
+                y_operand,
+            } => {
+                let (mut x_operand, locals) = x_operand.visit_ir(locals);
+                inst.append(&mut x_operand);
 
-                let (mut y, locals) = y.visit_ir(locals);
-                inst.append(&mut y);
+                let (mut y_operand, locals) = y_operand.visit_ir(locals);
+                inst.append(&mut y_operand);
 
                 inst.push(op.visit_ir(()));
                 locals

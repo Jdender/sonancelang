@@ -44,9 +44,9 @@ impl SemanticVisitor for semantic::Statement {
 
     fn visit_sem(&self, (): Self::Argument) -> Self::Return {
         match self {
-            Self::LetBinding(_name, symbol_id, expr) => {
-                ir::Expression::LocalDeclare(*symbol_id, Box::new(expr.visit_sem(())))
-            }
+            Self::LetBinding {
+                symbol_id, operand, ..
+            } => ir::Expression::LocalDeclare(*symbol_id, Box::new(operand.visit_sem(()))),
             Self::Expression(expr) => expr.visit_sem(()),
         }
     }
@@ -61,12 +61,16 @@ impl SemanticVisitor for semantic::Expression {
             Self::Literal(num) => ir::Expression::Const(*num),
             Self::Lookup(_name, symbol_id) => ir::Expression::LocalGet(*symbol_id),
             Self::Block(block) => ir::Expression::Block(block.visit_sem(())),
-            Self::Assignment(_name, symbol_id, expr) => {
-                ir::Expression::LocalSet(*symbol_id, Box::new(expr.visit_sem(())))
-            }
+            Self::Assignment {
+                symbol_id, operand, ..
+            } => ir::Expression::LocalSet(*symbol_id, Box::new(operand.visit_sem(()))),
             Self::ReturnValue(expr) => ir::Expression::Return(Box::new(expr.visit_sem(()))),
-            Self::PrefixCall(op, expr) => op.visit_sem(expr.visit_sem(())),
-            Self::InfixCall(x, op, y) => op.visit_sem((x.visit_sem(()), y.visit_sem(()))),
+            Self::PrefixCall { op, operand } => op.visit_sem(operand.visit_sem(())),
+            Self::InfixCall {
+                op,
+                x_operand,
+                y_operand,
+            } => op.visit_sem((x_operand.visit_sem(()), y_operand.visit_sem(()))),
             Self::Conditional {
                 predicate,
                 when_true,
@@ -99,7 +103,11 @@ impl SemanticVisitor for semantic::InfixOp {
     fn visit_sem(&self, (x, y): Self::Argument) -> Self::Return {
         let x = Box::new(x);
         let y = Box::new(y);
-        let helper = |op| ir::Expression::SimpleInfixCall(x.clone(), op, y.clone());
+        let helper = |op| ir::Expression::SimpleInfixCall {
+            op,
+            x_operand: x.clone(),
+            y_operand: y.clone(),
+        };
 
         match self {
             Self::Add => helper(ir::SimpleInfix::Add),

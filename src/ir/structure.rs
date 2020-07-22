@@ -20,7 +20,11 @@ pub enum Expression {
     LocalSet(SymbolId, Box<Expression>),
     Block(Block),
     Return(Box<Expression>),
-    SimpleInfixCall(Box<Expression>, SimpleInfix, Box<Expression>),
+    SimpleInfixCall {
+        op: SimpleInfix,
+        x_operand: Box<Expression>,
+        y_operand: Box<Expression>,
+    },
     Negate(Box<Expression>),
     BooleanNot(Box<Expression>),
     BooleanOr(Box<Expression>, Box<Expression>),

@@ -17,7 +17,11 @@ pub struct Block {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Statement {
-    LetBinding(Identifier, SymbolId, Expression),
+    LetBinding {
+        place: Identifier,
+        symbol_id: SymbolId,
+        operand: Expression,
+    },
     Expression(Expression),
 }
 
@@ -26,10 +30,21 @@ pub enum Expression {
     Literal(i32),
     Lookup(Identifier, SymbolId),
     Block(Block),
-    Assignment(Identifier, SymbolId, Box<Expression>),
+    Assignment {
+        place: Identifier,
+        symbol_id: SymbolId,
+        operand: Box<Expression>,
+    },
     ReturnValue(Box<Expression>),
-    PrefixCall(PrefixOp, Box<Expression>),
-    InfixCall(Box<Expression>, InfixOp, Box<Expression>),
+    PrefixCall {
+        op: PrefixOp,
+        operand: Box<Expression>,
+    },
+    InfixCall {
+        op: InfixOp,
+        x_operand: Box<Expression>,
+        y_operand: Box<Expression>,
+    },
     Conditional {
         predicate: Box<Expression>,
         when_true: Block,
