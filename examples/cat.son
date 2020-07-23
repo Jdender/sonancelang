@@ -1,5 +1,5 @@
 import std::{
-    future -> all_for_one,
+    future -> await_all,
     env -> { args, pwd },
     fs -> { read_file, path::join },
 };
@@ -8,17 +8,18 @@ func main() -> Future[Void] {
     let files = args
         .split(" ")
         .map(func (file) {
-            join(pwd(), file)
+            pwd()
+                .join(file)
                 .read_file()
         })
-        .all_for_one()
+        .await_all()
         .use;
 
     for result in files {
         match result {
             Okay: file -> print(file.content),
             Error: reason -> {
-                print("An error occurred: ${reason}");
+                print("An error occurred: #[reason]");
                 return;
             }
         }
