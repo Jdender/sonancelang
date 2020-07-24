@@ -7,6 +7,7 @@ lalrpop_mod!(#[allow(clippy::all)] pub grammar);
 mod test;
 
 pub mod ast;
+pub mod backend;
 pub mod ir;
 pub mod semantic;
 pub mod wasm;
