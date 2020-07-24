@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate lalrpop_util;
 
-lalrpop_mod!(pub grammar);
+lalrpop_mod!(#[allow(clippy::all)] pub grammar);
 
 #[cfg(test)]
 mod test;
