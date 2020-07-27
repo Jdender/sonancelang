@@ -9,15 +9,15 @@
 2. a sound; a tune.
 3. an work in progress, experimental programing language.
 
-The compiler itself is written in Rust which is also the language most inspiration was taken from.Some ideas were also borrowed from TypeScript as well as syntactically from Swift.
+The compiler itself is written in Rust which is also the language most inspiration was taken from. Some ideas were also borrowed from TypeScript as well as syntactically from Swift.
 
 ## Alpha Roadmap
 
-- [x] Int Literals
-- [x] Math and Boolean Operators
-- [x] Local Variables
-- [x] Block Scopes
-- [x] If Else Statements
+- [ ] Int Literals
+- [ ] Math and Boolean Operators
+- [ ] Local Variables
+- [ ] Block Scopes
+- [ ] If Else Statements
 - [ ] Functions and Calls
 - [ ] Anonymous Tuples
 
