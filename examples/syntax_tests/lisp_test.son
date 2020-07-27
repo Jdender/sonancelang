@@ -12,5 +12,5 @@
             (Okay: file
                 print file.content)
             (Error: reason
-                (print "An error occurred: ${reason}")
+                (print "An error occurred: \(reason)")
                 (return)))))

@@ -29,7 +29,7 @@ Most of the following features haven't been implemented at the time of writing t
 
 ```swift
 func say_hello(name: String = "world") {
-    print("Hello, #[name] !");
+    print("Hello, \(name) !");
 }
 ```
 
@@ -78,7 +78,7 @@ func main() -> Future[Void] {
         match result {
             Okay: file -> print(file.content),
             Error: reason -> {
-                print("An error occurred: #[reason]");
+                print("An error occurred: \(reason)");
                 return;
             }
         }
