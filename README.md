@@ -9,8 +9,6 @@
 2. a sound; a tune.
 3. an work in progress, experimental programing language.
 
-The compiler itself is written in Rust which is also the language most inspiration was taken from. Some ideas were also borrowed from TypeScript as well as syntactically from Swift.
-
 ## Alpha Roadmap
 
 - [ ] Int Literals
@@ -21,67 +19,35 @@ The compiler itself is written in Rust which is also the language most inspirati
 - [ ] Functions and Calls
 - [ ] Anonymous Tuples
 
-## Future Examples
+## Inspiration
 
-Most of the following features haven't been implemented at the time of writing this, take the following examples with a grain of salt.
+- Rust
+- C
+- TypeScript
+- Swift
 
-### Hello world
-
-```swift
-func say_hello(name: String = "world") {
-    print("Hello, \(name) !");
-}
-```
-
-### Fizzbuzz
+## Future Example
 
 ```swift
 func main() {
+    say_hello(_);
     for i in 0..=100 {
-        print(fizzbuzz(i));
+        say_hello(fizzbuzz(i));
     }
 }
 
+func say_hello(name: String = "world") {
+    print("Hello, \(name) !");
+}
+
 func fizzbuzz(num: U32) -> StringBuf {
-    match struct(num % 3, num % 5) {
+    let tuple = struct (num % 3, num % 5);
+
+    match tuple {
         (0, 0) -> "Fizzbuzz",
         (0, _) -> "Fizz",
         (_, 0) -> "Buzz",
         _ -> num.to_string(),
-    }
-}
-```
-
-### Cat Clone
-
-The actual APIs will most likely be different, take the following as just an example.
-
-```swift
-import std::{
-    future -> await_all,
-    env -> { args, pwd },
-    fs -> { read_file, path::join },
-};
-
-func main() -> Future[Void] {
-    let files = args
-        .split(" ")
-        .map(func (file) {
-            pwd()
-                .join(file)
-                .read_file()
-        })
-        .await_all()
-        .use;
-
-    for result in files {
-        match result {
-            Okay: file -> print(file.content),
-            Error: reason -> {
-                print("An error occurred: \(reason)");
-                return;
-            }
-        }
     }
 }
 ```
