@@ -49,7 +49,7 @@ impl AstVisitor for ast::Block {
             });
         }
 
-        let trailing = self.trailing.visit_ast(&symbol_table)?;
+        let trailing = Box::new(self.trailing.visit_ast(&symbol_table)?);
 
         Ok(semantic::Block { body, trailing })
     }
@@ -67,6 +67,7 @@ impl AstVisitor for ast::Expression {
                     .get(place.as_string())
                     .ok_or(format!("Could not find place: {}", place.as_string()))?,
             },
+            Self::Block(block) => semantic::Expression::Block(block.visit_ast(symbol_table)?),
             Self::Assignment { place, value } => semantic::Expression::Assignment {
                 place: place.visit_ast(symbol_table)?,
                 value: Box::new(value.visit_ast(symbol_table)?),

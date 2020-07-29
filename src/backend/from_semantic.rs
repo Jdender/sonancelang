@@ -71,6 +71,7 @@ impl SemanticVisitor for semantic::Expression {
         match self {
             Self::Literal(num) => builder.ins().iconst(types::I32, i64::from(*num)),
             Self::Lookup { symbol_id, .. } => builder.use_var(symbol_id.into()),
+            Self::Block(block) => block.visit_semantic(builder, ()),
             Self::Assignment {
                 symbol_id, value, ..
             } => {

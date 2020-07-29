@@ -26,17 +26,23 @@ pub File: File = "func" <name: Identifier>  "(" ")" "->" "I32" <body: Block> => 
 
 Identifier: Identifier = IDENTIFIER => Identifier::new(<>.to_string());
 
-Block: Block = "{" <body: Statement*> <trailing: Expression> "}" => Block { <> };
+Block: Block = "{" <body: Statement*> <trailing: Boxed<Expression>> "}" => Block { <> };
 
 Statement: Statement = {
     "let" <place: Identifier> "=" <value: Expression> ";" => Statement::LetBinding { <> },
     <Expression> ";" => Statement::SideEffect(<>),
+    <ExpressionWithBlock> => Statement::SideEffect(<>),
+}
+
+ExpressionWithBlock: Expression = {
+    Block => Expression::Block(<>),
 }
 
 Expression = {
     <place: Identifier> "=" <value: Boxed<Expression>> => Expression::Assignment { <> },
+    ExpressionWithBlock,
     ExprPre2,
-};
+}
 
 ExprPreN<X, Op, Y>: Expression = {
     <left: Boxed<X>> <operator: Op> <right: Boxed<Y>> => Expression::InfixCall { <> },

@@ -21,7 +21,7 @@ impl Identifier {
 #[derive(Debug, Clone)]
 pub struct Block {
     pub body: Vec<Statement>,
-    pub trailing: Expression,
+    pub trailing: Box<Expression>,
 }
 
 #[derive(Debug, Clone)]
@@ -41,6 +41,7 @@ pub enum Expression {
         place: Identifier,
         symbol_id: SymbolId,
     },
+    Block(Block),
     Assignment {
         place: Identifier,
         value: Box<Expression>,
