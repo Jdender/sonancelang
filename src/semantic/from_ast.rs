@@ -67,6 +67,13 @@ impl AstVisitor for ast::Expression {
                     .get(place.as_string())
                     .ok_or(format!("Could not find place: {}", place.as_string()))?,
             },
+            Self::Assignment { place, value } => semantic::Expression::Assignment {
+                place: place.visit_ast(symbol_table)?,
+                value: Box::new(value.visit_ast(symbol_table)?),
+                symbol_id: symbol_table
+                    .get(place.as_string())
+                    .ok_or(format!("Could not find place: {}", place.as_string()))?,
+            },
             Self::PrefixCall { operator, value } => PrefixCall {
                 operator: operator.visit_ast(symbol_table)?,
                 value: Box::new(value.visit_ast(symbol_table)?),

@@ -33,7 +33,10 @@ Statement: Statement = {
     <Expression> ";" => Statement::SideEffect(<>),
 }
 
-Expression = ExprPre2;
+Expression = {
+    <place: Identifier> "=" <value: Boxed<Expression>> => Expression::Assignment { <> },
+    ExprPre2,
+};
 
 ExprPreN<X, Op, Y>: Expression = {
     <left: Boxed<X>> <operator: Op> <right: Boxed<Y>> => Expression::InfixCall { <> },

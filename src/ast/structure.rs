@@ -35,6 +35,10 @@ pub enum Statement {
 pub enum Expression {
     Literal(i32),
     Lookup(Identifier),
+    Assignment {
+        place: Identifier,
+        value: Box<Expression>,
+    },
     PrefixCall {
         operator: PrefixOperator,
         value: Box<Expression>,

@@ -41,6 +41,11 @@ pub enum Expression {
         place: Identifier,
         symbol_id: SymbolId,
     },
+    Assignment {
+        place: Identifier,
+        value: Box<Expression>,
+        symbol_id: SymbolId,
+    },
     PrefixCall {
         operator: PrefixOperator,
         value: Box<Expression>,
