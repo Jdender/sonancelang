@@ -28,6 +28,15 @@ impl VisitAst for ast::Expression {
     fn visit_ast(&self, builder: &mut FunctionBuilder) -> Self::Output {
         match self {
             Self::Literal(num) => builder.ins().iconst(types::I32, i64::from(*num)),
+            Self::InfixCall {
+                left,
+                operator: ast::InfixOperator::Add,
+                right,
+            } => {
+                let left = left.visit_ast(builder);
+                let right = right.visit_ast(builder);
+                builder.ins().iadd(left, right)
+            }
         }
     }
 }

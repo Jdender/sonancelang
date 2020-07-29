@@ -26,18 +26,18 @@ pub File: File =
 
 Identifier: Identifier = IDENTIFIER => Identifier::new(<>.to_string());
 
-Expression = ExprPre0;
+Expression = ExprPre1;
 
-// ExprPreN<X, Op, Y>: Expression = {
-//     <left: Boxed<X>> <operator: Op> <right: Boxed<Y>> => Expression::InfixCall { <> },
-//     Y,
-// }
+ExprPreN<X, Op, Y>: Expression = {
+    <left: Boxed<X>> <operator: Op> <right: Boxed<Y>> => Expression::InfixCall { <> },
+    Y,
+}
 
-// ExprPre1 = ExprPreN<ExprPre1, OpPre1, ExprPre0>;
+ExprPre1 = ExprPreN<ExprPre1, OpPre1, ExprPre0>;
 
-// OpPre1: InfixOperator = {
-//     "+" => InfixOperator::Add,
-// }
+OpPre1: InfixOperator = {
+    "+" => InfixOperator::Add,
+}
 
 ExprPre0: Expression = {
     IntLiteral => Expression::Literal(<>),
