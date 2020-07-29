@@ -31,6 +31,10 @@ impl VisitAst for ast::Expression {
     fn visit_ast(&self, builder: &mut FunctionBuilder, (): Self::Param) -> Self::Output {
         match self {
             Self::Literal(num) => builder.ins().iconst(types::I32, i64::from(*num)),
+            Self::PrefixCall { operator, value } => {
+                let value = value.visit_ast(builder, ());
+                operator.visit_ast(builder, value)
+            }
             Self::InfixCall {
                 left,
                 operator,
@@ -40,6 +44,16 @@ impl VisitAst for ast::Expression {
                 let right = right.visit_ast(builder, ());
                 operator.visit_ast(builder, (left, right))
             }
+        }
+    }
+}
+
+impl VisitAst for ast::PrefixOperator {
+    type Param = Value;
+    type Output = Value;
+    fn visit_ast(&self, builder: &mut FunctionBuilder, value: Self::Param) -> Self::Output {
+        match self {
+            Self::Negate => builder.ins().ineg(value),
         }
     }
 }

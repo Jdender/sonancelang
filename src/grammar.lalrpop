@@ -49,8 +49,14 @@ OpPre1: InfixOperator = {
 }
 
 ExprPre0: Expression = {
-    IntLiteral => Expression::Literal(<>),
+    <operator: PrefixOperator> <value: Boxed<ExprPre0>> => Expression::PrefixCall { <> },
     "(" <Expression> ")",
+
+    IntLiteral => Expression::Literal(<>),
+}
+
+PrefixOperator: PrefixOperator = {
+    "-" => PrefixOperator::Negate,
 }
 
 IntLiteral: i32 = INT_LITERAL => i32::from_str(<>).unwrap();

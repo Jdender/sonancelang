@@ -19,11 +19,20 @@ impl Identifier {
 #[derive(Debug, Clone)]
 pub enum Expression {
     Literal(i32),
+    PrefixCall {
+        operator: PrefixOperator,
+        value: Box<Expression>,
+    },
     InfixCall {
         left: Box<Expression>,
         operator: InfixOperator,
         right: Box<Expression>,
     },
+}
+
+#[derive(Debug, Clone)]
+pub enum PrefixOperator {
+    Negate,
 }
 
 #[derive(Debug, Clone)]
