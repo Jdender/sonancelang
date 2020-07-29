@@ -1,10 +1,10 @@
-pub mod visit_ast;
+pub mod from_semantic;
 
-use super::ast;
+use super::semantic;
 use cranelift::{codegen::binemit::NullTrapSink, prelude::*};
 use cranelift_module::{Linkage, Module};
 use cranelift_object::{ObjectBackend, ObjectBuilder};
-use visit_ast::VisitAst;
+use from_semantic::SemanticVisitor;
 
 pub struct Backend {
     builder_context: FunctionBuilderContext,
@@ -30,11 +30,11 @@ impl Backend {
         })
     }
 
-    pub fn compile_func(mut self, input: ast::File) -> Result<Vec<u8>, String> {
+    pub fn compile_func(mut self, input: semantic::File) -> Result<Vec<u8>, String> {
         let mut builder: FunctionBuilder =
             FunctionBuilder::new(&mut self.ctx.func, &mut self.builder_context);
 
-        input.visit_ast(&mut builder, ());
+        input.visit_semantic(&mut builder, ());
 
         let mut return_sig = self.module.make_signature();
         return_sig.returns.push(AbiParam::new(types::I32));

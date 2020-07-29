@@ -8,13 +8,15 @@ pub mod backend;
 pub mod semantic;
 
 pub fn compile(input: &'_ str) -> Result<Vec<u8>, String> {
-    let input = grammar::FileParser::new()
+    let ast = grammar::FileParser::new()
         .parse(input)
         .map_err(|e| e.to_string())?;
 
+    let semantic = semantic::semantic_pass(ast);
+
     let backend = backend::Backend::new()?;
 
-    let input = backend.compile_func(input)?;
+    let input = backend.compile_func(semantic)?;
 
     Ok(input)
 }
