@@ -26,6 +26,21 @@ impl AstVisitor for ast::Identifier {
     }
 }
 
+impl AstVisitor for ast::Block {
+    type Output = semantic::Block;
+    fn visit_ast(&self, symbol_table: &SymbolTable) -> Self::Output {
+        let mut body = Vec::with_capacity(self.body.len());
+
+        for expr in self.body.iter() {
+            body.push(expr.visit_ast(symbol_table));
+        }
+
+        let trailing = self.trailing.visit_ast(symbol_table);
+
+        semantic::Block { body, trailing }
+    }
+}
+
 impl AstVisitor for ast::Expression {
     type Output = semantic::Expression;
     fn visit_ast(&self, symbol_table: &SymbolTable) -> Self::Output {

@@ -4,7 +4,7 @@ use crate::ast::*;
 grammar;
 
 match {
-    "func", "->", // Function
+    "func", "->", ";", // Function
 
     "I32", // Temporary
 
@@ -20,12 +20,11 @@ match {
 #[inline]
 Boxed<T>: Box<T> = T => Box::new(<>);
 
-pub File: File =
-    "func" <name: Identifier>  "(" ")" "->" "I32" "{"
-        <body: Expression>
-    "}" => File { <> };
+pub File: File = "func" <name: Identifier>  "(" ")" "->" "I32" <body: Block> => File { <> };
 
 Identifier: Identifier = IDENTIFIER => Identifier::new(<>.to_string());
+
+Block: Block = "{" <body: (<Expression> ";")*> <trailing: Expression> "}" => Block { <> };
 
 Expression = ExprPre2;
 

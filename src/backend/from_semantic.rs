@@ -25,6 +25,18 @@ impl SemanticVisitor for semantic::File {
     }
 }
 
+impl SemanticVisitor for semantic::Block {
+    type Param = ();
+    type Output = Value;
+    fn visit_semantic(&self, builder: &mut FunctionBuilder, _: Self::Param) -> Self::Output {
+        for expr in self.body.iter() {
+            expr.visit_semantic(builder, ());
+        }
+
+        self.trailing.visit_semantic(builder, ())
+    }
+}
+
 impl SemanticVisitor for semantic::Expression {
     type Param = ();
     type Output = Value;

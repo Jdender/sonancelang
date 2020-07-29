@@ -1,7 +1,7 @@
 #[derive(Debug, Clone)]
 pub struct File {
     pub name: Identifier,
-    pub body: Expression,
+    pub body: Block,
 }
 
 #[derive(Debug, Clone)]
@@ -14,6 +14,12 @@ impl Identifier {
     pub fn as_string(&self) -> &String {
         &self.0
     }
+}
+
+#[derive(Debug, Clone)]
+pub struct Block {
+    pub body: Vec<Expression>,
+    pub trailing: Expression,
 }
 
 #[derive(Debug, Clone)]
