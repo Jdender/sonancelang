@@ -33,7 +33,7 @@ impl JIT {
 
         let func = self
             .module
-            .declare_function("sonance", Linkage::Export, &return_sig)
+            .declare_function(input.name.as_string(), Linkage::Export, &return_sig)
             .map_err(|e| e.to_string())?;
 
         self.ctx.func.signature = return_sig;

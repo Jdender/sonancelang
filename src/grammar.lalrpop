@@ -10,12 +10,15 @@ match {
 
     "(", ")", "{", "}",
 
+    r"[a-zA-Z_]\w*" => IDENTIFIER,
     r"[0-9]+" => INT_LITERAL,
 }
 
 pub File: File =
-    "func" "main" "(" ")" "->" "I32" "{"
+    "func" <name: Identifier>  "(" ")" "->" "I32" "{"
         <number: IntLiteral>
     "}" => File { <> };
+
+Identifier: Identifier = IDENTIFIER => Identifier::new(<>.to_string());
 
 IntLiteral: i32 = INT_LITERAL => i32::from_str(<>).unwrap();
