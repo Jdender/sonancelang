@@ -45,7 +45,7 @@ impl SemanticVisitor for semantic::Statement {
             Self::LetBinding {
                 value, symbol_id, ..
             } => {
-                let symbol_id = symbol_id.visit_semantic(builder, ());
+                let symbol_id = symbol_id.into();
                 let value = value.visit_semantic(builder, ());
 
                 builder.declare_var(symbol_id, types::I32);
@@ -58,11 +58,9 @@ impl SemanticVisitor for semantic::Statement {
     }
 }
 
-impl SemanticVisitor for semantic::SymbolId {
-    type Param = ();
-    type Output = Variable;
-    fn visit_semantic(&self, _: &mut FunctionBuilder, _: Self::Param) -> Self::Output {
-        Variable::with_u32(self.as_u32())
+impl From<&semantic::SymbolId> for Variable {
+    fn from(id: &semantic::SymbolId) -> Self {
+        Variable::with_u32(id.as_u32())
     }
 }
 
@@ -72,6 +70,7 @@ impl SemanticVisitor for semantic::Expression {
     fn visit_semantic(&self, builder: &mut FunctionBuilder, _: Self::Param) -> Self::Output {
         match self {
             Self::Literal(num) => builder.ins().iconst(types::I32, i64::from(*num)),
+            Self::Lookup { symbol_id, .. } => builder.use_var(symbol_id.into()),
             Self::PrefixCall { operator, value } => {
                 let value = value.visit_semantic(builder, ());
                 operator.visit_semantic(builder, value)

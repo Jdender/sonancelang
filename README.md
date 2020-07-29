@@ -13,7 +13,7 @@
 
 - [x] Int Literals
 - [x] Math Operators
-- [ ] Local Variables
+- [x] Local Variables
 - [ ] Block Scopes
 - [ ] If Else Statements
 - [ ] Boolean Operators

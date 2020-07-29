@@ -34,6 +34,7 @@ pub enum Statement {
 #[derive(Debug, Clone)]
 pub enum Expression {
     Literal(i32),
+    Lookup(Identifier),
     PrefixCall {
         operator: PrefixOperator,
         value: Box<Expression>,

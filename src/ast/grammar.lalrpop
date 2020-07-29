@@ -59,6 +59,7 @@ ExprPre0: Expression = {
     "(" <Expression> ")",
 
     IntLiteral => Expression::Literal(<>),
+    Identifier => Expression::Lookup(<>),
 }
 
 PrefixOperator: PrefixOperator = {
