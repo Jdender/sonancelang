@@ -1,7 +1,7 @@
 #[derive(Debug, Clone)]
 pub struct File {
     pub name: Identifier,
-    pub number: i32,
+    pub number: Expression,
 }
 
 #[derive(Debug, Clone)]
@@ -14,4 +14,9 @@ impl Identifier {
     pub fn as_string(&self) -> &String {
         &self.0
     }
+}
+
+#[derive(Debug, Clone)]
+pub enum Expression {
+    Literal(i32),
 }

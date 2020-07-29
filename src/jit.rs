@@ -44,9 +44,11 @@ impl JIT {
                 FunctionBuilder::new(&mut self.ctx.func, &mut self.builder_context);
             let block = bcx.create_block();
 
+            let Expression::Literal(num) = input.number;
+
             bcx.switch_to_block(block);
             bcx.append_block_params_for_function_params(block);
-            let cst = bcx.ins().iconst(types::I32, i64::from(input.number));
+            let cst = bcx.ins().iconst(types::I32, i64::from(num));
             bcx.ins().return_(&[cst]);
             bcx.seal_all_blocks();
             bcx.finalize();
