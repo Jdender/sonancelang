@@ -10,9 +10,14 @@ match {
 
     "(", ")", "{", "}",
 
+    "+",
+
     r"[a-zA-Z_]\w*" => IDENTIFIER,
     r"[0-9]+" => INT_LITERAL,
 }
+
+#[inline]
+Boxed<T>: Box<T> = T => Box::new(<>);
 
 pub File: File =
     "func" <name: Identifier>  "(" ")" "->" "I32" "{"
@@ -21,7 +26,20 @@ pub File: File =
 
 Identifier: Identifier = IDENTIFIER => Identifier::new(<>.to_string());
 
-Expression: Expression = {
+Expression = ExprPre0;
+
+// ExprPreN<X, Op, Y>: Expression = {
+//     <left: Boxed<X>> <operator: Op> <right: Boxed<Y>> => Expression::InfixCall { <> },
+//     Y,
+// }
+
+// ExprPre1 = ExprPreN<ExprPre1, OpPre1, ExprPre0>;
+
+// OpPre1: InfixOperator = {
+//     "+" => InfixOperator::Add,
+// }
+
+ExprPre0: Expression = {
     IntLiteral => Expression::Literal(<>),
     "(" <Expression> ")",
 }

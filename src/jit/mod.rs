@@ -1,7 +1,10 @@
-use super::ast::*;
+pub mod visit_ast;
+
+use super::ast;
 use cranelift::{codegen::binemit::NullTrapSink, prelude::*};
 use cranelift_module::{Linkage, Module};
 use cranelift_object::{ObjectBackend, ObjectBuilder};
+use visit_ast::VisitAst;
 
 pub struct JIT {
     builder_context: FunctionBuilderContext,
@@ -15,7 +18,7 @@ impl JIT {
             .map_err(|e| e.to_string())?
             .finish(settings::Flags::new(settings::builder()));
 
-        let builder = ObjectBuilder::new(isa, "test", cranelift_module::default_libcall_names())
+        let builder = ObjectBuilder::new(isa, "sonance", cranelift_module::default_libcall_names())
             .map_err(|e| e.to_string())?;
 
         let module = Module::new(builder);
@@ -27,36 +30,29 @@ impl JIT {
         })
     }
 
-    pub fn compile(mut self, input: File) -> Result<Vec<u8>, String> {
+    pub fn compile_func(mut self, input: ast::File) -> Result<Vec<u8>, String> {
+        let mut builder: FunctionBuilder =
+            FunctionBuilder::new(&mut self.ctx.func, &mut self.builder_context);
+
+        input.visit_ast(&mut builder);
+
         let mut return_sig = self.module.make_signature();
         return_sig.returns.push(AbiParam::new(types::I32));
+        self.ctx.func.signature = return_sig;
 
         let func = self
             .module
-            .declare_function(input.name.as_string(), Linkage::Export, &return_sig)
+            .declare_function(
+                input.name.as_string(),
+                Linkage::Export,
+                &self.ctx.func.signature,
+            )
             .map_err(|e| e.to_string())?;
-
-        self.ctx.func.signature = return_sig;
-        self.ctx.func.name = ExternalName::user(0, func.as_u32());
-
-        {
-            let mut bcx: FunctionBuilder =
-                FunctionBuilder::new(&mut self.ctx.func, &mut self.builder_context);
-            let block = bcx.create_block();
-
-            let Expression::Literal(num) = input.number;
-
-            bcx.switch_to_block(block);
-            bcx.append_block_params_for_function_params(block);
-            let cst = bcx.ins().iconst(types::I32, i64::from(num));
-            bcx.ins().return_(&[cst]);
-            bcx.seal_all_blocks();
-            bcx.finalize();
-        }
 
         self.module
             .define_function(func, &mut self.ctx, &mut NullTrapSink {})
             .unwrap();
+
         self.module.clear_context(&mut self.ctx);
 
         self.module.finalize_definitions();

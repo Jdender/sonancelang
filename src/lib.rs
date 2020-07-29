@@ -13,7 +13,7 @@ pub fn compile(input: &'_ str) -> Result<Vec<u8>, String> {
 
     let jit = jit::JIT::new()?;
 
-    let input = jit.compile(input)?;
+    let input = jit.compile_func(input)?;
 
     Ok(input)
 }
