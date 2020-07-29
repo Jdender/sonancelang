@@ -41,6 +41,16 @@ impl AstVisitor for ast::Block {
     }
 }
 
+impl AstVisitor for ast::Statement {
+    type Output = semantic::Statement;
+    fn visit_ast(&self, symbol_table: &SymbolTable) -> Self::Output {
+        use semantic::Statement::*;
+        match self {
+            Self::SideEffect(expr) => SideEffect(expr.visit_ast(symbol_table)),
+        }
+    }
+}
+
 impl AstVisitor for ast::Expression {
     type Output = semantic::Expression;
     fn visit_ast(&self, symbol_table: &SymbolTable) -> Self::Output {

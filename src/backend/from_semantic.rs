@@ -37,6 +37,16 @@ impl SemanticVisitor for semantic::Block {
     }
 }
 
+impl SemanticVisitor for semantic::Statement {
+    type Param = ();
+    type Output = ();
+    fn visit_semantic(&self, builder: &mut FunctionBuilder, _: Self::Param) -> Self::Output {
+        match self {
+            Self::SideEffect(expr) => expr.visit_semantic(builder, ()),
+        };
+    }
+}
+
 impl SemanticVisitor for semantic::Expression {
     type Param = ();
     type Output = Value;

@@ -24,7 +24,11 @@ pub File: File = "func" <name: Identifier>  "(" ")" "->" "I32" <body: Block> => 
 
 Identifier: Identifier = IDENTIFIER => Identifier::new(<>.to_string());
 
-Block: Block = "{" <body: (<Expression> ";")*> <trailing: Expression> "}" => Block { <> };
+Block: Block = "{" <body: Statement*> <trailing: Expression> "}" => Block { <> };
+
+Statement: Statement = {
+    <Expression> ";" => Statement::SideEffect(<>),
+}
 
 Expression = ExprPre2;
 

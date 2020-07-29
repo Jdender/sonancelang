@@ -18,8 +18,13 @@ impl Identifier {
 
 #[derive(Debug, Clone)]
 pub struct Block {
-    pub body: Vec<Expression>,
+    pub body: Vec<Statement>,
     pub trailing: Expression,
+}
+
+#[derive(Debug, Clone)]
+pub enum Statement {
+    SideEffect(Expression),
 }
 
 #[derive(Debug, Clone)]
