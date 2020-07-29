@@ -29,4 +29,7 @@ pub enum Expression {
 #[derive(Debug, Clone)]
 pub enum InfixOperator {
     Add,
+    Subtract,
+    Multiply,
+    Divide,
 }

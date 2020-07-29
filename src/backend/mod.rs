@@ -34,7 +34,7 @@ impl Backend {
         let mut builder: FunctionBuilder =
             FunctionBuilder::new(&mut self.ctx.func, &mut self.builder_context);
 
-        input.visit_ast(&mut builder);
+        input.visit_ast(&mut builder, ());
 
         let mut return_sig = self.module.make_signature();
         return_sig.returns.push(AbiParam::new(types::I32));

@@ -4,14 +4,15 @@ use crate::ast::*;
 grammar;
 
 match {
-    "func", "->",
+    "func", "->", // Function
 
-    "main", "I32",
+    "I32", // Temporary
 
-    "(", ")", "{", "}",
+    "(", ")", "{", "}", // Parens
 
-    "+",
+    "+", "-", "*", "/", // Numeric Operators
 
+    // Regex Tokens
     r"[a-zA-Z_]\w*" => IDENTIFIER,
     r"[0-9]+" => INT_LITERAL,
 }
@@ -26,17 +27,25 @@ pub File: File =
 
 Identifier: Identifier = IDENTIFIER => Identifier::new(<>.to_string());
 
-Expression = ExprPre1;
+Expression = ExprPre2;
 
 ExprPreN<X, Op, Y>: Expression = {
     <left: Boxed<X>> <operator: Op> <right: Boxed<Y>> => Expression::InfixCall { <> },
     Y,
 }
 
+ExprPre2 = ExprPreN<ExprPre2, OpPre2, ExprPre1>;
+
+OpPre2: InfixOperator = {
+    "+" => InfixOperator::Add,
+    "-" => InfixOperator::Subtract,
+}
+
 ExprPre1 = ExprPreN<ExprPre1, OpPre1, ExprPre0>;
 
 OpPre1: InfixOperator = {
-    "+" => InfixOperator::Add,
+    "*" => InfixOperator::Multiply,
+    "/" => InfixOperator::Divide,
 }
 
 ExprPre0: Expression = {
