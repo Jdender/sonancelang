@@ -29,25 +29,29 @@ impl AstVisitor for ast::Identifier {
 impl AstVisitor for ast::Block {
     type Output = semantic::Block;
     fn visit_ast(&self, symbol_table: &SymbolTable) -> Self::Output {
+        let mut symbol_table = symbol_table.fork();
         let mut body = Vec::with_capacity(self.body.len());
 
-        for expr in self.body.iter() {
-            body.push(expr.visit_ast(symbol_table));
+        for stmt in self.body.iter() {
+            body.push(match stmt {
+                ast::Statement::LetBinding { place, value } => {
+                    let symbol_id = symbol_table.set(place.as_string().clone());
+
+                    semantic::Statement::LetBinding {
+                        place: place.visit_ast(&symbol_table),
+                        value: value.visit_ast(&symbol_table),
+                        symbol_id,
+                    }
+                }
+                ast::Statement::SideEffect(expr) => {
+                    semantic::Statement::SideEffect(expr.visit_ast(&symbol_table))
+                }
+            });
         }
 
-        let trailing = self.trailing.visit_ast(symbol_table);
+        let trailing = self.trailing.visit_ast(&symbol_table);
 
         semantic::Block { body, trailing }
-    }
-}
-
-impl AstVisitor for ast::Statement {
-    type Output = semantic::Statement;
-    fn visit_ast(&self, symbol_table: &SymbolTable) -> Self::Output {
-        use semantic::Statement::*;
-        match self {
-            Self::SideEffect(expr) => SideEffect(expr.visit_ast(symbol_table)),
-        }
     }
 }
 

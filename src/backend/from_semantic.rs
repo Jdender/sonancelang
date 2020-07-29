@@ -29,8 +29,8 @@ impl SemanticVisitor for semantic::Block {
     type Param = ();
     type Output = Value;
     fn visit_semantic(&self, builder: &mut FunctionBuilder, _: Self::Param) -> Self::Output {
-        for expr in self.body.iter() {
-            expr.visit_semantic(builder, ());
+        for stmt in self.body.iter() {
+            stmt.visit_semantic(builder, ());
         }
 
         self.trailing.visit_semantic(builder, ())
@@ -42,8 +42,27 @@ impl SemanticVisitor for semantic::Statement {
     type Output = ();
     fn visit_semantic(&self, builder: &mut FunctionBuilder, _: Self::Param) -> Self::Output {
         match self {
-            Self::SideEffect(expr) => expr.visit_semantic(builder, ()),
-        };
+            Self::LetBinding {
+                value, symbol_id, ..
+            } => {
+                let symbol_id = symbol_id.visit_semantic(builder, ());
+                let value = value.visit_semantic(builder, ());
+
+                builder.declare_var(symbol_id, types::I32);
+                builder.def_var(symbol_id, value);
+            }
+            Self::SideEffect(expr) => {
+                expr.visit_semantic(builder, ());
+            }
+        }
+    }
+}
+
+impl SemanticVisitor for semantic::SymbolId {
+    type Param = ();
+    type Output = Variable;
+    fn visit_semantic(&self, _: &mut FunctionBuilder, _: Self::Param) -> Self::Output {
+        Variable::with_u32(self.as_u32())
     }
 }
 

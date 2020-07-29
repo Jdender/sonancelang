@@ -24,6 +24,10 @@ pub struct Block {
 
 #[derive(Debug, Clone)]
 pub enum Statement {
+    LetBinding {
+        place: Identifier,
+        value: Expression,
+    },
     SideEffect(Expression),
 }
 

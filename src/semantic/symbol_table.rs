@@ -1,17 +1,5 @@
 use std::collections::HashMap;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct SymbolId(usize);
-
-fn new_symbol_id() -> SymbolId {
-    use std::sync::atomic::{AtomicUsize, Ordering::Relaxed};
-
-    static COUNTER: AtomicUsize = AtomicUsize::new(0);
-
-    COUNTER.fetch_add(1, Relaxed);
-    SymbolId(COUNTER.load(Relaxed))
-}
-
 #[derive(Debug, Clone, Default)]
 pub struct SymbolTable<'a> {
     members: HashMap<String, SymbolId>,
@@ -34,7 +22,7 @@ impl<'a> SymbolTable<'a> {
     }
 
     pub fn set(&mut self, key: String) -> SymbolId {
-        let symbol_id = new_symbol_id();
+        let symbol_id = SymbolId::new();
         self.members.insert(key, symbol_id);
         symbol_id
     }
@@ -45,5 +33,29 @@ impl<'a> SymbolTable<'a> {
             (None, Some(parent)) => parent.get(key),
             _ => None,
         }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SymbolId(u32);
+
+impl Default for SymbolId {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl SymbolId {
+    pub fn new() -> SymbolId {
+        use std::sync::atomic::{AtomicU32, Ordering::Relaxed};
+
+        static COUNTER: AtomicU32 = AtomicU32::new(0);
+
+        COUNTER.fetch_add(1, Relaxed);
+        SymbolId(COUNTER.load(Relaxed))
+    }
+
+    pub fn as_u32(&self) -> u32 {
+        self.0
     }
 }

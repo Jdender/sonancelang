@@ -1,3 +1,5 @@
+use super::SymbolId;
+
 #[derive(Debug, Clone)]
 pub struct File {
     pub name: Identifier,
@@ -24,6 +26,11 @@ pub struct Block {
 
 #[derive(Debug, Clone)]
 pub enum Statement {
+    LetBinding {
+        place: Identifier,
+        value: Expression,
+        symbol_id: SymbolId,
+    },
     SideEffect(Expression),
 }
 

@@ -4,9 +4,11 @@ use crate::ast::*;
 grammar;
 
 match {
-    "func", "->", ";", // Function
-
     "I32", // Temporary
+
+    "func", "->", "let", ";", // Function
+
+    "=", // Special Operators
 
     "(", ")", "{", "}", // Parens
 
@@ -27,6 +29,7 @@ Identifier: Identifier = IDENTIFIER => Identifier::new(<>.to_string());
 Block: Block = "{" <body: Statement*> <trailing: Expression> "}" => Block { <> };
 
 Statement: Statement = {
+    "let" <place: Identifier> "=" <value: Expression> ";" => Statement::LetBinding { <> },
     <Expression> ";" => Statement::SideEffect(<>),
 }
 
