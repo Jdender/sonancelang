@@ -14,7 +14,7 @@ impl VisitAst for ast::File {
         builder.switch_to_block(block);
         builder.append_block_params_for_function_params(block);
 
-        let result = self.number.visit_ast(builder);
+        let result = self.body.visit_ast(builder);
 
         builder.ins().return_(&[result]);
 

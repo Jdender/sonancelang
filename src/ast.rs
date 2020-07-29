@@ -1,7 +1,7 @@
 #[derive(Debug, Clone)]
 pub struct File {
     pub name: Identifier,
-    pub number: Expression,
+    pub body: Expression,
 }
 
 #[derive(Debug, Clone)]

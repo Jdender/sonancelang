@@ -6,13 +6,13 @@ use cranelift_module::{Linkage, Module};
 use cranelift_object::{ObjectBackend, ObjectBuilder};
 use visit_ast::VisitAst;
 
-pub struct JIT {
+pub struct Backend {
     builder_context: FunctionBuilderContext,
     ctx: codegen::Context,
     module: Module<ObjectBackend>,
 }
 
-impl JIT {
+impl Backend {
     pub fn new() -> Result<Self, String> {
         let isa = isa::lookup(target_lexicon::HOST)
             .map_err(|e| e.to_string())?
