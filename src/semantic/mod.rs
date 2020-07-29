@@ -8,7 +8,7 @@ pub use symbol_table::*;
 use super::ast;
 use from_ast::AstVisitor;
 
-pub fn semantic_pass(input: ast::File) -> File {
+pub fn semantic_pass(input: ast::File) -> Result<File, String> {
     let symbol_table = SymbolTable::new();
     input.visit_ast(&symbol_table)
 }
