@@ -12,10 +12,11 @@
 ## Alpha Roadmap
 
 - [x] Int Literals
-- [ ] Math and Boolean Operators
+- [x] Math Operators
 - [ ] Local Variables
 - [ ] Block Scopes
 - [ ] If Else Statements
+- [ ] Boolean Operators
 - [ ] Functions and Calls
 - [ ] Anonymous Tuples
 

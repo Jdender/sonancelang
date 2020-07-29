@@ -5,6 +5,7 @@ lalrpop_mod!(#[allow(clippy::all)] pub grammar);
 
 pub mod ast;
 pub mod backend;
+pub mod semantic;
 
 pub fn compile(input: &'_ str) -> Result<Vec<u8>, String> {
     let input = grammar::FileParser::new()
