@@ -70,8 +70,11 @@ impl SemanticVisitor for semantic::Expression {
     fn visit_semantic(&self, builder: &mut FunctionBuilder, _: Self::Param) -> Self::Output {
         match self {
             Self::Literal(num) => builder.ins().iconst(types::I32, i64::from(*num)),
+
             Self::Lookup { symbol_id, .. } => builder.use_var(symbol_id.into()),
+
             Self::Block(block) => block.visit_semantic(builder, ()),
+
             Self::Assignment {
                 symbol_id, value, ..
             } => {
@@ -79,10 +82,12 @@ impl SemanticVisitor for semantic::Expression {
                 builder.def_var(symbol_id.into(), value);
                 builder.ins().iconst(types::I32, 0)
             }
+
             Self::PrefixCall { operator, value } => {
                 let value = value.visit_semantic(builder, ());
                 operator.visit_semantic(builder, value)
             }
+
             Self::InfixCall {
                 left,
                 operator,

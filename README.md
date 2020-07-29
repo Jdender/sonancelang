@@ -14,7 +14,7 @@
 - [x] Int Literals
 - [x] Math Operators
 - [x] Local Variables
-- [ ] Block Scopes
+- [x] Block Scopes
 - [ ] If Else Statements
 - [ ] Boolean Operators
 - [ ] Functions and Calls
@@ -24,7 +24,12 @@
 
 ```swift
 func sonance() -> I32 {
-    123456
+    let a = {
+        let b = 123;
+        b + b
+    };
+    let c = -a * (100 / 10);
+    c
 }
 ```
 
