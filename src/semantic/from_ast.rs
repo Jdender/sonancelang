@@ -15,6 +15,7 @@ impl AstVisitor for ast::File {
     fn visit_ast(&self, symbol_table: &SymbolTable) -> Result<Self::Output, String> {
         Ok(semantic::File {
             name: self.name.visit_ast(symbol_table)?,
+            return_type: self.return_type.visit_ast(symbol_table)?,
             body: self.body.visit_ast(symbol_table)?,
         })
     }
@@ -25,6 +26,18 @@ impl AstVisitor for ast::Identifier {
 
     fn visit_ast(&self, _: &SymbolTable) -> Result<Self::Output, String> {
         Ok(semantic::Identifier::new(self.as_string().clone()))
+    }
+}
+
+impl AstVisitor for ast::Type {
+    type Output = semantic::Type;
+
+    fn visit_ast(&self, _: &SymbolTable) -> Result<Self::Output, String> {
+        use semantic::Type::*;
+
+        Ok(match self {
+            Self::I32 => I32,
+        })
     }
 }
 

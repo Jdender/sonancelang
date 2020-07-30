@@ -4,9 +4,9 @@ use crate::ast::*;
 grammar;
 
 match {
-    "I32", // Temporary
-
     "func", "->", "let", ";", // Function
+
+    "I32", // Types
 
     "=", // Special Operators
 
@@ -22,9 +22,13 @@ match {
 #[inline]
 Boxed<T>: Box<T> = T => Box::new(<>);
 
-pub File: File = "func" <name: Identifier>  "(" ")" "->" "I32" <body: Block> => File { <> };
+pub File: File = "func" <name: Identifier>  "(" ")" "->" <return_type: Type> <body: Block> => File { <> };
 
 Identifier: Identifier = IDENTIFIER => Identifier::new(<>.to_string());
+
+Type: Type = {
+    "I32" => Type::I32,
+}
 
 Block: Block = "{" <body: Statement*> <trailing: Boxed<Expression>> "}" => Block { <> };
 

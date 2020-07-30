@@ -3,6 +3,7 @@ use super::SymbolId;
 #[derive(Debug, Clone)]
 pub struct File {
     pub name: Identifier,
+    pub return_type: Type,
     pub body: Block,
 }
 
@@ -16,6 +17,11 @@ impl Identifier {
     pub fn as_string(&self) -> &String {
         &self.0
     }
+}
+
+#[derive(Debug, Clone)]
+pub enum Type {
+    I32,
 }
 
 #[derive(Debug, Clone)]

@@ -36,8 +36,15 @@ impl Backend {
 
         input.visit_semantic(&mut builder, ());
 
+        let return_type = {
+            use semantic::Type::*;
+            match input.return_type {
+                I32 => types::I32,
+            }
+        };
+
         let mut return_sig = self.module.make_signature();
-        return_sig.returns.push(AbiParam::new(types::I32));
+        return_sig.returns.push(AbiParam::new(return_type));
         self.ctx.func.signature = return_sig;
 
         let func = self
