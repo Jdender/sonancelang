@@ -1,7 +1,7 @@
 #[derive(Debug, Clone)]
 pub struct File {
     pub name: Identifier,
-    pub return_type: Type,
+    pub return_type: Tye,
     pub body: Block,
 }
 
@@ -18,7 +18,7 @@ impl Identifier {
 }
 
 #[derive(Debug, Clone)]
-pub enum Type {
+pub enum Tye {
     I32,
     F32,
 }

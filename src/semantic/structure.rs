@@ -3,7 +3,7 @@ use super::SymbolId;
 #[derive(Debug, Clone)]
 pub struct File {
     pub name: Identifier,
-    pub return_type: Type,
+    pub return_type: Tye,
     pub body: Block,
 }
 
@@ -20,7 +20,7 @@ impl Identifier {
 }
 
 #[derive(Debug, Clone)]
-pub enum Type {
+pub enum Tye {
     I32,
     F32,
 }
@@ -71,7 +71,7 @@ pub enum Literal {
     F32(f32),
 }
 
-impl From<Literal> for Type {
+impl From<Literal> for Tye {
     fn from(literal: Literal) -> Self {
         use Literal::*;
 

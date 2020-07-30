@@ -29,11 +29,11 @@ impl AstVisitor for ast::Identifier {
     }
 }
 
-impl AstVisitor for ast::Type {
-    type Output = semantic::Type;
+impl AstVisitor for ast::Tye {
+    type Output = semantic::Tye;
 
     fn visit_ast(&self, _: &SymbolTable) -> Result<Self::Output, String> {
-        use semantic::Type::*;
+        use semantic::Tye::*;
 
         Ok(match self {
             Self::I32 => I32,
