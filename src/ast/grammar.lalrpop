@@ -6,7 +6,7 @@ grammar;
 match {
     "func", "->", "let", ";", // Function
 
-    "I32", // Types
+    "I32", "F32", // Types
 
     "=", // Special Operators
 
@@ -16,7 +16,8 @@ match {
 
     // Regex Tokens
     r"[a-zA-Z_]\w*" => IDENTIFIER,
-    r"[0-9]+" => INT_LITERAL,
+    r"[+-]?\d+" => INT_LITERAL,
+    r"[+-]?\d+\.\d+" => FLOAT_LITERAL,
 }
 
 #[inline]
@@ -28,6 +29,7 @@ Identifier: Identifier = IDENTIFIER => Identifier::new(<>.to_string());
 
 Type: Type = {
     "I32" => Type::I32,
+    "F32" => Type::F32,
 }
 
 Block: Block = "{" <body: Statement*> <trailing: Boxed<Expression>> "}" => Block { <> };
@@ -71,7 +73,7 @@ ExprPre0: Expression = {
     <operator: PrefixOperator> <value: Boxed<ExprPre0>> => Expression::PrefixCall { <> },
     "(" <Expression> ")",
 
-    IntLiteral => Expression::Literal(<>),
+    Literal => Expression::Literal(<>),
     Identifier => Expression::Lookup(<>),
 }
 
@@ -79,4 +81,7 @@ PrefixOperator: PrefixOperator = {
     "-" => PrefixOperator::Negate,
 }
 
-IntLiteral: i32 = INT_LITERAL => i32::from_str(<>).unwrap();
+Literal: Literal = {
+    INT_LITERAL => Literal::I32(i32::from_str(<>).unwrap()),
+    FLOAT_LITERAL => Literal::F32(f32::from_str(<>).unwrap()),
+}

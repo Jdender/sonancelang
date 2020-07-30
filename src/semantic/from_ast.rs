@@ -37,6 +37,7 @@ impl AstVisitor for ast::Type {
 
         Ok(match self {
             Self::I32 => I32,
+            Self::F32 => F32,
         })
     }
 }
@@ -78,7 +79,7 @@ impl AstVisitor for ast::Expression {
         use semantic::Expression::*;
 
         Ok(match self {
-            Self::Literal(num) => Literal(*num),
+            Self::Literal(literal) => Literal(literal.visit_ast(symbol_table)?),
 
             Self::Lookup(place) => semantic::Expression::Lookup {
                 place: place.visit_ast(symbol_table)?,
@@ -111,6 +112,19 @@ impl AstVisitor for ast::Expression {
                 operator: operator.visit_ast(symbol_table)?,
                 right: Box::new(right.visit_ast(symbol_table)?),
             },
+        })
+    }
+}
+
+impl AstVisitor for ast::Literal {
+    type Output = semantic::Literal;
+
+    fn visit_ast(&self, _: &SymbolTable) -> Result<Self::Output, String> {
+        use semantic::Literal::*;
+
+        Ok(match self {
+            Self::I32(num) => I32(*num),
+            Self::F32(num) => F32(*num),
         })
     }
 }

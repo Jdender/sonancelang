@@ -74,7 +74,7 @@ impl SemanticVisitor for semantic::Expression {
 
     fn visit_semantic(&self, builder: &mut FunctionBuilder, _: Self::Param) -> Self::Output {
         match self {
-            Self::Literal(num) => builder.ins().iconst(types::I32, i64::from(*num)),
+            Self::Literal(literal) => literal.visit_semantic(builder, ()),
 
             Self::Lookup { symbol_id, .. } => builder.use_var(symbol_id.into()),
 
@@ -102,6 +102,18 @@ impl SemanticVisitor for semantic::Expression {
                 let right = right.visit_semantic(builder, ());
                 operator.visit_semantic(builder, (left, right))
             }
+        }
+    }
+}
+
+impl SemanticVisitor for semantic::Literal {
+    type Param = ();
+    type Output = Value;
+
+    fn visit_semantic(&self, builder: &mut FunctionBuilder, _: Self::Param) -> Self::Output {
+        match self {
+            Self::I32(num) => builder.ins().iconst(types::I32, i64::from(*num)),
+            Self::F32(num) => builder.ins().f32const(*num),
         }
     }
 }

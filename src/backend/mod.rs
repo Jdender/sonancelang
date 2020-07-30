@@ -40,6 +40,7 @@ impl Backend {
             use semantic::Type::*;
             match input.return_type {
                 I32 => types::I32,
+                F32 => types::F32,
             }
         };
 

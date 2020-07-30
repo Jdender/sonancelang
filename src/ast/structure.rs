@@ -20,6 +20,7 @@ impl Identifier {
 #[derive(Debug, Clone)]
 pub enum Type {
     I32,
+    F32,
 }
 
 #[derive(Debug, Clone)]
@@ -39,7 +40,7 @@ pub enum Statement {
 
 #[derive(Debug, Clone)]
 pub enum Expression {
-    Literal(i32),
+    Literal(Literal),
     Lookup(Identifier),
     Block(Block),
     Assignment {
@@ -55,6 +56,12 @@ pub enum Expression {
         operator: InfixOperator,
         right: Box<Expression>,
     },
+}
+
+#[derive(Debug, Clone)]
+pub enum Literal {
+    I32(i32),
+    F32(f32),
 }
 
 #[derive(Debug, Clone)]
