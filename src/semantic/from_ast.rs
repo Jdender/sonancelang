@@ -11,6 +11,7 @@ pub trait AstVisitor {
 
 impl AstVisitor for ast::File {
     type Output = semantic::File;
+
     fn visit_ast(&self, symbol_table: &SymbolTable) -> Result<Self::Output, String> {
         Ok(semantic::File {
             name: self.name.visit_ast(symbol_table)?,
@@ -21,6 +22,7 @@ impl AstVisitor for ast::File {
 
 impl AstVisitor for ast::Identifier {
     type Output = semantic::Identifier;
+
     fn visit_ast(&self, _: &SymbolTable) -> Result<Self::Output, String> {
         Ok(semantic::Identifier::new(self.as_string().clone()))
     }
@@ -28,6 +30,7 @@ impl AstVisitor for ast::Identifier {
 
 impl AstVisitor for ast::Block {
     type Output = semantic::Block;
+
     fn visit_ast(&self, symbol_table: &SymbolTable) -> Result<Self::Output, String> {
         let mut symbol_table = symbol_table.fork();
         let mut body = Vec::with_capacity(self.body.len());
@@ -57,6 +60,7 @@ impl AstVisitor for ast::Block {
 
 impl AstVisitor for ast::Expression {
     type Output = semantic::Expression;
+
     fn visit_ast(&self, symbol_table: &SymbolTable) -> Result<Self::Output, String> {
         use semantic::Expression::*;
 
@@ -100,6 +104,7 @@ impl AstVisitor for ast::Expression {
 
 impl AstVisitor for ast::PrefixOperator {
     type Output = semantic::PrefixOperator;
+
     fn visit_ast(&self, _: &SymbolTable) -> Result<Self::Output, String> {
         use semantic::PrefixOperator::*;
 
@@ -111,6 +116,7 @@ impl AstVisitor for ast::PrefixOperator {
 
 impl AstVisitor for ast::InfixOperator {
     type Output = semantic::InfixOperator;
+
     fn visit_ast(&self, _: &SymbolTable) -> Result<Self::Output, String> {
         use semantic::InfixOperator::*;
 

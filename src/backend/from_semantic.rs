@@ -4,12 +4,14 @@ use cranelift::prelude::*;
 pub trait SemanticVisitor {
     type Param;
     type Output;
+
     fn visit_semantic(&self, builder: &mut FunctionBuilder, param: Self::Param) -> Self::Output;
 }
 
 impl SemanticVisitor for semantic::File {
     type Param = ();
     type Output = ();
+
     fn visit_semantic(&self, builder: &mut FunctionBuilder, _: Self::Param) -> Self::Output {
         let block = builder.create_block();
 
@@ -28,6 +30,7 @@ impl SemanticVisitor for semantic::File {
 impl SemanticVisitor for semantic::Block {
     type Param = ();
     type Output = Value;
+
     fn visit_semantic(&self, builder: &mut FunctionBuilder, _: Self::Param) -> Self::Output {
         for stmt in self.body.iter() {
             stmt.visit_semantic(builder, ());
@@ -40,6 +43,7 @@ impl SemanticVisitor for semantic::Block {
 impl SemanticVisitor for semantic::Statement {
     type Param = ();
     type Output = ();
+
     fn visit_semantic(&self, builder: &mut FunctionBuilder, _: Self::Param) -> Self::Output {
         match self {
             Self::LetBinding {
@@ -67,6 +71,7 @@ impl From<&semantic::SymbolId> for Variable {
 impl SemanticVisitor for semantic::Expression {
     type Param = ();
     type Output = Value;
+
     fn visit_semantic(&self, builder: &mut FunctionBuilder, _: Self::Param) -> Self::Output {
         match self {
             Self::Literal(num) => builder.ins().iconst(types::I32, i64::from(*num)),
@@ -104,6 +109,7 @@ impl SemanticVisitor for semantic::Expression {
 impl SemanticVisitor for semantic::PrefixOperator {
     type Param = Value;
     type Output = Value;
+
     fn visit_semantic(&self, builder: &mut FunctionBuilder, value: Self::Param) -> Self::Output {
         match self {
             Self::Negate => builder.ins().ineg(value),
@@ -114,6 +120,7 @@ impl SemanticVisitor for semantic::PrefixOperator {
 impl SemanticVisitor for semantic::InfixOperator {
     type Param = (Value, Value);
     type Output = Value;
+
     fn visit_semantic(
         &self,
         builder: &mut FunctionBuilder,
