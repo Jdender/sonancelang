@@ -15,7 +15,7 @@ impl AstVisitor for ast::File {
     fn visit_ast(&self, symbol_table: &SymbolTable) -> Result<Self::Output, String> {
         Ok(semantic::File {
             name: self.name.visit_ast(symbol_table)?,
-            return_type: self.return_type.visit_ast(symbol_table)?,
+            ty: self.ty.visit_ast(symbol_table)?,
             body: self.body.visit_ast(symbol_table)?,
         })
     }
@@ -29,11 +29,11 @@ impl AstVisitor for ast::Identifier {
     }
 }
 
-impl AstVisitor for ast::Tye {
-    type Output = semantic::Tye;
+impl AstVisitor for ast::Ty {
+    type Output = semantic::Ty;
 
     fn visit_ast(&self, _: &SymbolTable) -> Result<Self::Output, String> {
-        use semantic::Tye::*;
+        use semantic::Ty::*;
 
         Ok(match self {
             Self::I32 => I32,

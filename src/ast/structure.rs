@@ -1,7 +1,7 @@
 #[derive(Debug, Clone)]
 pub struct File {
     pub name: Identifier,
-    pub return_type: Tye,
+    pub ty: Ty,
     pub body: Block,
 }
 
@@ -18,7 +18,7 @@ impl Identifier {
 }
 
 #[derive(Debug, Clone)]
-pub enum Tye {
+pub enum Ty {
     I32,
     F32,
 }
@@ -34,6 +34,7 @@ pub enum Statement {
     LetBinding {
         place: Identifier,
         value: Expression,
+        ty: Option<Ty>,
     },
     SideEffect(Expression),
 }

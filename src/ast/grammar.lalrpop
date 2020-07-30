@@ -4,11 +4,11 @@ use crate::ast::*;
 grammar;
 
 match {
-    "func", "->", "let", ";", // Function
+    "func", "->", ";", // Function
 
-    "I32", "F32", // Tyes
+    "I32", "F32", // Tys
 
-    "=", // Special Operators
+    "let", ":", "=", // Special Operators
 
     "(", ")", "{", "}", // Parens
 
@@ -23,19 +23,19 @@ match {
 #[inline]
 Boxed<T>: Box<T> = T => Box::new(<>);
 
-pub File: File = "func" <name: Identifier>  "(" ")" "->" <return_type: Tye> <body: Block> => File { <> };
+pub File: File = "func" <name: Identifier>  "(" ")" "->" <ty: Ty> <body: Block> => File { <> };
 
 Identifier: Identifier = IDENTIFIER => Identifier::new(<>.to_string());
 
-Tye: Tye = {
-    "I32" => Tye::I32,
-    "F32" => Tye::F32,
+Ty: Ty = {
+    "I32" => Ty::I32,
+    "F32" => Ty::F32,
 }
 
 Block: Block = "{" <body: Statement*> <trailing: Boxed<Expression>> "}" => Block { <> };
 
 Statement: Statement = {
-    "let" <place: Identifier> "=" <value: Expression> ";" => Statement::LetBinding { <> },
+    "let" <place: Identifier> <ty: (":" <Ty>)?> "=" <value: Expression> ";" => Statement::LetBinding { <> },
     <Expression> ";" => Statement::SideEffect(<>),
     <ExpressionWithBlock> => Statement::SideEffect(<>),
 }

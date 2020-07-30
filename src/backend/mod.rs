@@ -37,8 +37,8 @@ impl Backend {
         input.visit_semantic(&mut builder, ());
 
         let return_type = {
-            use semantic::Tye::*;
-            match input.return_type {
+            use semantic::Ty::*;
+            match input.ty {
                 I32 => types::I32,
                 F32 => types::F32,
             }
