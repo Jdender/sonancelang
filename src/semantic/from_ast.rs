@@ -1,6 +1,6 @@
 use super::{
     super::{ast, semantic},
-    SymbolTable,
+    SymbolInfo, SymbolTable,
 };
 
 pub trait AstVisitor {
@@ -51,13 +51,32 @@ impl AstVisitor for ast::Block {
 
         for stmt in self.body.iter() {
             body.push(match stmt {
-                ast::Statement::LetBinding { place, value } => {
-                    let symbol_id = symbol_table.set(place.as_string().clone());
+                ast::Statement::LetBinding { place, value, ty } => {
+                    let value = value.visit_ast(&symbol_table)?;
+
+                    // Infer type if not declared
+                    let ty = if let Some(ty) = ty {
+                        ty.visit_ast(&symbol_table)?
+                    } else {
+                        value.ty
+                    };
+
+                    // Assert types match
+                    if ty != value.ty {
+                        return Err(format!(
+                            "Type mismatch: Let declared as {:?} but got an expr of {:?}",
+                            ty, value.ty,
+                        ));
+                    }
+
+                    // Create a new symbol in the current scope
+                    let symbol = symbol_table.set(place.as_string().clone(), SymbolInfo::new(ty));
 
                     semantic::Statement::LetBinding {
                         place: place.visit_ast(&symbol_table)?,
-                        value: value.visit_ast(&symbol_table)?,
-                        symbol_id,
+                        symbol_id: symbol.id(),
+                        ty,
+                        value,
                     }
                 }
                 ast::Statement::SideEffect(expr) => {
@@ -68,7 +87,12 @@ impl AstVisitor for ast::Block {
 
         let trailing = Box::new(self.trailing.visit_ast(&symbol_table)?);
 
-        Ok(semantic::Block { body, trailing })
+        // Blocks return their trailing expr, same goes for types
+        Ok(semantic::Block {
+            body,
+            ty: trailing.ty,
+            trailing,
+        })
     }
 }
 
@@ -76,42 +100,102 @@ impl AstVisitor for ast::Expression {
     type Output = semantic::Expression;
 
     fn visit_ast(&self, symbol_table: &SymbolTable) -> Result<Self::Output, String> {
-        use semantic::Expression::*;
+        use semantic::ExpressionKind::*;
 
         Ok(match self {
-            Self::Literal(literal) => Literal(literal.visit_ast(symbol_table)?),
+            Self::Literal(literal) => {
+                let literal = literal.visit_ast(symbol_table)?;
+                semantic::Expression {
+                    ty: literal.into(),
+                    kind: Literal(literal),
+                }
+            }
 
-            Self::Lookup(place) => semantic::Expression::Lookup {
-                place: place.visit_ast(symbol_table)?,
-                symbol_id: symbol_table
+            Self::Lookup(place) => {
+                // Lookup symbol
+                let symbol = symbol_table
                     .get(place.as_string())
-                    .ok_or(format!("Could not find place: {}", place.as_string()))?,
-            },
+                    .ok_or(format!("Could not find place: {}", place.as_string()))?;
 
-            Self::Block(block) => semantic::Expression::Block(block.visit_ast(symbol_table)?),
+                semantic::Expression {
+                    ty: symbol.ty(),
+                    kind: Lookup {
+                        place: place.visit_ast(symbol_table)?,
+                        symbol_id: symbol.id(),
+                    },
+                }
+            }
 
-            Self::Assignment { place, value } => semantic::Expression::Assignment {
-                place: place.visit_ast(symbol_table)?,
-                value: Box::new(value.visit_ast(symbol_table)?),
-                symbol_id: symbol_table
+            Self::Block(block) => {
+                let block = block.visit_ast(symbol_table)?;
+                semantic::Expression {
+                    ty: block.ty,
+                    kind: Block(block),
+                }
+            }
+
+            Self::Assignment { place, value } => {
+                // Lookup symbol
+                let symbol = symbol_table
                     .get(place.as_string())
-                    .ok_or(format!("Could not find place: {}", place.as_string()))?,
-            },
+                    .ok_or(format!("Could not find place: {}", place.as_string()))?;
 
-            Self::PrefixCall { operator, value } => PrefixCall {
-                operator: operator.visit_ast(symbol_table)?,
-                value: Box::new(value.visit_ast(symbol_table)?),
-            },
+                let value = value.visit_ast(symbol_table)?;
+
+                // Assert types match
+                if symbol.ty() != value.ty {
+                    return Err(format!(
+                        "Type mismatch: Let declared as {:?} but got an expr of {:?}",
+                        symbol.ty(),
+                        value.ty,
+                    ));
+                }
+
+                semantic::Expression {
+                    ty: symbol.ty(),
+                    kind: Assignment {
+                        place: place.visit_ast(symbol_table)?,
+                        value: Box::new(value),
+                        symbol_id: symbol.id(),
+                    },
+                }
+            }
+
+            Self::PrefixCall { operator, value } => {
+                let value = value.visit_ast(symbol_table)?;
+                semantic::Expression {
+                    ty: value.ty,
+                    kind: PrefixCall {
+                        operator: operator.visit_ast(symbol_table)?,
+                        value: Box::new(value),
+                    },
+                }
+            }
 
             Self::InfixCall {
                 left,
                 operator,
                 right,
-            } => InfixCall {
-                left: Box::new(left.visit_ast(symbol_table)?),
-                operator: operator.visit_ast(symbol_table)?,
-                right: Box::new(right.visit_ast(symbol_table)?),
-            },
+            } => {
+                let left = left.visit_ast(symbol_table)?;
+                let right = right.visit_ast(symbol_table)?;
+
+                if left.ty != right.ty {
+                    return Err(format!(
+                        "Type mismatch: Left {:?} and right {:?} can't use {:?} together",
+                        left.ty, right.ty, operator
+                    ));
+                }
+
+                semantic::Expression {
+                    ty: left.ty,
+                    kind: InfixCall {
+                        left: Box::new(left),
+                        operator: operator.visit_ast(symbol_table)?,
+                        right: Box::new(right),
+                    },
+                }
+            }
         })
     }
 }

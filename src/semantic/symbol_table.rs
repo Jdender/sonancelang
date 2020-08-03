@@ -1,8 +1,9 @@
+use super::Ty;
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, Default)]
 pub struct SymbolTable<'a> {
-    members: HashMap<String, SymbolId>,
+    members: HashMap<String, SymbolInfo>,
     parent: Option<&'a SymbolTable<'a>>,
 }
 
@@ -21,18 +22,40 @@ impl<'a> SymbolTable<'a> {
         }
     }
 
-    pub fn set(&mut self, key: String) -> SymbolId {
-        let symbol_id = SymbolId::new();
-        self.members.insert(key, symbol_id);
-        symbol_id
+    pub fn set(&mut self, key: String, symbol: SymbolInfo) -> SymbolInfo {
+        self.members.insert(key, symbol);
+        symbol
     }
 
-    pub fn get(&self, key: &str) -> Option<SymbolId> {
+    pub fn get(&self, key: &str) -> Option<SymbolInfo> {
         match (self.members.get(key), self.parent) {
             (Some(value), _) => Some(*value),
             (None, Some(parent)) => parent.get(key),
             _ => None,
         }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct SymbolInfo {
+    id: SymbolId,
+    ty: Ty,
+}
+
+impl SymbolInfo {
+    pub fn new(ty: Ty) -> Self {
+        Self {
+            ty,
+            id: SymbolId::new(),
+        }
+    }
+
+    pub fn ty(&self) -> Ty {
+        self.ty
+    }
+
+    pub fn id(&self) -> SymbolId {
+        self.id
     }
 }
 

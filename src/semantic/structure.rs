@@ -19,7 +19,7 @@ impl Identifier {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Ty {
     I32,
     F32,
@@ -29,12 +29,14 @@ pub enum Ty {
 pub struct Block {
     pub body: Vec<Statement>,
     pub trailing: Box<Expression>,
+    pub ty: Ty,
 }
 
 #[derive(Debug, Clone)]
 pub enum Statement {
     LetBinding {
         place: Identifier,
+        ty: Ty,
         value: Expression,
         symbol_id: SymbolId,
     },
@@ -42,7 +44,13 @@ pub enum Statement {
 }
 
 #[derive(Debug, Clone)]
-pub enum Expression {
+pub struct Expression {
+    pub kind: ExpressionKind,
+    pub ty: Ty,
+}
+
+#[derive(Debug, Clone)]
+pub enum ExpressionKind {
     Literal(Literal),
     Lookup {
         place: Identifier,
@@ -65,7 +73,7 @@ pub enum Expression {
     },
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum Literal {
     I32(i32),
     F32(f32),

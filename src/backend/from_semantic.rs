@@ -73,14 +73,15 @@ impl SemanticVisitor for semantic::Expression {
     type Output = Value;
 
     fn visit_semantic(&self, builder: &mut FunctionBuilder, _: Self::Param) -> Self::Output {
-        match self {
-            Self::Literal(literal) => literal.visit_semantic(builder, ()),
+        use semantic::ExpressionKind::*;
+        match &self.kind {
+            Literal(literal) => literal.visit_semantic(builder, ()),
 
-            Self::Lookup { symbol_id, .. } => builder.use_var(symbol_id.into()),
+            Lookup { symbol_id, .. } => builder.use_var(symbol_id.into()),
 
-            Self::Block(block) => block.visit_semantic(builder, ()),
+            Block(block) => block.visit_semantic(builder, ()),
 
-            Self::Assignment {
+            Assignment {
                 symbol_id, value, ..
             } => {
                 let value = value.visit_semantic(builder, ());
@@ -88,12 +89,12 @@ impl SemanticVisitor for semantic::Expression {
                 builder.ins().iconst(types::I32, 0)
             }
 
-            Self::PrefixCall { operator, value } => {
+            PrefixCall { operator, value } => {
                 let value = value.visit_semantic(builder, ());
                 operator.visit_semantic(builder, value)
             }
 
-            Self::InfixCall {
+            InfixCall {
                 left,
                 operator,
                 right,
