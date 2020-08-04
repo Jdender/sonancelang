@@ -1,27 +1,27 @@
 use super::{
     super::{ast, semantic},
-    SymbolInfo, SymbolTable,
+    SemanticError, SymbolInfo, SymbolTable,
 };
 
 pub trait AstVisitor {
     type Output;
 
-    fn visit_ast(&self, symbol_table: &SymbolTable) -> Result<Self::Output, String>;
+    fn visit_ast(&self, symbol_table: &SymbolTable) -> Result<Self::Output, SemanticError>;
 }
 
 impl AstVisitor for ast::File {
     type Output = semantic::File;
 
-    fn visit_ast(&self, symbol_table: &SymbolTable) -> Result<Self::Output, String> {
+    fn visit_ast(&self, symbol_table: &SymbolTable) -> Result<Self::Output, SemanticError> {
         let body = self.body.visit_ast(symbol_table)?;
         let ty = self.ty.visit_ast(symbol_table)?;
 
         // Assert types match
         if ty != body.ty {
-            return Err(format!(
-                "Type mismatch: Function return declared as {:?} but got an return of {:?}",
-                ty, body.ty,
-            ));
+            return Err(SemanticError::TyMismatchReturn {
+                expected: ty,
+                found: body.ty,
+            });
         }
 
         Ok(semantic::File {
@@ -35,7 +35,7 @@ impl AstVisitor for ast::File {
 impl AstVisitor for ast::Identifier {
     type Output = semantic::Identifier;
 
-    fn visit_ast(&self, _: &SymbolTable) -> Result<Self::Output, String> {
+    fn visit_ast(&self, _: &SymbolTable) -> Result<Self::Output, SemanticError> {
         Ok(semantic::Identifier::new(self.as_string().clone()))
     }
 }
@@ -43,7 +43,7 @@ impl AstVisitor for ast::Identifier {
 impl AstVisitor for ast::Ty {
     type Output = semantic::Ty;
 
-    fn visit_ast(&self, _: &SymbolTable) -> Result<Self::Output, String> {
+    fn visit_ast(&self, _: &SymbolTable) -> Result<Self::Output, SemanticError> {
         use semantic::Ty::*;
 
         Ok(match self {
@@ -56,7 +56,7 @@ impl AstVisitor for ast::Ty {
 impl AstVisitor for ast::Block {
     type Output = semantic::Block;
 
-    fn visit_ast(&self, symbol_table: &SymbolTable) -> Result<Self::Output, String> {
+    fn visit_ast(&self, symbol_table: &SymbolTable) -> Result<Self::Output, SemanticError> {
         let mut symbol_table = symbol_table.fork();
         let mut body = Vec::with_capacity(self.body.len());
 
@@ -74,10 +74,10 @@ impl AstVisitor for ast::Block {
 
                     // Assert types match
                     if ty != value.ty {
-                        return Err(format!(
-                            "Type mismatch: Let declared as {:?} but got an expr of {:?}",
-                            ty, value.ty,
-                        ));
+                        return Err(SemanticError::TyMismatchDeclare {
+                            expected: ty,
+                            found: value.ty,
+                        });
                     }
 
                     // Create a new symbol in the current scope
@@ -110,7 +110,7 @@ impl AstVisitor for ast::Block {
 impl AstVisitor for ast::Expression {
     type Output = semantic::Expression;
 
-    fn visit_ast(&self, symbol_table: &SymbolTable) -> Result<Self::Output, String> {
+    fn visit_ast(&self, symbol_table: &SymbolTable) -> Result<Self::Output, SemanticError> {
         use semantic::ExpressionKind::*;
 
         Ok(match self {
@@ -124,9 +124,11 @@ impl AstVisitor for ast::Expression {
 
             Self::Lookup(place) => {
                 // Lookup symbol
-                let symbol = symbol_table
-                    .get(place.as_string())
-                    .ok_or(format!("Could not find place: {}", place.as_string()))?;
+                let symbol = symbol_table.get(place.as_string()).ok_or_else(|| {
+                    SemanticError::SymbolNotFound {
+                        symbol: place.as_string().clone(),
+                    }
+                })?;
 
                 semantic::Expression {
                     ty: symbol.ty(),
@@ -147,19 +149,20 @@ impl AstVisitor for ast::Expression {
 
             Self::Assignment { place, value } => {
                 // Lookup symbol
-                let symbol = symbol_table
-                    .get(place.as_string())
-                    .ok_or(format!("Could not find place: {}", place.as_string()))?;
+                let symbol = symbol_table.get(place.as_string()).ok_or_else(|| {
+                    SemanticError::SymbolNotFound {
+                        symbol: place.as_string().clone(),
+                    }
+                })?;
 
                 let value = value.visit_ast(symbol_table)?;
 
                 // Assert types match
                 if symbol.ty() != value.ty {
-                    return Err(format!(
-                        "Type mismatch: Let declared as {:?} but got an expr of {:?}",
-                        symbol.ty(),
-                        value.ty,
-                    ));
+                    return Err(SemanticError::TyMismatchAssign {
+                        expected: symbol.ty(),
+                        found: value.ty,
+                    });
                 }
 
                 semantic::Expression {
@@ -185,24 +188,26 @@ impl AstVisitor for ast::Expression {
 
             Self::InfixCall {
                 left,
-                operator,
                 right,
+                operator,
             } => {
+                let operator = operator.visit_ast(symbol_table)?;
                 let left = left.visit_ast(symbol_table)?;
                 let right = right.visit_ast(symbol_table)?;
 
                 if left.ty != right.ty {
-                    return Err(format!(
-                        "Type mismatch: Left {:?} and right {:?} can't use {:?} together",
-                        left.ty, right.ty, operator
-                    ));
+                    return Err(SemanticError::TyMismatchOperator {
+                        operator,
+                        left: left.ty,
+                        right: right.ty,
+                    });
                 }
 
                 semantic::Expression {
                     ty: left.ty,
                     kind: InfixCall {
+                        operator,
                         left: Box::new(left),
-                        operator: operator.visit_ast(symbol_table)?,
                         right: Box::new(right),
                     },
                 }
@@ -217,10 +222,10 @@ impl AstVisitor for ast::Expression {
                 let when_false = when_false.visit_ast(symbol_table)?;
 
                 if when_true.ty != when_false.ty {
-                    return Err(format!(
-                        "Type mismatch: If expression has two incompatible results ({:?} and {:?})",
-                        when_true.ty, when_false.ty
-                    ));
+                    return Err(SemanticError::TyMismatchIfElse {
+                        when_true: when_true.ty,
+                        when_false: when_false.ty,
+                    });
                 }
 
                 semantic::Expression {
@@ -239,7 +244,7 @@ impl AstVisitor for ast::Expression {
 impl AstVisitor for ast::Literal {
     type Output = semantic::Literal;
 
-    fn visit_ast(&self, _: &SymbolTable) -> Result<Self::Output, String> {
+    fn visit_ast(&self, _: &SymbolTable) -> Result<Self::Output, SemanticError> {
         use semantic::Literal::*;
 
         Ok(match self {
@@ -252,7 +257,7 @@ impl AstVisitor for ast::Literal {
 impl AstVisitor for ast::PrefixOperator {
     type Output = semantic::PrefixOperator;
 
-    fn visit_ast(&self, _: &SymbolTable) -> Result<Self::Output, String> {
+    fn visit_ast(&self, _: &SymbolTable) -> Result<Self::Output, SemanticError> {
         use semantic::PrefixOperator::*;
 
         Ok(match self {
@@ -264,7 +269,7 @@ impl AstVisitor for ast::PrefixOperator {
 impl AstVisitor for ast::InfixOperator {
     type Output = semantic::InfixOperator;
 
-    fn visit_ast(&self, _: &SymbolTable) -> Result<Self::Output, String> {
+    fn visit_ast(&self, _: &SymbolTable) -> Result<Self::Output, SemanticError> {
         use semantic::InfixOperator::*;
 
         Ok(match self {

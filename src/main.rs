@@ -1,3 +1,4 @@
+use anyhow::Result;
 use clap::Clap;
 use sonancelang::compile;
 use std::{
@@ -16,21 +17,19 @@ struct Options {
     output: String,
 }
 
-fn main() -> Result<(), String> {
+fn main() -> Result<()> {
     let options = Options::parse();
-    let cwd = current_dir().map_err(|e| e.to_string())?;
+    let cwd = current_dir()?;
 
-    let input = read_to_string(cwd.join(options.input)).map_err(|e| e.to_string())?;
+    let input = read_to_string(cwd.join(options.input))?;
     let compiled = compile(&input)?;
 
     OpenOptions::new()
         .create(true)
         .write(true)
         .truncate(true)
-        .open(options.output)
-        .map_err(|e| e.to_string())?
-        .write_all(&compiled)
-        .map_err(|e| e.to_string())?;
+        .open(options.output)?
+        .write_all(&compiled)?;
 
     Ok(())
 }

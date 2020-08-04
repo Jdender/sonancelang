@@ -676,6 +676,7 @@ checksum = "3757cb9d89161a2f24e1cf78efa0c1fcff485d18e3f55e0aa3480824ddaa0f3f"
 name = "sonancelang"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "clap",
  "cranelift",
  "cranelift-module",
@@ -684,6 +685,7 @@ dependencies = [
  "lalrpop-util",
  "regex",
  "target-lexicon",
+ "thiserror",
 ]
 
 [[package]]

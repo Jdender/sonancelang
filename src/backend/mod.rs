@@ -13,13 +13,12 @@ pub struct Backend {
 }
 
 impl Backend {
-    pub fn new() -> Result<Self, String> {
-        let isa = isa::lookup(target_lexicon::HOST)
-            .map_err(|e| e.to_string())?
-            .finish(settings::Flags::new(settings::builder()));
+    pub fn new() -> Result<Self, BackendError> {
+        let isa =
+            isa::lookup(target_lexicon::HOST)?.finish(settings::Flags::new(settings::builder()));
 
-        let builder = ObjectBuilder::new(isa, "sonance", cranelift_module::default_libcall_names())
-            .map_err(|e| e.to_string())?;
+        let builder =
+            ObjectBuilder::new(isa, "sonance", cranelift_module::default_libcall_names())?;
 
         let module = Module::new(builder);
 
@@ -30,7 +29,7 @@ impl Backend {
         })
     }
 
-    pub fn compile_func(mut self, input: semantic::File) -> Result<Vec<u8>, String> {
+    pub fn compile_func(mut self, input: semantic::File) -> Result<Vec<u8>, BackendError> {
         let mut builder = FunctionBuilder::new(&mut self.ctx.func, &mut self.builder_context);
 
         input.visit_semantic(&mut builder, ());
@@ -39,14 +38,11 @@ impl Backend {
         return_sig.returns.push(AbiParam::new(input.ty.into()));
         self.ctx.func.signature = return_sig;
 
-        let func = self
-            .module
-            .declare_function(
-                input.name.as_string(),
-                Linkage::Export,
-                &self.ctx.func.signature,
-            )
-            .map_err(|e| e.to_string())?;
+        let func = self.module.declare_function(
+            input.name.as_string(),
+            Linkage::Export,
+            &self.ctx.func.signature,
+        )?;
 
         self.module
             .define_function(func, &mut self.ctx, &mut NullTrapSink {})
@@ -56,6 +52,18 @@ impl Backend {
 
         self.module.finalize_definitions();
 
-        Ok(self.module.finish().emit().map_err(|e| e.to_string())?)
+        Ok(self.module.finish().emit()?)
     }
+}
+
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+pub enum BackendError {
+    #[error("Failed to lookup instruction set")]
+    Lookup(#[from] cranelift::codegen::isa::LookupError),
+    #[error("Error while using cranelift Module")]
+    Module(#[from] cranelift_module::ModuleError),
+    #[error("Error while emitting object blob")]
+    Object(#[from] cranelift_object::object::write::Error),
 }
