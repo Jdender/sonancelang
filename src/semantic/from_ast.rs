@@ -13,10 +13,21 @@ impl AstVisitor for ast::File {
     type Output = semantic::File;
 
     fn visit_ast(&self, symbol_table: &SymbolTable) -> Result<Self::Output, String> {
+        let body = self.body.visit_ast(symbol_table)?;
+        let ty = self.ty.visit_ast(symbol_table)?;
+
+        // Assert types match
+        if ty != body.ty {
+            return Err(format!(
+                "Type mismatch: Function return declared as {:?} but got an return of {:?}",
+                ty, body.ty,
+            ));
+        }
+
         Ok(semantic::File {
             name: self.name.visit_ast(symbol_table)?,
-            ty: self.ty.visit_ast(symbol_table)?,
-            body: self.body.visit_ast(symbol_table)?,
+            ty,
+            body,
         })
     }
 }
