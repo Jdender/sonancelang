@@ -272,6 +272,13 @@ impl AstVisitor for ast::InfixOperator {
             Self::Subtract => Subtract,
             Self::Multiply => Multiply,
             Self::Divide => Divide,
+
+            Self::Equal => Equal,
+            Self::NotEqual => NotEqual,
+            Self::GreaterThan => GreaterThan,
+            Self::LessThan => LessThan,
+            Self::GreaterOrEqual => GreaterOrEqual,
+            Self::LessOrEqual => LessOrEqual,
         })
     }
 }

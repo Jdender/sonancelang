@@ -81,4 +81,11 @@ pub enum InfixOperator {
     Subtract,
     Multiply,
     Divide,
+
+    Equal,
+    NotEqual,
+    GreaterThan,
+    LessThan,
+    GreaterOrEqual,
+    LessOrEqual,
 }

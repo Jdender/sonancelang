@@ -16,6 +16,10 @@ match {
 
     "+", "-", "*", "/", // Numeric Operators
 
+    "==", "!=", "<", ">", "<=", ">=", // Comparison Operators
+
+    "!", "||", "&&", // Boolean Operators
+
     // Regex Tokens
     r"[a-zA-Z_]\w*" => IDENTIFIER,
     r"[+-]?\d+" => INT_LITERAL,
@@ -50,12 +54,40 @@ ExpressionWithBlock: Expression = {
 Expression = {
     <place: Identifier> "=" <value: Boxed<Expression>> => Expression::Assignment { <> },
     ExpressionWithBlock,
-    ExprPre2,
+    ExprPre6,
 }
 
 ExprPreN<X, Op, Y>: Expression = {
     <left: Boxed<X>> <operator: Op> <right: Boxed<Y>> => Expression::InfixCall { <> },
     Y,
+}
+
+ExprPre6 = ExprPreN<ExprPre6, OpPre6, ExprPre5>;
+
+OpPre6: InfixOperator = {
+    // "||" => InfixOperator::BooleanOr,
+}
+
+ExprPre5 = ExprPreN<ExprPre5, OpPre5, ExprPre4>;
+
+OpPre5: InfixOperator = {
+    // "&&" => InfixOperator::BooleanAnd,
+}
+
+ExprPre4 = ExprPreN<ExprPre4, OpPre4, ExprPre3>;
+
+OpPre4: InfixOperator = {
+    "==" => InfixOperator::Equal,
+    "!="=> InfixOperator::NotEqual,
+}
+
+ExprPre3 = ExprPreN<ExprPre3, OpPre3, ExprPre2>;
+
+OpPre3: InfixOperator = {
+    ">"=> InfixOperator::GreaterThan,
+    "<"=> InfixOperator::LessThan,
+    ">="=> InfixOperator::GreaterOrEqual,
+    "<="=> InfixOperator::LessOrEqual,
 }
 
 ExprPre2 = ExprPreN<ExprPre2, OpPre2, ExprPre1>;
@@ -82,6 +114,7 @@ ExprPre0: Expression = {
 
 PrefixOperator: PrefixOperator = {
     "-" => PrefixOperator::Negate,
+    // "!" => PrefixOperator::BooleanNot,
 }
 
 Literal: Literal = {
