@@ -15,9 +15,9 @@
 - [x] Math Operators
 - [x] Local Variables
 - [x] Block Scopes
-- [ ] If Else Statements
-- [ ] Boolean Operators
+- [x] If Else Statements
 - [ ] Functions and Calls
+- [ ] Booleans & Boolean Operators
 - [ ] Anonymous Tuples
 
 ## Example
