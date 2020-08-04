@@ -49,10 +49,15 @@ impl SemanticVisitor for semantic::Statement {
             Self::LetBinding {
                 value, symbol_id, ..
             } => {
+                let ty = match value.ty {
+                    semantic::Ty::I32 => types::I32,
+                    semantic::Ty::F32 => types::F32,
+                };
+
                 let symbol_id = symbol_id.into();
                 let value = value.visit_semantic(builder, ());
 
-                builder.declare_var(symbol_id, types::I32);
+                builder.declare_var(symbol_id, ty);
                 builder.def_var(symbol_id, value);
             }
             Self::SideEffect(expr) => {
@@ -90,8 +95,9 @@ impl SemanticVisitor for semantic::Expression {
             }
 
             PrefixCall { operator, value } => {
+                let ty = value.ty;
                 let value = value.visit_semantic(builder, ());
-                operator.visit_semantic(builder, value)
+                operator.visit_semantic(builder, (ty, value))
             }
 
             InfixCall {
@@ -99,9 +105,10 @@ impl SemanticVisitor for semantic::Expression {
                 operator,
                 right,
             } => {
+                let ty = left.ty;
                 let left = left.visit_semantic(builder, ());
                 let right = right.visit_semantic(builder, ());
-                operator.visit_semantic(builder, (left, right))
+                operator.visit_semantic(builder, (ty, left, right))
             }
         }
     }
@@ -120,30 +127,47 @@ impl SemanticVisitor for semantic::Literal {
 }
 
 impl SemanticVisitor for semantic::PrefixOperator {
-    type Param = Value;
-    type Output = Value;
-
-    fn visit_semantic(&self, builder: &mut FunctionBuilder, value: Self::Param) -> Self::Output {
-        match self {
-            Self::Negate => builder.ins().ineg(value),
-        }
-    }
-}
-
-impl SemanticVisitor for semantic::InfixOperator {
-    type Param = (Value, Value);
+    type Param = (semantic::Ty, Value);
     type Output = Value;
 
     fn visit_semantic(
         &self,
         builder: &mut FunctionBuilder,
-        (left, right): Self::Param,
+        (ty, value): Self::Param,
     ) -> Self::Output {
-        match self {
-            Self::Add => builder.ins().iadd(left, right),
-            Self::Subtract => builder.ins().isub(left, right),
-            Self::Multiply => builder.ins().imul(left, right),
-            Self::Divide => builder.ins().sdiv(left, right),
+        match ty {
+            semantic::Ty::I32 => match self {
+                Self::Negate => builder.ins().ineg(value),
+            },
+            semantic::Ty::F32 => match self {
+                Self::Negate => builder.ins().fneg(value),
+            },
+        }
+    }
+}
+
+impl SemanticVisitor for semantic::InfixOperator {
+    type Param = (semantic::Ty, Value, Value);
+    type Output = Value;
+
+    fn visit_semantic(
+        &self,
+        builder: &mut FunctionBuilder,
+        (ty, left, right): Self::Param,
+    ) -> Self::Output {
+        match ty {
+            semantic::Ty::I32 => match self {
+                Self::Add => builder.ins().iadd(left, right),
+                Self::Subtract => builder.ins().isub(left, right),
+                Self::Multiply => builder.ins().imul(left, right),
+                Self::Divide => builder.ins().sdiv(left, right),
+            },
+            semantic::Ty::F32 => match self {
+                Self::Add => builder.ins().fadd(left, right),
+                Self::Subtract => builder.ins().fsub(left, right),
+                Self::Multiply => builder.ins().fmul(left, right),
+                Self::Divide => builder.ins().fdiv(left, right),
+            },
         }
     }
 }
