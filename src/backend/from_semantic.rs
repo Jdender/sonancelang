@@ -49,10 +49,7 @@ impl SemanticVisitor for semantic::Statement {
             Self::LetBinding {
                 value, symbol_id, ..
             } => {
-                let ty = match value.ty {
-                    semantic::Ty::I32 => types::I32,
-                    semantic::Ty::F32 => types::F32,
-                };
+                let ty = value.ty.into();
 
                 let symbol_id = symbol_id.into();
                 let value = value.visit_semantic(builder, ());
@@ -63,6 +60,15 @@ impl SemanticVisitor for semantic::Statement {
             Self::SideEffect(expr) => {
                 expr.visit_semantic(builder, ());
             }
+        }
+    }
+}
+
+impl From<semantic::Ty> for Type {
+    fn from(ty: semantic::Ty) -> Self {
+        match ty {
+            semantic::Ty::I32 => types::I32,
+            semantic::Ty::F32 => types::F32,
         }
     }
 }
@@ -109,6 +115,42 @@ impl SemanticVisitor for semantic::Expression {
                 let left = left.visit_semantic(builder, ());
                 let right = right.visit_semantic(builder, ());
                 operator.visit_semantic(builder, (ty, left, right))
+            }
+
+            IfElse {
+                predicate,
+                when_true,
+                when_false,
+            } => {
+                // Create new basic blocks
+                let true_block = builder.create_block();
+                let else_block = builder.create_block();
+                let merge_block = builder.create_block();
+
+                // Merge takes the result from either block
+                builder.append_block_param(merge_block, self.ty.into());
+
+                // Jump if predicate is zero, otherwise fall through
+                let predicate = predicate.visit_semantic(builder, ());
+                builder.ins().brz(predicate, else_block, &[]);
+                builder.ins().jump(true_block, &[]);
+
+                // Setup when_true block
+                builder.switch_to_block(true_block);
+                builder.seal_block(true_block);
+                let when_true = when_true.visit_semantic(builder, ());
+                builder.ins().jump(merge_block, &[when_true]);
+
+                // Same as above but for when_false
+                builder.switch_to_block(else_block);
+                builder.seal_block(else_block);
+                let when_false = when_false.visit_semantic(builder, ());
+                builder.ins().jump(merge_block, &[when_false]);
+
+                // Finish the merge and return result
+                builder.switch_to_block(merge_block);
+                builder.seal_block(merge_block);
+                builder.block_params(merge_block)[0]
             }
         }
     }

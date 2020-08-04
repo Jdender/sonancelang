@@ -207,6 +207,31 @@ impl AstVisitor for ast::Expression {
                     },
                 }
             }
+
+            Self::IfElse {
+                predicate,
+                when_true,
+                when_false,
+            } => {
+                let when_true = when_true.visit_ast(symbol_table)?;
+                let when_false = when_false.visit_ast(symbol_table)?;
+
+                if when_true.ty != when_false.ty {
+                    return Err(format!(
+                        "Type mismatch: If expression has two incompatible results ({:?} and {:?})",
+                        when_true.ty, when_false.ty
+                    ));
+                }
+
+                semantic::Expression {
+                    ty: when_true.ty,
+                    kind: IfElse {
+                        predicate: Box::new(predicate.visit_ast(symbol_table)?),
+                        when_true,
+                        when_false,
+                    },
+                }
+            }
         })
     }
 }

@@ -57,6 +57,11 @@ pub enum Expression {
         operator: InfixOperator,
         right: Box<Expression>,
     },
+    IfElse {
+        predicate: Box<Expression>,
+        when_true: Block,
+        when_false: Block,
+    },
 }
 
 #[derive(Debug, Clone)]

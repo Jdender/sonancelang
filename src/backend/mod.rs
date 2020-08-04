@@ -31,21 +31,12 @@ impl Backend {
     }
 
     pub fn compile_func(mut self, input: semantic::File) -> Result<Vec<u8>, String> {
-        let mut builder: FunctionBuilder =
-            FunctionBuilder::new(&mut self.ctx.func, &mut self.builder_context);
+        let mut builder = FunctionBuilder::new(&mut self.ctx.func, &mut self.builder_context);
 
         input.visit_semantic(&mut builder, ());
 
-        let return_type = {
-            use semantic::Ty::*;
-            match input.ty {
-                I32 => types::I32,
-                F32 => types::F32,
-            }
-        };
-
         let mut return_sig = self.module.make_signature();
-        return_sig.returns.push(AbiParam::new(return_type));
+        return_sig.returns.push(AbiParam::new(input.ty.into()));
         self.ctx.func.signature = return_sig;
 
         let func = self

@@ -4,11 +4,13 @@ use crate::ast::*;
 grammar;
 
 match {
-    "func", "->", ";", // Function
+    "func",  // Function
+
+    ":", "->", ";", // Punctuation
 
     "I32", "F32", // Tys
 
-    "let", ":", "=", // Special Operators
+    "let", "if", "else", "=", // Special Operators
 
     "(", ")", "{", "}", // Parens
 
@@ -42,6 +44,7 @@ Statement: Statement = {
 
 ExpressionWithBlock: Expression = {
     Block => Expression::Block(<>),
+    "if" <predicate: Boxed<Expression>> <when_true: Block> "else" <when_false: Block> => Expression::IfElse { <> },
 }
 
 Expression = {
