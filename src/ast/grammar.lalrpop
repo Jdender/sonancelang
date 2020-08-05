@@ -4,7 +4,7 @@ use crate::ast::*;
 grammar;
 
 match {
-    "func",  // Function
+    "export", "func",  // Item
 
     ":", "->", ";", // Punctuation
 
@@ -29,7 +29,12 @@ match {
 #[inline]
 Boxed<T>: Box<T> = T => Box::new(<>);
 
-pub File: File = "func" <name: Identifier>  "(" ")" "->" <ty: Ty> <body: Block> => File { <> };
+pub File: File = <scope: Scope> "func" <name: Identifier>  "(" ")" "->" <ty: Ty> <body: Block> => File { <> };
+
+Scope: Scope = {
+    => Scope::Local,
+    "export" => Scope::Export,
+}
 
 Identifier: Identifier = IDENTIFIER => Identifier::new(<>.to_string());
 

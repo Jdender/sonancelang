@@ -40,7 +40,7 @@ impl Backend {
 
         let func = self.module.declare_function(
             input.name.as_string(),
-            Linkage::Export,
+            input.scope.into(),
             &self.ctx.func.signature,
         )?;
 
@@ -53,6 +53,15 @@ impl Backend {
         self.module.finalize_definitions();
 
         Ok(self.module.finish().emit()?)
+    }
+}
+
+impl From<semantic::Scope> for Linkage {
+    fn from(scope: semantic::Scope) -> Self {
+        match scope {
+            semantic::Scope::Local => Linkage::Local,
+            semantic::Scope::Export => Linkage::Export,
+        }
     }
 }
 

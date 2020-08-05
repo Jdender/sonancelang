@@ -1,8 +1,15 @@
 #[derive(Debug, Clone)]
 pub struct File {
+    pub scope: Scope,
     pub name: Identifier,
     pub ty: Ty,
     pub body: Block,
+}
+
+#[derive(Debug, Clone)]
+pub enum Scope {
+    Export,
+    Local,
 }
 
 #[derive(Debug, Clone)]

@@ -23,7 +23,7 @@
 ## Example
 
 ```swift
-func sonance() -> I32 {
+export func sonance() -> I32 {
     let a = {
         let b = 123;
         b + b

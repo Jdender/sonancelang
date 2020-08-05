@@ -25,9 +25,22 @@ impl AstVisitor for ast::File {
         }
 
         Ok(semantic::File {
+            scope: self.scope.visit_ast(symbol_table)?,
             name: self.name.visit_ast(symbol_table)?,
             ty,
             body,
+        })
+    }
+}
+
+impl AstVisitor for ast::Scope {
+    type Output = semantic::Scope;
+
+    fn visit_ast(&self, _: &SymbolTable) -> Result<Self::Output, SemanticError> {
+        use semantic::Scope::*;
+        Ok(match self {
+            Self::Local => Local,
+            Self::Export => Export,
         })
     }
 }
