@@ -29,26 +29,28 @@ impl Backend {
         })
     }
 
-    pub fn compile_func(mut self, input: semantic::Function) -> Result<Vec<u8>, BackendError> {
-        let mut builder = FunctionBuilder::new(&mut self.ctx.func, &mut self.builder_context);
+    pub fn compile(mut self, file: semantic::File) -> Result<Vec<u8>, BackendError> {
+        for func in file.items {
+            let mut builder = FunctionBuilder::new(&mut self.ctx.func, &mut self.builder_context);
 
-        input.visit_semantic(&mut builder, ());
+            func.visit_semantic(&mut builder, ());
 
-        let mut return_sig = self.module.make_signature();
-        return_sig.returns.push(AbiParam::new(input.ty.into()));
-        self.ctx.func.signature = return_sig;
+            let mut return_sig = self.module.make_signature();
+            return_sig.returns.push(AbiParam::new(func.ty.into()));
+            self.ctx.func.signature = return_sig;
 
-        let func = self.module.declare_function(
-            input.name.as_string(),
-            input.scope.into(),
-            &self.ctx.func.signature,
-        )?;
+            let func = self.module.declare_function(
+                func.name.as_string(),
+                func.scope.into(),
+                &self.ctx.func.signature,
+            )?;
 
-        self.module
-            .define_function(func, &mut self.ctx, &mut NullTrapSink {})
-            .unwrap();
+            self.module
+                .define_function(func, &mut self.ctx, &mut NullTrapSink {})
+                .unwrap();
 
-        self.module.clear_context(&mut self.ctx);
+            self.module.clear_context(&mut self.ctx);
+        }
 
         self.module.finalize_definitions();
 

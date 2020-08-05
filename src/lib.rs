@@ -10,7 +10,7 @@ pub fn compile(input: &'_ str) -> Result<Vec<u8>, CompileError> {
 
     let ast = ast::ast_pass(input).map_err(CompileError::Parse)?;
     let semantic = semantic::semantic_pass(ast)?;
-    let binary = backend.compile_func(semantic.items.into_iter().next().unwrap())?;
+    let binary = backend.compile(semantic)?;
 
     Ok(binary)
 }
