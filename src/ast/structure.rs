@@ -1,5 +1,10 @@
 #[derive(Debug, Clone)]
 pub struct File {
+    pub items: Vec<Function>,
+}
+
+#[derive(Debug, Clone)]
+pub struct Function {
     pub scope: Scope,
     pub name: Identifier,
     pub ty: Ty,

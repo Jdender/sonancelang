@@ -29,7 +29,9 @@ match {
 #[inline]
 Boxed<T>: Box<T> = T => Box::new(<>);
 
-pub File: File = <scope: Scope> "func" <name: Identifier>  "(" ")" "->" <ty: Ty> <body: Block> => File { <> };
+pub File: File = <items: Function*> => File { <> };
+
+Function: Function = <scope: Scope> "func" <name: Identifier>  "(" ")" "->" <ty: Ty> <body: Block> => Function { <> };
 
 Scope: Scope = {
     => Scope::Local,

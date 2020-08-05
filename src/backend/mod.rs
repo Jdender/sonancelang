@@ -29,7 +29,7 @@ impl Backend {
         })
     }
 
-    pub fn compile_func(mut self, input: semantic::File) -> Result<Vec<u8>, BackendError> {
+    pub fn compile_func(mut self, input: semantic::Function) -> Result<Vec<u8>, BackendError> {
         let mut builder = FunctionBuilder::new(&mut self.ctx.func, &mut self.builder_context);
 
         input.visit_semantic(&mut builder, ());

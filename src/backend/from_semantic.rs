@@ -8,7 +8,7 @@ pub trait SemanticVisitor {
     fn visit_semantic(&self, builder: &mut FunctionBuilder, param: Self::Param) -> Self::Output;
 }
 
-impl SemanticVisitor for semantic::File {
+impl SemanticVisitor for semantic::Function {
     type Param = ();
     type Output = ();
 

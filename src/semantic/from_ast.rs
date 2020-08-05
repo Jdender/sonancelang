@@ -13,6 +13,20 @@ impl AstVisitor for ast::File {
     type Output = semantic::File;
 
     fn visit_ast(&self, symbol_table: &SymbolTable) -> Result<Self::Output, SemanticError> {
+        Ok(semantic::File {
+            items: self
+                .items
+                .iter()
+                .map(|i| i.visit_ast(symbol_table))
+                .collect::<Result<_, _>>()?,
+        })
+    }
+}
+
+impl AstVisitor for ast::Function {
+    type Output = semantic::Function;
+
+    fn visit_ast(&self, symbol_table: &SymbolTable) -> Result<Self::Output, SemanticError> {
         let body = self.body.visit_ast(symbol_table)?;
         let ty = self.ty.visit_ast(symbol_table)?;
 
@@ -24,7 +38,7 @@ impl AstVisitor for ast::File {
             });
         }
 
-        Ok(semantic::File {
+        Ok(semantic::Function {
             scope: self.scope.visit_ast(symbol_table)?,
             name: self.name.visit_ast(symbol_table)?,
             ty,
