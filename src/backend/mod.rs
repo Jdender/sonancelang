@@ -9,9 +9,10 @@ use from_semantic::SemanticVisitor;
 pub fn backend_pass(file: semantic::File) -> Result<Vec<u8>, BackendError> {
     let mut module = create_module()?;
 
+    let mut ctx = module.make_context();
+    let mut builder_context = FunctionBuilderContext::new();
+
     for func in file.items {
-        let mut ctx = module.make_context();
-        let mut builder_context = FunctionBuilderContext::new();
         let mut builder = FunctionBuilder::new(&mut ctx.func, &mut builder_context);
 
         func.visit_semantic(&mut builder, ());
