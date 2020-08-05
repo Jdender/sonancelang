@@ -6,11 +6,9 @@ pub mod backend;
 pub mod semantic;
 
 pub fn compile(input: &'_ str) -> Result<Vec<u8>, CompileError> {
-    let backend = backend::Backend::new()?;
-
     let ast = ast::ast_pass(input).map_err(CompileError::Parse)?;
     let semantic = semantic::semantic_pass(ast)?;
-    let binary = backend.compile(semantic)?;
+    let binary = backend::backend_pass(semantic)?;
 
     Ok(binary)
 }
