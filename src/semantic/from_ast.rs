@@ -90,6 +90,7 @@ impl AstVisitor for ast::Block {
         for stmt in self.body.iter() {
             body.push(match stmt {
                 ast::Statement::LetBinding { place, value, ty } => {
+                    let place = place.visit_ast(&symbol_table)?;
                     let value = value.visit_ast(&symbol_table)?;
 
                     // Infer type if not declared
@@ -108,10 +109,10 @@ impl AstVisitor for ast::Block {
                     }
 
                     // Create a new symbol in the current scope
-                    let symbol = symbol_table.set(place.as_string().clone(), SymbolInfo::new(ty));
+                    let symbol = symbol_table.set(place.clone(), SymbolInfo::new(ty));
 
                     semantic::Statement::LetBinding {
-                        place: place.visit_ast(&symbol_table)?,
+                        place,
                         symbol_id: symbol.id(),
                         ty,
                         value,
@@ -150,17 +151,20 @@ impl AstVisitor for ast::Expression {
             }
 
             Self::Lookup(place) => {
+                let place = place.visit_ast(symbol_table)?;
+
                 // Lookup symbol
-                let symbol = symbol_table.get(place.as_string()).ok_or_else(|| {
-                    SemanticError::SymbolNotFound {
-                        symbol: place.as_string().clone(),
-                    }
-                })?;
+                let symbol =
+                    symbol_table
+                        .get(&place)
+                        .ok_or_else(|| SemanticError::SymbolNotFound {
+                            symbol: place.clone(),
+                        })?;
 
                 semantic::Expression {
                     ty: symbol.ty(),
                     kind: Lookup {
-                        place: place.visit_ast(symbol_table)?,
+                        place,
                         symbol_id: symbol.id(),
                     },
                 }
@@ -175,12 +179,15 @@ impl AstVisitor for ast::Expression {
             }
 
             Self::Assignment { place, value } => {
+                let place = place.visit_ast(symbol_table)?;
+
                 // Lookup symbol
-                let symbol = symbol_table.get(place.as_string()).ok_or_else(|| {
-                    SemanticError::SymbolNotFound {
-                        symbol: place.as_string().clone(),
-                    }
-                })?;
+                let symbol =
+                    symbol_table
+                        .get(&place)
+                        .ok_or_else(|| SemanticError::SymbolNotFound {
+                            symbol: place.clone(),
+                        })?;
 
                 let value = value.visit_ast(symbol_table)?;
 
@@ -195,7 +202,7 @@ impl AstVisitor for ast::Expression {
                 semantic::Expression {
                     ty: symbol.ty(),
                     kind: Assignment {
-                        place: place.visit_ast(symbol_table)?,
+                        place,
                         value: Box::new(value),
                         symbol_id: symbol.id(),
                     },

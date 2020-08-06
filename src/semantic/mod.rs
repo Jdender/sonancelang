@@ -36,5 +36,5 @@ pub enum SemanticError {
     #[error("Type Mismatch: If expression has two incompatible results ({when_true:?} and {when_false:?})")]
     TyMismatchIfElse { when_true: Ty, when_false: Ty },
     #[error("Symbol {symbol:?} not found in the current scope")]
-    SymbolNotFound { symbol: String },
+    SymbolNotFound { symbol: Identifier },
 }

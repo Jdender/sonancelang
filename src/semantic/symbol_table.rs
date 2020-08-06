@@ -1,34 +1,34 @@
-use super::Ty;
+use super::{Identifier, Ty};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, Default)]
 pub struct SymbolTable<'a> {
-    members: HashMap<String, SymbolInfo>,
+    locals: HashMap<Identifier, SymbolInfo>,
     parent: Option<&'a SymbolTable<'a>>,
 }
 
 impl<'a> SymbolTable<'a> {
     pub fn new() -> Self {
         SymbolTable {
-            members: HashMap::new(),
+            locals: HashMap::new(),
             parent: None,
         }
     }
 
     pub fn fork(&'a self) -> Self {
         SymbolTable {
-            members: HashMap::new(),
+            locals: HashMap::new(),
             parent: Some(self),
         }
     }
 
-    pub fn set(&mut self, key: String, symbol: SymbolInfo) -> SymbolInfo {
-        self.members.insert(key, symbol);
+    pub fn set(&mut self, key: Identifier, symbol: SymbolInfo) -> SymbolInfo {
+        self.locals.insert(key, symbol);
         symbol
     }
 
-    pub fn get(&self, key: &str) -> Option<SymbolInfo> {
-        match (self.members.get(key), self.parent) {
+    pub fn get(&self, key: &Identifier) -> Option<SymbolInfo> {
+        match (self.locals.get(key), self.parent) {
             (Some(value), _) => Some(*value),
             (None, Some(parent)) => parent.get(key),
             _ => None,

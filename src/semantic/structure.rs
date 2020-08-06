@@ -19,7 +19,7 @@ pub enum Scope {
     Local,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Identifier(String);
 
 impl Identifier {
