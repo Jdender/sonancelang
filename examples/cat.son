@@ -1,4 +1,4 @@
-import std::{
+import sonance::{
     future -> await_all,
     env -> { args, pwd },
     fs -> { read_file, path::join },
@@ -17,8 +17,8 @@ func main() -> Future[Void] {
 
     for result in files {
         match result {
-            Okay: file -> print(file.content),
-            Error: reason -> {
+            Okay { file } -> print(file.content),
+            Error { reason } -> {
                 print("An error occurred: \(reason)");
                 return;
             }
