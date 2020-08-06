@@ -39,9 +39,11 @@ impl AstVisitor for ast::Function {
         }
 
         Ok(semantic::Function {
-            scope: self.scope.visit_ast(symbol_table)?,
-            name: self.name.visit_ast(symbol_table)?,
-            ty,
+            head: semantic::FunctionHead {
+                scope: self.scope.visit_ast(symbol_table)?,
+                name: self.name.visit_ast(symbol_table)?,
+                ty,
+            },
             body,
         })
     }

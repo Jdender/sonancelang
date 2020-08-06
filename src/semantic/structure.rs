@@ -6,10 +6,15 @@ pub struct File {
 }
 
 #[derive(Debug, Clone)]
-pub struct Function {
+pub struct FunctionHead {
     pub scope: Scope,
     pub name: Identifier,
     pub ty: Ty,
+}
+
+#[derive(Debug, Clone)]
+pub struct Function {
+    pub head: FunctionHead,
     pub body: Block,
 }
 

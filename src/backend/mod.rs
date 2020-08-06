@@ -18,12 +18,12 @@ pub fn backend_pass(file: semantic::File) -> Result<Vec<u8>, BackendError> {
         func.visit_semantic(&mut builder, ());
 
         let mut return_sig = module.make_signature();
-        return_sig.returns.push(AbiParam::new(func.ty.into()));
+        return_sig.returns.push(AbiParam::new(func.head.ty.into()));
         ctx.func.signature = return_sig;
 
         let func = module.declare_function(
-            func.name.as_string(),
-            func.scope.into(),
+            func.head.name.as_string(),
+            func.head.scope.into(),
             &ctx.func.signature,
         )?;
 
