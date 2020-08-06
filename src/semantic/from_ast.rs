@@ -1,6 +1,6 @@
 use super::{
     super::{ast, semantic},
-    SemanticError, SymbolInfo, SymbolTable,
+    LocalInfo, SemanticError, SymbolKind, SymbolTable,
 };
 
 pub trait AstVisitor {
@@ -111,11 +111,17 @@ impl AstVisitor for ast::Block {
                     }
 
                     // Create a new symbol in the current scope
-                    let symbol = symbol_table.set(place.clone(), SymbolInfo::new(ty));
+                    symbol_table.set(place.clone(), SymbolKind::Local(LocalInfo::new(ty)));
+                    let symbol_id = symbol_table
+                        .get(&place)
+                        .expect("Should get back what we set")
+                        .as_local()
+                        .expect("Should get back what we set")
+                        .id();
 
                     semantic::Statement::LetBinding {
                         place,
-                        symbol_id: symbol.id(),
+                        symbol_id,
                         ty,
                         value,
                     }
@@ -156,12 +162,15 @@ impl AstVisitor for ast::Expression {
                 let place = place.visit_ast(symbol_table)?;
 
                 // Lookup symbol
-                let symbol =
-                    symbol_table
-                        .get(&place)
-                        .ok_or_else(|| SemanticError::SymbolNotFound {
-                            symbol: place.clone(),
-                        })?;
+                let symbol = symbol_table
+                    .get(&place)
+                    .ok_or_else(|| SemanticError::SymbolNotFound {
+                        symbol: place.clone(),
+                    })?
+                    .as_local()
+                    .ok_or_else(|| SemanticError::ExpectedLocalSymbol {
+                        symbol: place.clone(),
+                    })?;
 
                 semantic::Expression {
                     ty: symbol.ty(),
@@ -184,12 +193,15 @@ impl AstVisitor for ast::Expression {
                 let place = place.visit_ast(symbol_table)?;
 
                 // Lookup symbol
-                let symbol =
-                    symbol_table
-                        .get(&place)
-                        .ok_or_else(|| SemanticError::SymbolNotFound {
-                            symbol: place.clone(),
-                        })?;
+                let symbol = symbol_table
+                    .get(&place)
+                    .ok_or_else(|| SemanticError::SymbolNotFound {
+                        symbol: place.clone(),
+                    })?
+                    .as_local()
+                    .ok_or_else(|| SemanticError::ExpectedLocalSymbol {
+                        symbol: place.clone(),
+                    })?;
 
                 let value = value.visit_ast(symbol_table)?;
 

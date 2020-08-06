@@ -73,8 +73,8 @@ impl From<semantic::Ty> for Type {
     }
 }
 
-impl From<&semantic::SymbolId> for Variable {
-    fn from(id: &semantic::SymbolId) -> Self {
+impl From<&semantic::LocalId> for Variable {
+    fn from(id: &semantic::LocalId) -> Self {
         Variable::with_u32(id.as_u32())
     }
 }

@@ -37,4 +37,6 @@ pub enum SemanticError {
     TyMismatchIfElse { when_true: Ty, when_false: Ty },
     #[error("Symbol {symbol:?} not found in the current scope")]
     SymbolNotFound { symbol: Identifier },
+    #[error("Expected symbol {symbol:?} to be local, it wasn't")]
+    ExpectedLocalSymbol { symbol: Identifier },
 }
