@@ -88,7 +88,7 @@ pub struct LocalInfo {
     pub ty: Ty,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct SymbolId(u32);
 
 impl Default for SymbolId {

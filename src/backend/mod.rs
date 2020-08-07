@@ -5,13 +5,13 @@ use cranelift::{codegen::binemit::NullTrapSink, prelude::*};
 use cranelift_module::{Linkage, Module};
 use cranelift_object::{ObjectBackend, ObjectBuilder};
 use from_semantic::SemanticVisitor;
-// use std::collections::HashMap;
+use std::collections::HashMap;
 
 pub fn backend_pass(file: semantic::File) -> Result<Vec<u8>, BackendError> {
     let mut module = create_module()?;
 
     let mut bodies = Vec::with_capacity(file.items.len());
-    // let func_table = HashMap::with_capacity(file.items.len());
+    let mut func_table = HashMap::with_capacity(file.items.len());
 
     for func in file.items {
         let mut signature = module.make_signature();
@@ -23,8 +23,8 @@ pub fn backend_pass(file: semantic::File) -> Result<Vec<u8>, BackendError> {
             &signature,
         )?;
 
+        func_table.insert(func.symbol_id, id);
         bodies.push((id, signature, func));
-        // func_table.insert(func.symbol_id, id);
     }
 
     let mut ctx = module.make_context();
@@ -35,7 +35,7 @@ pub fn backend_pass(file: semantic::File) -> Result<Vec<u8>, BackendError> {
 
         let mut builder = FunctionBuilder::new(&mut ctx.func, &mut builder_context);
 
-        func.visit_semantic(&mut builder, ());
+        func.visit_semantic(&mut builder, &func_table, ());
 
         module
             .define_function(id, &mut ctx, &mut NullTrapSink {})

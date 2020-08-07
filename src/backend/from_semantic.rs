@@ -1,24 +1,36 @@
 use super::super::semantic;
 use cranelift::prelude::*;
 
+pub type FuncTable = std::collections::HashMap<semantic::SymbolId, cranelift_module::FuncId>;
+
 pub trait SemanticVisitor {
     type Param;
     type Output;
 
-    fn visit_semantic(&self, builder: &mut FunctionBuilder, param: Self::Param) -> Self::Output;
+    fn visit_semantic(
+        &self,
+        builder: &mut FunctionBuilder,
+        func_table: &FuncTable,
+        param: Self::Param,
+    ) -> Self::Output;
 }
 
 impl SemanticVisitor for semantic::Function {
     type Param = ();
     type Output = ();
 
-    fn visit_semantic(&self, builder: &mut FunctionBuilder, _: Self::Param) -> Self::Output {
+    fn visit_semantic(
+        &self,
+        builder: &mut FunctionBuilder,
+        func_table: &FuncTable,
+        _: Self::Param,
+    ) -> Self::Output {
         let block = builder.create_block();
 
         builder.switch_to_block(block);
         builder.append_block_params_for_function_params(block);
 
-        let result = self.body.visit_semantic(builder, ());
+        let result = self.body.visit_semantic(builder, func_table, ());
 
         builder.ins().return_(&[result]);
 
@@ -31,12 +43,17 @@ impl SemanticVisitor for semantic::Block {
     type Param = ();
     type Output = Value;
 
-    fn visit_semantic(&self, builder: &mut FunctionBuilder, _: Self::Param) -> Self::Output {
+    fn visit_semantic(
+        &self,
+        builder: &mut FunctionBuilder,
+        func_table: &FuncTable,
+        _: Self::Param,
+    ) -> Self::Output {
         for stmt in self.body.iter() {
-            stmt.visit_semantic(builder, ());
+            stmt.visit_semantic(builder, func_table, ());
         }
 
-        self.trailing.visit_semantic(builder, ())
+        self.trailing.visit_semantic(builder, func_table, ())
     }
 }
 
@@ -44,7 +61,12 @@ impl SemanticVisitor for semantic::Statement {
     type Param = ();
     type Output = ();
 
-    fn visit_semantic(&self, builder: &mut FunctionBuilder, _: Self::Param) -> Self::Output {
+    fn visit_semantic(
+        &self,
+        builder: &mut FunctionBuilder,
+        func_table: &FuncTable,
+        _: Self::Param,
+    ) -> Self::Output {
         match self {
             Self::LetBinding {
                 value, symbol_id, ..
@@ -52,13 +74,13 @@ impl SemanticVisitor for semantic::Statement {
                 let ty = value.ty.into();
 
                 let symbol_id = symbol_id.into();
-                let value = value.visit_semantic(builder, ());
+                let value = value.visit_semantic(builder, func_table, ());
 
                 builder.declare_var(symbol_id, ty);
                 builder.def_var(symbol_id, value);
             }
             Self::SideEffect(expr) => {
-                expr.visit_semantic(builder, ());
+                expr.visit_semantic(builder, func_table, ());
             }
         }
     }
@@ -83,19 +105,24 @@ impl SemanticVisitor for semantic::Expression {
     type Param = ();
     type Output = Value;
 
-    fn visit_semantic(&self, builder: &mut FunctionBuilder, _: Self::Param) -> Self::Output {
+    fn visit_semantic(
+        &self,
+        builder: &mut FunctionBuilder,
+        func_table: &FuncTable,
+        _: Self::Param,
+    ) -> Self::Output {
         use semantic::ExpressionKind::*;
         match &self.kind {
-            Literal(literal) => literal.visit_semantic(builder, ()),
+            Literal(literal) => literal.visit_semantic(builder, func_table, ()),
 
             Lookup { symbol_id, .. } => builder.use_var(symbol_id.into()),
 
-            Block(block) => block.visit_semantic(builder, ()),
+            Block(block) => block.visit_semantic(builder, func_table, ()),
 
             Assignment {
                 symbol_id, value, ..
             } => {
-                let value = value.visit_semantic(builder, ());
+                let value = value.visit_semantic(builder, func_table, ());
                 builder.def_var(symbol_id.into(), value);
                 builder.ins().iconst(types::I32, 0)
             }
@@ -104,8 +131,8 @@ impl SemanticVisitor for semantic::Expression {
 
             PrefixCall { operator, value } => {
                 let ty = value.ty;
-                let value = value.visit_semantic(builder, ());
-                operator.visit_semantic(builder, (ty, value))
+                let value = value.visit_semantic(builder, func_table, ());
+                operator.visit_semantic(builder, func_table, (ty, value))
             }
 
             InfixCall {
@@ -114,9 +141,9 @@ impl SemanticVisitor for semantic::Expression {
                 right,
             } => {
                 let ty = left.ty;
-                let left = left.visit_semantic(builder, ());
-                let right = right.visit_semantic(builder, ());
-                operator.visit_semantic(builder, (ty, left, right))
+                let left = left.visit_semantic(builder, func_table, ());
+                let right = right.visit_semantic(builder, func_table, ());
+                operator.visit_semantic(builder, func_table, (ty, left, right))
             }
 
             IfElse {
@@ -133,20 +160,20 @@ impl SemanticVisitor for semantic::Expression {
                 builder.append_block_param(merge_block, self.ty.into());
 
                 // Jump if predicate is zero, otherwise fall through
-                let predicate = predicate.visit_semantic(builder, ());
+                let predicate = predicate.visit_semantic(builder, func_table, ());
                 builder.ins().brz(predicate, else_block, &[]);
                 builder.ins().jump(true_block, &[]);
 
                 // Setup when_true block
                 builder.switch_to_block(true_block);
                 builder.seal_block(true_block);
-                let when_true = when_true.visit_semantic(builder, ());
+                let when_true = when_true.visit_semantic(builder, func_table, ());
                 builder.ins().jump(merge_block, &[when_true]);
 
                 // Same as above but for when_false
                 builder.switch_to_block(else_block);
                 builder.seal_block(else_block);
-                let when_false = when_false.visit_semantic(builder, ());
+                let when_false = when_false.visit_semantic(builder, func_table, ());
                 builder.ins().jump(merge_block, &[when_false]);
 
                 // Finish the merge and return result
@@ -162,7 +189,12 @@ impl SemanticVisitor for semantic::Literal {
     type Param = ();
     type Output = Value;
 
-    fn visit_semantic(&self, builder: &mut FunctionBuilder, _: Self::Param) -> Self::Output {
+    fn visit_semantic(
+        &self,
+        builder: &mut FunctionBuilder,
+        _: &FuncTable,
+        _: Self::Param,
+    ) -> Self::Output {
         match self {
             Self::I32(num) => builder.ins().iconst(types::I32, i64::from(*num)),
             Self::F32(num) => builder.ins().f32const(*num),
@@ -177,6 +209,7 @@ impl SemanticVisitor for semantic::PrefixOperator {
     fn visit_semantic(
         &self,
         builder: &mut FunctionBuilder,
+        _: &FuncTable,
         (ty, value): Self::Param,
     ) -> Self::Output {
         match ty {
@@ -197,6 +230,7 @@ impl SemanticVisitor for semantic::InfixOperator {
     fn visit_semantic(
         &self,
         builder: &mut FunctionBuilder,
+        _: &FuncTable,
         (ty, left, right): Self::Param,
     ) -> Self::Output {
         match ty {
