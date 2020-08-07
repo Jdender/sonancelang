@@ -9,14 +9,15 @@
 2. a sound; a tune.
 3. an work in progress, experimental programing language.
 
-## Alpha Roadmap
+## Alpha Checklist
 
 - [x] Int Literals
 - [x] Math Operators
 - [x] Local Variables
 - [x] Block Scopes
 - [x] If Else Statements
-- [ ] Functions and Calls
+- [x] Functions and Calls
+- [ ] Function Arguments/Parameters
 - [ ] Booleans & Boolean Operators
 - [ ] Anonymous Tuples
 
