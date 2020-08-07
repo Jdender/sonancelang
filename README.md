@@ -17,7 +17,8 @@
 - [x] Block Scopes
 - [x] If Else Statements
 - [x] Functions and Calls
-- [ ] Function Arguments/Parameters
+- [x] Function Arguments/Parameters
+- [ ] External Function Calls/Defs
 - [ ] Booleans & Boolean Operators
 - [ ] Anonymous Tuples
 
