@@ -18,7 +18,7 @@ pub struct Function {
     pub body: Block,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum Scope {
     Export,
     Local,

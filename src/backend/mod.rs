@@ -5,30 +5,40 @@ use cranelift::{codegen::binemit::NullTrapSink, prelude::*};
 use cranelift_module::{Linkage, Module};
 use cranelift_object::{ObjectBackend, ObjectBuilder};
 use from_semantic::SemanticVisitor;
+// use std::collections::HashMap;
 
 pub fn backend_pass(file: semantic::File) -> Result<Vec<u8>, BackendError> {
     let mut module = create_module()?;
 
+    let mut bodies = Vec::with_capacity(file.items.len());
+    // let func_table = HashMap::with_capacity(file.items.len());
+
+    for func in file.items {
+        let mut signature = module.make_signature();
+        signature.returns.push(AbiParam::new(func.head.ty.into()));
+
+        let id = module.declare_function(
+            func.head.name.as_string(),
+            func.head.scope.into(),
+            &signature,
+        )?;
+
+        bodies.push((id, signature, func));
+        // func_table.insert(func.symbol_id, id);
+    }
+
     let mut ctx = module.make_context();
     let mut builder_context = FunctionBuilderContext::new();
 
-    for func in file.items {
+    for (id, signature, func) in bodies {
+        ctx.func.signature = signature;
+
         let mut builder = FunctionBuilder::new(&mut ctx.func, &mut builder_context);
 
         func.visit_semantic(&mut builder, ());
 
-        let mut return_sig = module.make_signature();
-        return_sig.returns.push(AbiParam::new(func.head.ty.into()));
-        ctx.func.signature = return_sig;
-
-        let func = module.declare_function(
-            func.head.name.as_string(),
-            func.head.scope.into(),
-            &ctx.func.signature,
-        )?;
-
         module
-            .define_function(func, &mut ctx, &mut NullTrapSink {})
+            .define_function(id, &mut ctx, &mut NullTrapSink {})
             .unwrap();
 
         module.clear_context(&mut ctx);
