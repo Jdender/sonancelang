@@ -22,8 +22,10 @@ impl<'a> SymbolTable<'a> {
         }
     }
 
-    pub fn set(&mut self, key: Identifier, symbol: Symbol) {
+    pub fn set(&mut self, key: Identifier, symbol: Symbol) -> SymbolId {
+        let id = symbol.id();
         self.symbols.insert(key, symbol);
+        id
     }
 
     pub fn get(&self, key: &Identifier) -> Option<&Symbol> {

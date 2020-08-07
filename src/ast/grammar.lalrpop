@@ -60,6 +60,7 @@ ExpressionWithBlock: Expression = {
 
 Expression = {
     <place: Identifier> "=" <value: Boxed<Expression>> => Expression::Assignment { <> },
+    <name: Identifier> "(" ")" => Expression::FuncCall { <> },
     ExpressionWithBlock,
     ExprPre6,
 }

@@ -60,6 +60,9 @@ pub enum Expression {
         place: Identifier,
         value: Box<Expression>,
     },
+    FuncCall {
+        name: Identifier,
+    },
     PrefixCall {
         operator: PrefixOperator,
         value: Box<Expression>,

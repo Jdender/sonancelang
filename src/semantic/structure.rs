@@ -16,6 +16,7 @@ pub struct FunctionHead {
 pub struct Function {
     pub head: FunctionHead,
     pub body: Block,
+    pub symbol_id: SymbolId,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -77,6 +78,10 @@ pub enum ExpressionKind {
     Assignment {
         place: Identifier,
         value: Box<Expression>,
+        symbol_id: SymbolId,
+    },
+    FuncCall {
+        name: Identifier,
         symbol_id: SymbolId,
     },
     PrefixCall {

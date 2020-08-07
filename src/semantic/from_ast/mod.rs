@@ -4,7 +4,7 @@ mod expression;
 
 pub use super::{
     super::{ast, semantic},
-    SemanticError, Symbol, SymbolTable,
+    SemanticError, Symbol, SymbolId, SymbolTable,
 };
 
 pub trait AstVisitor {
@@ -24,12 +24,12 @@ impl AstVisitor for ast::File {
             // Convert the func head first
             let partial = item.visit_ast(&mut symbol_table)?;
             // Add func head to symbol table
-            symbol_table.set(
+            let symbol_id = symbol_table.set(
                 partial.head.name.clone(),
                 Symbol::new_func(partial.head.clone()),
             );
             // Convert the rest of the func
-            items.push(partial.visit_ast(&mut symbol_table)?);
+            items.push((partial, symbol_id).visit_ast(&mut symbol_table)?);
         }
 
         Ok(semantic::File { items })
@@ -57,23 +57,26 @@ impl AstVisitor for ast::Function {
     }
 }
 
-impl AstVisitor for PartialFunction {
+impl AstVisitor for (PartialFunction, SymbolId) {
     type Output = semantic::Function;
 
     fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
-        let body = self.body.visit_ast(symbol_table)?;
+        let (func, symbol_id) = self;
+
+        let body = func.body.visit_ast(symbol_table)?;
 
         // Assert types match
-        if self.head.ty != body.ty {
+        if func.head.ty != body.ty {
             return Err(SemanticError::TyMismatchReturn {
-                expected: self.head.ty,
+                expected: func.head.ty,
                 found: body.ty,
             });
         }
 
         Ok(semantic::Function {
-            head: self.head,
+            head: func.head,
             body,
+            symbol_id,
         })
     }
 }

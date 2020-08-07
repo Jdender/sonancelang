@@ -35,8 +35,12 @@ pub enum SemanticError {
     },
     #[error("Type Mismatch: If expression has two incompatible results ({when_true:?} and {when_false:?})")]
     TyMismatchIfElse { when_true: Ty, when_false: Ty },
-    #[error("Symbol {symbol:?} not found in the current scope")]
-    SymbolNotFound { symbol: Identifier },
-    #[error("Expected symbol {symbol:?} to be local, it wasn't")]
+    #[error("Local {symbol:?} not found in the current scope")]
+    LocalNotFound { symbol: Identifier },
+    #[error("Expected symbol {symbol:?} to be a local, it wasn't")]
     ExpectedLocalSymbol { symbol: Identifier },
+    #[error("Function {symbol:?} not found in the current scope")]
+    FuncNotFound { symbol: Identifier },
+    #[error("Expected symbol {symbol:?} to be a function, it wasn't")]
+    ExpectedFuncSymbol { symbol: Identifier },
 }

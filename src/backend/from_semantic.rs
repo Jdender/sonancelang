@@ -100,6 +100,8 @@ impl SemanticVisitor for semantic::Expression {
                 builder.ins().iconst(types::I32, 0)
             }
 
+            FuncCall { .. } => unimplemented!(),
+
             PrefixCall { operator, value } => {
                 let ty = value.ty;
                 let value = value.visit_semantic(builder, ());

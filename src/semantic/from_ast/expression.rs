@@ -22,7 +22,7 @@ impl AstVisitor for ast::Expression {
                 let symbol =
                     symbol_table
                         .get(&place)
-                        .ok_or_else(|| SemanticError::SymbolNotFound {
+                        .ok_or_else(|| SemanticError::LocalNotFound {
                             symbol: place.clone(),
                         })?;
 
@@ -57,7 +57,7 @@ impl AstVisitor for ast::Expression {
                 let symbol =
                     symbol_table
                         .get(&place)
-                        .ok_or_else(|| SemanticError::SymbolNotFound {
+                        .ok_or_else(|| SemanticError::LocalNotFound {
                             symbol: place.clone(),
                         })?;
 
@@ -85,6 +85,33 @@ impl AstVisitor for ast::Expression {
                         place,
                         value: Box::new(value),
                         symbol_id,
+                    },
+                }
+            }
+
+            Self::FuncCall { name } => {
+                let name = name.visit_ast(symbol_table)?;
+
+                // Lookup symbol
+                let symbol =
+                    symbol_table
+                        .get(&name)
+                        .ok_or_else(|| SemanticError::FuncNotFound {
+                            symbol: name.clone(),
+                        })?;
+
+                let ty = symbol
+                    .as_func()
+                    .ok_or_else(|| SemanticError::ExpectedFuncSymbol {
+                        symbol: name.clone(),
+                    })?
+                    .ty;
+
+                semantic::Expression {
+                    ty,
+                    kind: FuncCall {
+                        name,
+                        symbol_id: symbol.id(),
                     },
                 }
             }

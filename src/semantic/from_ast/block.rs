@@ -48,11 +48,7 @@ impl AstVisitor for ast::Statement {
                 }
 
                 // Create a new symbol in the current scope
-                symbol_table.set(place.clone(), Symbol::new_local(ty));
-                let symbol_id = symbol_table
-                    .get(&place)
-                    .expect("Should get back what we set")
-                    .id();
+                let symbol_id = symbol_table.set(place.clone(), Symbol::new_local(ty));
 
                 semantic::Statement::LetBinding {
                     place,
