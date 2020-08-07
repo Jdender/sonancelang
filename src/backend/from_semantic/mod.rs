@@ -31,8 +31,13 @@ impl SemanticVisitor for semantic::Function {
     ) -> Self::Output {
         let block = builder.create_block();
 
-        builder.switch_to_block(block);
         builder.append_block_params_for_function_params(block);
+        builder.switch_to_block(block);
+        builder.seal_block(block);
+
+        for param in self.head.params.iter() {
+            builder.declare_var((&param.symbol_id).into(), param.ty.into());
+        }
 
         let result = self.body.visit_semantic(builder, context, ());
 

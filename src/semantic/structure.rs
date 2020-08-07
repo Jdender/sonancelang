@@ -17,6 +17,7 @@ pub struct FunctionHead {
 pub struct Parameter {
     pub name: Identifier,
     pub ty: Ty,
+    pub symbol_id: SymbolId,
 }
 
 #[derive(Debug, Clone)]

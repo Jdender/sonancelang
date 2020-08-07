@@ -17,7 +17,7 @@ impl AstVisitor for ast::File {
     type Output = semantic::File;
 
     fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
-        let symbol_table = &mut symbol_table.fork();
+        let mut symbol_table = symbol_table.fork();
 
         Ok(semantic::File {
             items: self
@@ -25,7 +25,7 @@ impl AstVisitor for ast::File {
                 .into_iter()
                 .map(|item| {
                     // Convert the func head first
-                    let partial = item.visit_ast(symbol_table)?;
+                    let partial = item.visit_ast(&mut symbol_table)?;
 
                     // Add func head to symbol table
                     let symbol_id = symbol_table.set(
@@ -37,7 +37,7 @@ impl AstVisitor for ast::File {
                 })
                 .collect::<Result<Vec<_>, _>>()?
                 .into_iter()
-                .map(|i| i.visit_ast(symbol_table))
+                .map(|i| i.visit_ast(&mut symbol_table.fork()))
                 .collect::<Result<_, _>>()?,
         })
     }
@@ -73,9 +73,13 @@ impl AstVisitor for ast::Parameter {
     type Output = semantic::Parameter;
 
     fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+        let name = self.name.visit_ast(symbol_table)?;
+        let ty = self.ty.visit_ast(symbol_table)?;
+        let symbol_id = symbol_table.set(name.clone(), Symbol::new_local(ty));
         Ok(semantic::Parameter {
-            name: self.name.visit_ast(symbol_table)?,
-            ty: self.ty.visit_ast(symbol_table)?,
+            name,
+            ty,
+            symbol_id,
         })
     }
 }
@@ -85,6 +89,7 @@ impl AstVisitor for (PartialFunction, SymbolId) {
 
     fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
         let (func, symbol_id) = self;
+        let symbol_table = &mut symbol_table.fork();
 
         let body = func.body.visit_ast(symbol_table)?;
 

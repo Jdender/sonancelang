@@ -20,6 +20,7 @@ pub fn backend_pass(file: semantic::File) -> Result<Vec<u8>, BackendError> {
         .map(|func| {
             let mut signature = context.module.make_signature();
             signature.returns.push(AbiParam::new(func.head.ty.into()));
+
             for arg in func.head.params.iter() {
                 signature.params.push(AbiParam::new(arg.ty.into()));
             }
