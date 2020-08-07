@@ -1,5 +1,5 @@
 use {
-    super::{FunctionHead, Identifier, Ty},
+    super::{Identifier, Ty},
     std::collections::HashMap,
 };
 
@@ -53,10 +53,10 @@ impl Symbol {
         }
     }
 
-    pub fn new_func(head: FunctionHead) -> Self {
+    pub fn new_func(ty: Ty, params: Vec<Ty>) -> Self {
         Self {
             id: SymbolId::new(),
-            kind: SymbolKind::Func(head),
+            kind: SymbolKind::Func(FuncInfo { ty, params }),
         }
     }
 
@@ -71,7 +71,7 @@ impl Symbol {
         }
     }
 
-    pub fn as_func(&self) -> Option<&FunctionHead> {
+    pub fn as_func(&self) -> Option<&FuncInfo> {
         match &self.kind {
             SymbolKind::Func(head) => Some(head),
             _ => None,
@@ -82,12 +82,18 @@ impl Symbol {
 #[derive(Debug, Clone)]
 enum SymbolKind {
     Local(LocalInfo),
-    Func(FunctionHead),
+    Func(FuncInfo),
 }
 
 #[derive(Debug, Clone, Copy)]
 pub struct LocalInfo {
     pub ty: Ty,
+}
+
+#[derive(Debug, Clone)]
+pub struct FuncInfo {
+    pub ty: Ty,
+    pub params: Vec<Ty>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]

@@ -1,22 +1,22 @@
 use {super::*, std::cmp::Ordering};
 
 impl HeaderVisitor for ast::Expression {
-    type Output = semantic::Expression;
+    type Output = Expression;
 
     fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
-        use semantic::ExpressionKind::*;
+        use ExpressionKind::*;
 
         Ok(match self {
             Self::Literal(literal) => {
                 let literal = literal.visit_header(symbol_table)?;
-                semantic::Expression {
+                Expression {
                     ty: literal.into(),
                     kind: Literal(literal),
                 }
             }
 
             Self::Lookup(place) => {
-                let place = place.visit_header(symbol_table)?;
+                let place = place.visit_common();
 
                 // Lookup symbol
                 let symbol =
@@ -33,7 +33,7 @@ impl HeaderVisitor for ast::Expression {
                     })?
                     .ty;
 
-                semantic::Expression {
+                Expression {
                     ty,
                     kind: Lookup {
                         place,
@@ -44,14 +44,14 @@ impl HeaderVisitor for ast::Expression {
 
             Self::Block(block) => {
                 let block = block.visit_header(symbol_table)?;
-                semantic::Expression {
+                Expression {
                     ty: block.ty,
                     kind: Block(block),
                 }
             }
 
             Self::Assignment { place, value } => {
-                let place = place.visit_header(symbol_table)?;
+                let place = place.visit_common();
 
                 // Lookup symbol
                 let symbol =
@@ -79,7 +79,7 @@ impl HeaderVisitor for ast::Expression {
                     });
                 }
 
-                semantic::Expression {
+                Expression {
                     ty,
                     kind: Assignment {
                         place,
@@ -90,7 +90,7 @@ impl HeaderVisitor for ast::Expression {
             }
 
             Self::FuncCall { name, args } => {
-                let name = name.visit_header(symbol_table)?;
+                let name = name.visit_common();
 
                 // Lookup symbol
                 let symbol =
@@ -108,7 +108,7 @@ impl HeaderVisitor for ast::Expression {
 
                 let symbol_id = symbol.id();
                 let ty = func.ty;
-                let params = func.params.iter().map(|p| p.ty).collect::<Vec<_>>();
+                let params = func.params.clone();
 
                 let args = args
                     .into_iter()
@@ -148,7 +148,7 @@ impl HeaderVisitor for ast::Expression {
                     }
                 }
 
-                semantic::Expression {
+                Expression {
                     ty,
                     kind: FuncCall {
                         name,
@@ -160,7 +160,7 @@ impl HeaderVisitor for ast::Expression {
 
             Self::PrefixCall { operator, value } => {
                 let value = value.visit_header(symbol_table)?;
-                semantic::Expression {
+                Expression {
                     ty: value.ty,
                     kind: PrefixCall {
                         operator: operator.visit_header(symbol_table)?,
@@ -186,7 +186,7 @@ impl HeaderVisitor for ast::Expression {
                     });
                 }
 
-                semantic::Expression {
+                Expression {
                     ty: left.ty,
                     kind: InfixCall {
                         operator,
@@ -211,7 +211,7 @@ impl HeaderVisitor for ast::Expression {
                     });
                 }
 
-                semantic::Expression {
+                Expression {
                     ty: when_true.ty,
                     kind: IfElse {
                         predicate: Box::new(predicate.visit_header(symbol_table)?),

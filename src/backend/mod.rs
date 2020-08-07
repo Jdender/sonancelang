@@ -1,7 +1,7 @@
 pub mod from_semantic;
 
 use {
-    super::semantic,
+    super::semantic::from_header as semantic,
     cranelift::{codegen::binemit::NullTrapSink, prelude::*},
     cranelift_module::{FuncId, Linkage, Module},
     cranelift_object::{ObjectBackend, ObjectBuilder},
@@ -19,15 +19,15 @@ pub fn backend_pass(file: semantic::File) -> Result<Vec<u8>, BackendError> {
         .into_iter()
         .map(|func| {
             let mut signature = context.module.make_signature();
-            signature.returns.push(AbiParam::new(func.head.ty.into()));
+            signature.returns.push(AbiParam::new(func.ty.into()));
 
-            for arg in func.head.params.iter() {
+            for arg in func.params.iter() {
                 signature.params.push(AbiParam::new(arg.ty.into()));
             }
 
             let id = context.module.declare_function(
-                func.head.name.as_string(),
-                func.head.scope.into(),
+                func.name.as_string(),
+                func.scope.into(),
                 &signature,
             )?;
 

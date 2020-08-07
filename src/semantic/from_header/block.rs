@@ -1,7 +1,7 @@
 use super::*;
 
 impl HeaderVisitor for ast::Block {
-    type Output = semantic::Block;
+    type Output = Block;
 
     fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
         let symbol_table = &mut symbol_table.fork();
@@ -15,7 +15,7 @@ impl HeaderVisitor for ast::Block {
         let trailing = Box::new(self.trailing.visit_header(symbol_table)?);
 
         // Blocks return their trailing expr, same goes for types
-        Ok(semantic::Block {
+        Ok(Block {
             body,
             ty: trailing.ty,
             trailing,
@@ -24,17 +24,17 @@ impl HeaderVisitor for ast::Block {
 }
 
 impl HeaderVisitor for ast::Statement {
-    type Output = semantic::Statement;
+    type Output = Statement;
 
     fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
         Ok(match self {
             ast::Statement::LetBinding { place, value, ty } => {
-                let place = place.visit_header(symbol_table)?;
+                let place = place.visit_common();
                 let value = value.visit_header(symbol_table)?;
 
                 // Infer type if not declared
                 let ty = if let Some(ty) = ty {
-                    ty.visit_header(symbol_table)?
+                    ty.visit_common()
                 } else {
                     value.ty
                 };
@@ -50,7 +50,7 @@ impl HeaderVisitor for ast::Statement {
                 // Create a new symbol in the current scope
                 let symbol_id = symbol_table.set(place.clone(), Symbol::new_local(ty));
 
-                semantic::Statement::LetBinding {
+                Statement::LetBinding {
                     place,
                     symbol_id,
                     ty,
@@ -58,7 +58,7 @@ impl HeaderVisitor for ast::Statement {
                 }
             }
             ast::Statement::SideEffect(expr) => {
-                semantic::Statement::SideEffect(expr.visit_header(symbol_table)?)
+                Statement::SideEffect(expr.visit_header(symbol_table)?)
             }
         })
     }

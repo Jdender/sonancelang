@@ -3,7 +3,7 @@ mod expr_misc;
 mod expression;
 
 pub use {
-    super::{super::semantic, BackendContext},
+    super::{super::semantic::from_header as semantic, BackendContext},
     cranelift::prelude::*,
 };
 
@@ -35,7 +35,7 @@ impl SemanticVisitor for semantic::Function {
         builder.switch_to_block(block);
         builder.seal_block(block);
 
-        for param in self.head.params.iter() {
+        for param in self.params.iter() {
             builder.declare_var((&param.symbol_id).into(), param.ty.into());
         }
 

@@ -1,4 +1,4 @@
-use super::SymbolId;
+use super::*;
 
 #[derive(Debug, Clone)]
 pub struct File {
@@ -6,11 +6,13 @@ pub struct File {
 }
 
 #[derive(Debug, Clone)]
-pub struct FunctionHead {
+pub struct Function {
     pub scope: Scope,
     pub name: Identifier,
     pub params: Vec<Parameter>,
     pub ty: Ty,
+    pub body: Block,
+    pub symbol_id: SymbolId,
 }
 
 #[derive(Debug, Clone)]
@@ -18,37 +20,6 @@ pub struct Parameter {
     pub name: Identifier,
     pub ty: Ty,
     pub symbol_id: SymbolId,
-}
-
-#[derive(Debug, Clone)]
-pub struct Function {
-    pub head: FunctionHead,
-    pub body: Block,
-    pub symbol_id: SymbolId,
-}
-
-#[derive(Debug, Clone, Copy)]
-pub enum Scope {
-    Export,
-    Local,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct Identifier(String);
-
-impl Identifier {
-    pub fn new(ident: String) -> Self {
-        Identifier(ident)
-    }
-    pub fn as_string(&self) -> &String {
-        &self.0
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum Ty {
-    I32,
-    F32,
 }
 
 #[derive(Debug, Clone)]

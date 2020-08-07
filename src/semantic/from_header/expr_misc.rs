@@ -1,10 +1,10 @@
 use super::*;
 
 impl HeaderVisitor for ast::Literal {
-    type Output = semantic::Literal;
+    type Output = Literal;
 
     fn visit_header(self, _: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
-        use semantic::Literal::*;
+        use Literal::*;
 
         Ok(match self {
             Self::I32(num) => I32(num),
@@ -14,10 +14,10 @@ impl HeaderVisitor for ast::Literal {
 }
 
 impl HeaderVisitor for ast::PrefixOperator {
-    type Output = semantic::PrefixOperator;
+    type Output = PrefixOperator;
 
     fn visit_header(self, _: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
-        use semantic::PrefixOperator::*;
+        use PrefixOperator::*;
 
         Ok(match self {
             Self::Negate => Negate,
@@ -26,10 +26,10 @@ impl HeaderVisitor for ast::PrefixOperator {
 }
 
 impl HeaderVisitor for ast::InfixOperator {
-    type Output = semantic::InfixOperator;
+    type Output = InfixOperator;
 
     fn visit_header(self, _: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
-        use semantic::InfixOperator::*;
+        use InfixOperator::*;
 
         Ok(match self {
             Self::Add => Add,

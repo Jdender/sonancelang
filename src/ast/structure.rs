@@ -31,7 +31,12 @@ impl Identifier {
     pub fn new(ident: String) -> Self {
         Identifier(ident)
     }
-    pub fn as_string(&self) -> &String {
+
+    pub fn take(self) -> String {
+        self.0
+    }
+
+    pub fn as_string(&self) -> &str {
         &self.0
     }
 }
