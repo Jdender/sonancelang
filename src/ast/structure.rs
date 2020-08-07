@@ -7,8 +7,15 @@ pub struct File {
 pub struct Function {
     pub scope: Scope,
     pub name: Identifier,
+    pub params: Vec<Parameter>,
     pub ty: Ty,
     pub body: Block,
+}
+
+#[derive(Debug, Clone)]
+pub struct Parameter {
+    pub name: Identifier,
+    pub ty: Ty,
 }
 
 #[derive(Debug, Clone)]

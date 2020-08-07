@@ -5,7 +5,7 @@ grammar;
 match {
     "export", "func",  // Item
 
-    ":", "->", ";", // Punctuation
+    ":", ",", "->", ";", // Punctuation
 
     "I32", "F32", // Tys
 
@@ -28,9 +28,25 @@ match {
 #[inline]
 Boxed<T>: Box<T> = T => Box::new(<>);
 
+#[inline]
+List<T, S>: Vec<T> = {
+    <v:(<T> S)*> <e:T?> => match e {
+        None => v,
+        Some(e) => {
+            let mut v = v;
+            v.push(e);
+            v
+        }
+    }
+};
+
 pub File: File = <items: Function*> => File { <> };
 
-Function: Function = <scope: Scope> "func" <name: Identifier>  "(" ")" "->" <ty: Ty> <body: Block> => Function { <> };
+Function: Function = <scope: Scope> "func"
+    <name: Identifier> "(" <params: List<Parameter, ",">> ")" "->" <ty: Ty>
+    <body: Block> => Function { <> };
+
+    Parameter: Parameter = <name: Identifier> ":" <ty: Ty> => Parameter { <> };
 
 Scope: Scope = {
     => Scope::Local,

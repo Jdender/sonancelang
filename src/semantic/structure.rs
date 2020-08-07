@@ -9,6 +9,13 @@ pub struct File {
 pub struct FunctionHead {
     pub scope: Scope,
     pub name: Identifier,
+    pub params: Vec<Parameter>,
+    pub ty: Ty,
+}
+
+#[derive(Debug, Clone)]
+pub struct Parameter {
+    pub name: Identifier,
     pub ty: Ty,
 }
 

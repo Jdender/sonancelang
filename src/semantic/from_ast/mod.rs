@@ -57,9 +57,25 @@ impl AstVisitor for ast::Function {
             head: semantic::FunctionHead {
                 scope: self.scope.visit_ast(symbol_table)?,
                 name: self.name.visit_ast(symbol_table)?,
+                params: self
+                    .params
+                    .into_iter()
+                    .map(|a| a.visit_ast(symbol_table))
+                    .collect::<Result<_, _>>()?,
                 ty: self.ty.visit_ast(symbol_table)?,
             },
             body: self.body,
+        })
+    }
+}
+
+impl AstVisitor for ast::Parameter {
+    type Output = semantic::Parameter;
+
+    fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+        Ok(semantic::Parameter {
+            name: self.name.visit_ast(symbol_table)?,
+            ty: self.ty.visit_ast(symbol_table)?,
         })
     }
 }
