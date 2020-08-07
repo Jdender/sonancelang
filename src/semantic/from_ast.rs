@@ -6,26 +6,26 @@ use super::{
 pub trait AstVisitor {
     type Output;
 
-    fn visit_ast(self, symbol_table: &SymbolTable) -> Result<Self::Output, SemanticError>;
+    fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError>;
 }
 
 impl AstVisitor for ast::File {
     type Output = semantic::File;
 
-    fn visit_ast(self, symbol_table: &SymbolTable) -> Result<Self::Output, SemanticError> {
+    fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
         let mut items = Vec::with_capacity(self.items.len());
         let mut symbol_table = symbol_table.fork();
 
         for item in self.items {
             // Convert the func head first
-            let partial = item.visit_ast(&symbol_table)?;
+            let partial = item.visit_ast(&mut symbol_table)?;
             // Add func head to symbol table
             symbol_table.set(
                 partial.head.name.clone(),
                 Symbol::new_func(partial.head.clone()),
             );
             // Convert the rest of the func
-            items.push(partial.visit_ast(&symbol_table)?);
+            items.push(partial.visit_ast(&mut symbol_table)?);
         }
 
         Ok(semantic::File { items })
@@ -41,7 +41,7 @@ pub struct PartialFunction {
 impl AstVisitor for ast::Function {
     type Output = PartialFunction;
 
-    fn visit_ast(self, symbol_table: &SymbolTable) -> Result<Self::Output, SemanticError> {
+    fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
         Ok(PartialFunction {
             head: semantic::FunctionHead {
                 scope: self.scope.visit_ast(symbol_table)?,
@@ -56,7 +56,7 @@ impl AstVisitor for ast::Function {
 impl AstVisitor for PartialFunction {
     type Output = semantic::Function;
 
-    fn visit_ast(self, symbol_table: &SymbolTable) -> Result<Self::Output, SemanticError> {
+    fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
         let body = self.body.visit_ast(symbol_table)?;
 
         // Assert types match
@@ -77,7 +77,7 @@ impl AstVisitor for PartialFunction {
 impl AstVisitor for ast::Scope {
     type Output = semantic::Scope;
 
-    fn visit_ast(self, _: &SymbolTable) -> Result<Self::Output, SemanticError> {
+    fn visit_ast(self, _: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
         use semantic::Scope::*;
         Ok(match self {
             Self::Local => Local,
@@ -89,7 +89,7 @@ impl AstVisitor for ast::Scope {
 impl AstVisitor for ast::Identifier {
     type Output = semantic::Identifier;
 
-    fn visit_ast(self, _: &SymbolTable) -> Result<Self::Output, SemanticError> {
+    fn visit_ast(self, _: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
         Ok(semantic::Identifier::new(self.as_string().clone()))
     }
 }
@@ -97,7 +97,7 @@ impl AstVisitor for ast::Identifier {
 impl AstVisitor for ast::Ty {
     type Output = semantic::Ty;
 
-    fn visit_ast(self, _: &SymbolTable) -> Result<Self::Output, SemanticError> {
+    fn visit_ast(self, _: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
         use semantic::Ty::*;
 
         Ok(match self {
@@ -110,52 +110,16 @@ impl AstVisitor for ast::Ty {
 impl AstVisitor for ast::Block {
     type Output = semantic::Block;
 
-    fn visit_ast(self, symbol_table: &SymbolTable) -> Result<Self::Output, SemanticError> {
-        let mut symbol_table = symbol_table.fork();
-        let mut body = Vec::with_capacity(self.body.len());
+    fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+        let symbol_table = &mut symbol_table.fork();
 
-        for stmt in self.body {
-            body.push(match stmt {
-                ast::Statement::LetBinding { place, value, ty } => {
-                    let place = place.visit_ast(&symbol_table)?;
-                    let value = value.visit_ast(&symbol_table)?;
+        let body = self
+            .body
+            .into_iter()
+            .map(|s| s.visit_ast(symbol_table))
+            .collect::<Result<_, _>>()?;
 
-                    // Infer type if not declared
-                    let ty = if let Some(ty) = ty {
-                        ty.visit_ast(&symbol_table)?
-                    } else {
-                        value.ty
-                    };
-
-                    // Assert types match
-                    if ty != value.ty {
-                        return Err(SemanticError::TyMismatchDeclare {
-                            expected: ty,
-                            found: value.ty,
-                        });
-                    }
-
-                    // Create a new symbol in the current scope
-                    symbol_table.set(place.clone(), Symbol::new_local(ty));
-                    let symbol_id = symbol_table
-                        .get(&place)
-                        .expect("Should get back what we set")
-                        .id();
-
-                    semantic::Statement::LetBinding {
-                        place,
-                        symbol_id,
-                        ty,
-                        value,
-                    }
-                }
-                ast::Statement::SideEffect(expr) => {
-                    semantic::Statement::SideEffect(expr.visit_ast(&symbol_table)?)
-                }
-            });
-        }
-
-        let trailing = Box::new(self.trailing.visit_ast(&symbol_table)?);
+        let trailing = Box::new(self.trailing.visit_ast(symbol_table)?);
 
         // Blocks return their trailing expr, same goes for types
         Ok(semantic::Block {
@@ -166,10 +130,55 @@ impl AstVisitor for ast::Block {
     }
 }
 
+impl AstVisitor for ast::Statement {
+    type Output = semantic::Statement;
+
+    fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+        Ok(match self {
+            ast::Statement::LetBinding { place, value, ty } => {
+                let place = place.visit_ast(symbol_table)?;
+                let value = value.visit_ast(symbol_table)?;
+
+                // Infer type if not declared
+                let ty = if let Some(ty) = ty {
+                    ty.visit_ast(symbol_table)?
+                } else {
+                    value.ty
+                };
+
+                // Assert types match
+                if ty != value.ty {
+                    return Err(SemanticError::TyMismatchDeclare {
+                        expected: ty,
+                        found: value.ty,
+                    });
+                }
+
+                // Create a new symbol in the current scope
+                symbol_table.set(place.clone(), Symbol::new_local(ty));
+                let symbol_id = symbol_table
+                    .get(&place)
+                    .expect("Should get back what we set")
+                    .id();
+
+                semantic::Statement::LetBinding {
+                    place,
+                    symbol_id,
+                    ty,
+                    value,
+                }
+            }
+            ast::Statement::SideEffect(expr) => {
+                semantic::Statement::SideEffect(expr.visit_ast(symbol_table)?)
+            }
+        })
+    }
+}
+
 impl AstVisitor for ast::Expression {
     type Output = semantic::Expression;
 
-    fn visit_ast(self, symbol_table: &SymbolTable) -> Result<Self::Output, SemanticError> {
+    fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
         use semantic::ExpressionKind::*;
 
         Ok(match self {
@@ -234,6 +243,7 @@ impl AstVisitor for ast::Expression {
                     })?
                     .ty;
 
+                let symbol_id = symbol.id();
                 let value = value.visit_ast(symbol_table)?;
 
                 // Assert types match
@@ -249,7 +259,7 @@ impl AstVisitor for ast::Expression {
                     kind: Assignment {
                         place,
                         value: Box::new(value),
-                        symbol_id: symbol.id(),
+                        symbol_id,
                     },
                 }
             }
@@ -323,7 +333,7 @@ impl AstVisitor for ast::Expression {
 impl AstVisitor for ast::Literal {
     type Output = semantic::Literal;
 
-    fn visit_ast(self, _: &SymbolTable) -> Result<Self::Output, SemanticError> {
+    fn visit_ast(self, _: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
         use semantic::Literal::*;
 
         Ok(match self {
@@ -336,7 +346,7 @@ impl AstVisitor for ast::Literal {
 impl AstVisitor for ast::PrefixOperator {
     type Output = semantic::PrefixOperator;
 
-    fn visit_ast(self, _: &SymbolTable) -> Result<Self::Output, SemanticError> {
+    fn visit_ast(self, _: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
         use semantic::PrefixOperator::*;
 
         Ok(match self {
@@ -348,7 +358,7 @@ impl AstVisitor for ast::PrefixOperator {
 impl AstVisitor for ast::InfixOperator {
     type Output = semantic::InfixOperator;
 
-    fn visit_ast(self, _: &SymbolTable) -> Result<Self::Output, SemanticError> {
+    fn visit_ast(self, _: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
         use semantic::InfixOperator::*;
 
         Ok(match self {

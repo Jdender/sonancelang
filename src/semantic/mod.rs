@@ -9,8 +9,8 @@ use super::ast;
 use from_ast::AstVisitor;
 
 pub fn semantic_pass(input: ast::File) -> Result<File, SemanticError> {
-    let symbol_table = SymbolTable::new();
-    input.visit_ast(&symbol_table)
+    let mut symbol_table = SymbolTable::new();
+    input.visit_ast(&mut symbol_table)
 }
 
 use thiserror::Error;
