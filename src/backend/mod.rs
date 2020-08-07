@@ -9,39 +9,41 @@ use std::collections::HashMap;
 
 pub fn backend_pass(file: semantic::File) -> Result<Vec<u8>, BackendError> {
     let mut context = BackendContext::new(file.items.len())?;
-    let mut bodies = Vec::with_capacity(file.items.len());
-
-    for func in file.items {
-        let mut signature = context.module.make_signature();
-        signature.returns.push(AbiParam::new(func.head.ty.into()));
-
-        let id = context.module.declare_function(
-            func.head.name.as_string(),
-            func.head.scope.into(),
-            &signature,
-        )?;
-
-        context.func_table.insert(func.symbol_id, id);
-        bodies.push((id, signature, func));
-    }
 
     let mut ctx = context.module.make_context();
     let mut builder_context = FunctionBuilderContext::new();
 
-    for (id, signature, func) in bodies {
-        ctx.func.signature = signature;
+    file.items
+        .into_iter()
+        .map(|func| {
+            let mut signature = context.module.make_signature();
+            signature.returns.push(AbiParam::new(func.head.ty.into()));
 
-        let mut builder = FunctionBuilder::new(&mut ctx.func, &mut builder_context);
+            let id = context.module.declare_function(
+                func.head.name.as_string(),
+                func.head.scope.into(),
+                &signature,
+            )?;
 
-        func.visit_semantic(&mut builder, &context, ());
+            context.func_table.insert(func.symbol_id, id);
+            Ok((id, signature, func))
+        })
+        .collect::<Result<Vec<_>, BackendError>>()?
+        .into_iter()
+        .for_each(|(id, signature, func)| {
+            ctx.func.signature = signature;
 
-        context
-            .module
-            .define_function(id, &mut ctx, &mut NullTrapSink {})
-            .unwrap();
+            let mut builder = FunctionBuilder::new(&mut ctx.func, &mut builder_context);
 
-        context.module.clear_context(&mut ctx);
-    }
+            func.visit_semantic(&mut builder, &context, ());
+
+            context
+                .module
+                .define_function(id, &mut ctx, &mut NullTrapSink {})
+                .unwrap();
+
+            context.module.clear_context(&mut ctx);
+        });
 
     context.module.finalize_definitions();
 
