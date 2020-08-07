@@ -125,7 +125,17 @@ impl SemanticVisitor for semantic::Expression {
                 builder.ins().iconst(types::I32, 0)
             }
 
-            FuncCall { .. } => unimplemented!(),
+            FuncCall { symbol_id, .. } => {
+                let call = context
+                    .func_table
+                    .get(symbol_id)
+                    .expect("Func should exist");
+                let call = context
+                    .module
+                    .declare_func_in_func(*call, &mut builder.func);
+                let call = builder.ins().call(call, &[]);
+                builder.inst_results(call)[0]
+            }
 
             PrefixCall { operator, value } => {
                 let ty = value.ty;
