@@ -2,8 +2,10 @@ mod block;
 mod expr_misc;
 mod expression;
 
-pub use super::{super::semantic, BackendContext};
-pub use cranelift::prelude::*;
+pub use {
+    super::{super::semantic, BackendContext},
+    cranelift::prelude::*,
+};
 
 pub trait SemanticVisitor {
     type Param;

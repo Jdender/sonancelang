@@ -1,5 +1,7 @@
-use super::{FunctionHead, Identifier, Ty};
-use std::collections::HashMap;
+use {
+    super::{FunctionHead, Identifier, Ty},
+    std::collections::HashMap,
+};
 
 #[derive(Debug, Clone, Default)]
 pub struct SymbolTable<'a> {

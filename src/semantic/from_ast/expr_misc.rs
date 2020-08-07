@@ -1,4 +1,4 @@
-use super::{ast, semantic, AstVisitor, SemanticError, SymbolTable};
+use super::*;
 
 impl AstVisitor for ast::Literal {
     type Output = semantic::Literal;

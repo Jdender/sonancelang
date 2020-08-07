@@ -1,5 +1,4 @@
-use std::str::FromStr;
-use crate::ast::*;
+use {std::str::FromStr, crate::ast::*};
 
 grammar;
 

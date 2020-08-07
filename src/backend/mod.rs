@@ -1,11 +1,13 @@
 pub mod from_semantic;
 
-use super::semantic;
-use cranelift::{codegen::binemit::NullTrapSink, prelude::*};
-use cranelift_module::{FuncId, Linkage, Module};
-use cranelift_object::{ObjectBackend, ObjectBuilder};
-use from_semantic::SemanticVisitor;
-use std::collections::HashMap;
+use {
+    super::semantic,
+    cranelift::{codegen::binemit::NullTrapSink, prelude::*},
+    cranelift_module::{FuncId, Linkage, Module},
+    cranelift_object::{ObjectBackend, ObjectBuilder},
+    from_semantic::SemanticVisitor,
+    std::collections::HashMap,
+};
 
 pub fn backend_pass(file: semantic::File) -> Result<Vec<u8>, BackendError> {
     let mut context = BackendContext::new(file.items.len())?;

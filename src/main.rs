@@ -1,10 +1,12 @@
-use anyhow::Result;
-use clap::Clap;
-use sonancelang::compile;
-use std::{
-    env::current_dir,
-    fs::{read_to_string, OpenOptions},
-    io::Write,
+use {
+    anyhow::Result,
+    clap::Clap,
+    sonancelang::compile,
+    std::{
+        env::current_dir,
+        fs::{read_to_string, OpenOptions},
+        io::Write,
+    },
 };
 
 #[derive(Clap)]
