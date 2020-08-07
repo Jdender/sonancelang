@@ -81,7 +81,6 @@ ExpressionWithBlock: Expression = {
 
 Expression = {
     <place: Identifier> "=" <value: Boxed<Expression>> => Expression::Assignment { <> },
-    <name: Identifier> "(" <args: List<Expression, ",">> ")" => Expression::FuncCall { <> },
     ExpressionWithBlock,
     ExprPre6,
 }
@@ -134,8 +133,9 @@ OpPre1: InfixOperator = {
 }
 
 ExprPre0: Expression = {
-    <operator: PrefixOperator> <value: Boxed<ExprPre0>> => Expression::PrefixCall { <> },
     "(" <Expression> ")",
+    <operator: PrefixOperator> <value: Boxed<ExprPre0>> => Expression::PrefixCall { <> },
+    <name: Identifier> "(" <args: List<Expression, ",">> ")" => Expression::FuncCall { <> },
 
     Literal => Expression::Literal(<>),
     Identifier => Expression::Lookup(<>),

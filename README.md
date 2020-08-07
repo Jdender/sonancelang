@@ -25,12 +25,15 @@
 
 ```swift
 export func sonance() -> I32 {
-    let a = {
-        let b = 123;
-        b + b
-    };
-    let c = -a * (100 / 10);
-    c
+    fibonacci(30)
+}
+
+func fibonacci(num: I32) -> I32 {
+    if num <= 1 {
+        1
+    } else {
+        fibonacci(num - 1) + fibonacci(num - 2)
+    }
 }
 ```
 
