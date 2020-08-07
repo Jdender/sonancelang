@@ -5,12 +5,12 @@ impl SemanticVisitor for semantic::Block {
     type Output = Value;
 
     fn visit_semantic(
-        &self,
+        self,
         builder: &mut FunctionBuilder,
         context: &BackendContext,
         _: Self::Param,
     ) -> Self::Output {
-        for stmt in self.body.iter() {
+        for stmt in self.body {
             stmt.visit_semantic(builder, context, ());
         }
 
@@ -23,7 +23,7 @@ impl SemanticVisitor for semantic::Statement {
     type Output = ();
 
     fn visit_semantic(
-        &self,
+        self,
         builder: &mut FunctionBuilder,
         context: &BackendContext,
         _: Self::Param,

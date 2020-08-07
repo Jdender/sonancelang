@@ -5,13 +5,13 @@ impl SemanticVisitor for semantic::Expression {
     type Output = Value;
 
     fn visit_semantic(
-        &self,
+        self,
         builder: &mut FunctionBuilder,
         context: &BackendContext,
         _: Self::Param,
     ) -> Self::Output {
         use semantic::ExpressionKind::*;
-        match &self.kind {
+        match self.kind {
             Literal(literal) => literal.visit_semantic(builder, context, ()),
 
             Lookup { symbol_id, .. } => builder.use_var(symbol_id.into()),
@@ -31,7 +31,7 @@ impl SemanticVisitor for semantic::Expression {
             } => {
                 let call = context
                     .func_table
-                    .get(symbol_id)
+                    .get(&symbol_id)
                     .expect("Func should exist");
 
                 let call = context
@@ -39,7 +39,7 @@ impl SemanticVisitor for semantic::Expression {
                     .declare_func_in_func(*call, &mut builder.func);
 
                 let args = args
-                    .iter()
+                    .into_iter()
                     .map(|a| a.visit_semantic(builder, context, ()))
                     .collect::<Vec<_>>();
 

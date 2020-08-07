@@ -12,7 +12,7 @@ pub trait SemanticVisitor {
     type Output;
 
     fn visit_semantic(
-        &self,
+        self,
         builder: &mut FunctionBuilder,
         context: &BackendContext,
         param: Self::Param,
@@ -24,7 +24,7 @@ impl SemanticVisitor for semantic::Function {
     type Output = ();
 
     fn visit_semantic(
-        &self,
+        self,
         builder: &mut FunctionBuilder,
         context: &BackendContext,
         _: Self::Param,
@@ -36,8 +36,8 @@ impl SemanticVisitor for semantic::Function {
         builder.seal_block(block);
 
         for (i, param) in self.params.iter().enumerate() {
-            builder.declare_var((&param.symbol_id).into(), param.ty.into());
-            builder.def_var((&param.symbol_id).into(), builder.block_params(block)[i]);
+            builder.declare_var(param.symbol_id.into(), param.ty.into());
+            builder.def_var(param.symbol_id.into(), builder.block_params(block)[i]);
         }
 
         let result = self.body.visit_semantic(builder, context, ());
@@ -58,8 +58,8 @@ impl From<semantic::Ty> for Type {
     }
 }
 
-impl From<&semantic::SymbolId> for Variable {
-    fn from(id: &semantic::SymbolId) -> Self {
+impl From<semantic::SymbolId> for Variable {
+    fn from(id: semantic::SymbolId) -> Self {
         Variable::with_u32(id.as_u32())
     }
 }

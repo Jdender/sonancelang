@@ -5,14 +5,14 @@ impl SemanticVisitor for semantic::Literal {
     type Output = Value;
 
     fn visit_semantic(
-        &self,
+        self,
         builder: &mut FunctionBuilder,
         _: &BackendContext,
         _: Self::Param,
     ) -> Self::Output {
         match self {
-            Self::I32(num) => builder.ins().iconst(types::I32, i64::from(*num)),
-            Self::F32(num) => builder.ins().f32const(*num),
+            Self::I32(num) => builder.ins().iconst(types::I32, i64::from(num)),
+            Self::F32(num) => builder.ins().f32const(num),
         }
     }
 }
@@ -22,7 +22,7 @@ impl SemanticVisitor for semantic::PrefixOperator {
     type Output = Value;
 
     fn visit_semantic(
-        &self,
+        self,
         builder: &mut FunctionBuilder,
         _: &BackendContext,
         (ty, value): Self::Param,
@@ -43,7 +43,7 @@ impl SemanticVisitor for semantic::InfixOperator {
     type Output = Value;
 
     fn visit_semantic(
-        &self,
+        self,
         builder: &mut FunctionBuilder,
         _: &BackendContext,
         (ty, left, right): Self::Param,
