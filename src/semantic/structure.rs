@@ -1,4 +1,4 @@
-use super::LocalId;
+use super::SymbolId;
 
 #[derive(Debug, Clone)]
 pub struct File {
@@ -55,7 +55,7 @@ pub enum Statement {
         place: Identifier,
         ty: Ty,
         value: Expression,
-        symbol_id: LocalId,
+        symbol_id: SymbolId,
     },
     SideEffect(Expression),
 }
@@ -71,13 +71,13 @@ pub enum ExpressionKind {
     Literal(Literal),
     Lookup {
         place: Identifier,
-        symbol_id: LocalId,
+        symbol_id: SymbolId,
     },
     Block(Block),
     Assignment {
         place: Identifier,
         value: Box<Expression>,
-        symbol_id: LocalId,
+        symbol_id: SymbolId,
     },
     PrefixCall {
         operator: PrefixOperator,

@@ -1,6 +1,6 @@
 use super::{
     super::{ast, semantic},
-    LocalInfo, SemanticError, SymbolKind, SymbolTable,
+    SemanticError, Symbol, SymbolTable,
 };
 
 pub trait AstVisitor {
@@ -22,7 +22,7 @@ impl AstVisitor for ast::File {
             // Add func head to symbol table
             symbol_table.set(
                 partial.head.name.clone(),
-                SymbolKind::Func(partial.head.clone()),
+                Symbol::new_func(partial.head.clone()),
             );
             // Convert the rest of the func
             items.push(partial.visit_ast(&symbol_table)?);
@@ -136,11 +136,9 @@ impl AstVisitor for ast::Block {
                     }
 
                     // Create a new symbol in the current scope
-                    symbol_table.set(place.clone(), SymbolKind::Local(LocalInfo::new(ty)));
+                    symbol_table.set(place.clone(), Symbol::new_local(ty));
                     let symbol_id = symbol_table
                         .get(&place)
-                        .expect("Should get back what we set")
-                        .as_local()
                         .expect("Should get back what we set")
                         .id();
 
@@ -187,18 +185,22 @@ impl AstVisitor for ast::Expression {
                 let place = place.visit_ast(symbol_table)?;
 
                 // Lookup symbol
-                let symbol = symbol_table
-                    .get(&place)
-                    .ok_or_else(|| SemanticError::SymbolNotFound {
-                        symbol: place.clone(),
-                    })?
+                let symbol =
+                    symbol_table
+                        .get(&place)
+                        .ok_or_else(|| SemanticError::SymbolNotFound {
+                            symbol: place.clone(),
+                        })?;
+
+                let ty = symbol
                     .as_local()
                     .ok_or_else(|| SemanticError::ExpectedLocalSymbol {
                         symbol: place.clone(),
-                    })?;
+                    })?
+                    .ty;
 
                 semantic::Expression {
-                    ty: symbol.ty(),
+                    ty,
                     kind: Lookup {
                         place,
                         symbol_id: symbol.id(),
@@ -218,28 +220,32 @@ impl AstVisitor for ast::Expression {
                 let place = place.visit_ast(symbol_table)?;
 
                 // Lookup symbol
-                let symbol = symbol_table
-                    .get(&place)
-                    .ok_or_else(|| SemanticError::SymbolNotFound {
-                        symbol: place.clone(),
-                    })?
+                let symbol =
+                    symbol_table
+                        .get(&place)
+                        .ok_or_else(|| SemanticError::SymbolNotFound {
+                            symbol: place.clone(),
+                        })?;
+
+                let ty = symbol
                     .as_local()
                     .ok_or_else(|| SemanticError::ExpectedLocalSymbol {
                         symbol: place.clone(),
-                    })?;
+                    })?
+                    .ty;
 
                 let value = value.visit_ast(symbol_table)?;
 
                 // Assert types match
-                if symbol.ty() != value.ty {
+                if ty != value.ty {
                     return Err(SemanticError::TyMismatchAssign {
-                        expected: symbol.ty(),
+                        expected: ty,
                         found: value.ty,
                     });
                 }
 
                 semantic::Expression {
-                    ty: symbol.ty(),
+                    ty,
                     kind: Assignment {
                         place,
                         value: Box::new(value),
