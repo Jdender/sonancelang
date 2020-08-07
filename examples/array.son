@@ -1,8 +1,10 @@
-import sonance -> mem::{swap, size_of, RawPointer, Glob};
+import {
+    sonance::mem::{ swap, size_of, RawPointer, Glob },
+}
 
 export struct Array [type T, const LENGTH: USize] {
-    // A poitner to a binary glob the size of (size of `T` multiplied by `LENGTH`)
-    pointer: RawPointer[Glob[size_of[T] * LENGTH]],
+    // A pointer to a binary glob the size of (size of `T` multiplied by `LENGTH`)
+    pointer: RawPointer[BinaryGlob[size_of[T] * LENGTH]],
 }
 
 impl[type T, const LENGTH: USize] Array[T, LENGTH] {
@@ -24,11 +26,11 @@ impl[type T, const LENGTH: USize] Array[T, LENGTH] {
             None
         } else {
             // `Some` variant of Option, it takes one value T
-            Some(unsafe { // Raw pointers can only be dereferenced in marked areas
-                self.pointer
-                    .offset(size_of[T] * index) // Find where in the array
-                    .promote['self] // Assert to compiler pointer lasts as long as self
-            })
+            Some { unsafe {
+                // Raw pointers can only be dereferenced in marked areas
+                let ptr = self.pointer.offset(size_of[T] * index); // Find where in the array
+                &'self *ptr // Assert to compiler pointer lives as long as self
+            }}
         }
     }
 
@@ -42,11 +44,11 @@ impl[type T, const LENGTH: USize] Array[T, LENGTH] {
             None
         } else {
             // Raw pointers can only be dereferenced in marked areas
-            Some(unsafe {
+            Some { unsafe {
                 self.pointer
                     .offset(size_of[T] * index)
                     .swap(value)
-            })
+            }}
         }
     }
 }

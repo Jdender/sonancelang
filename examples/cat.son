@@ -1,10 +1,12 @@
-import sonance::{
-    future -> await_all,
-    env -> { args, pwd },
-    fs -> { read_file, path::join },
-};
+import {
+    sonance::{
+        future::await_all,
+        env::{ args, pwd },
+        fs::{ read_file, path::join },
+    },
+}
 
-func main() -> Future[Void] {
+func main() -> Future[Unit] {
     let files = args
         .split(" ")
         .map(func (file) {

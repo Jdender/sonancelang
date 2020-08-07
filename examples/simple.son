@@ -1,0 +1,17 @@
+export struct Unit {}
+export union Never {}
+
+->[represent = "boolean"]
+export union Boolean {
+    True, False,
+}
+
+export union Option[type T] {
+    Some { T },
+    Nothing,
+}
+
+export union Result[type T, type E] {
+    Okay { T },
+    Error { E },
+}

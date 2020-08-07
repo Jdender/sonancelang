@@ -1,0 +1,21 @@
+export trait Add[Right = Self] {
+    type Output = Self;
+
+    func add(self, right: Right) -> Self::Output;
+}
+
+impl Add for USize {
+    func add(self, right) {
+
+        external "sonance_builtin" {
+            func add_usize(left: USize, right: USize) -> USize;
+        }
+
+        add_usize(self, right)
+    }
+}
+
+func main() -> Unit {
+    let t: USize = 1 + 1;
+    let t: USize = Add::add(1, 1);
+}

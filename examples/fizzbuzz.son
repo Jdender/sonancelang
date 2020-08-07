@@ -1,14 +1,15 @@
-func main() {
+func main() -> Unit {
     for i in 0..=100 {
         print(fizzbuzz(i));
     }
 }
 
 func fizzbuzz(num: U32) -> StringBuf {
-    match struct (num % 3, num % 5) {
-        (0, 0) -> "Fizzbuzz",
-        (0, _) -> "Fizz",
-        (_, 0) -> "Buzz",
+    let pair = struct { num % 3, num % 5 };
+    match pair {
+        struct { 0, 0 } -> "Fizzbuzz",
+        struct { 0, _ } -> "Fizz",
+        struct { _, 0 } -> "Buzz",
         _ -> num.to_string(),
     }
 }
