@@ -1,9 +1,9 @@
 use super::*;
 
-impl AstVisitor for ast::Literal {
+impl HeaderVisitor for ast::Literal {
     type Output = semantic::Literal;
 
-    fn visit_ast(self, _: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+    fn visit_header(self, _: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
         use semantic::Literal::*;
 
         Ok(match self {
@@ -13,10 +13,10 @@ impl AstVisitor for ast::Literal {
     }
 }
 
-impl AstVisitor for ast::PrefixOperator {
+impl HeaderVisitor for ast::PrefixOperator {
     type Output = semantic::PrefixOperator;
 
-    fn visit_ast(self, _: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+    fn visit_header(self, _: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
         use semantic::PrefixOperator::*;
 
         Ok(match self {
@@ -25,10 +25,10 @@ impl AstVisitor for ast::PrefixOperator {
     }
 }
 
-impl AstVisitor for ast::InfixOperator {
+impl HeaderVisitor for ast::InfixOperator {
     type Output = semantic::InfixOperator;
 
-    fn visit_ast(self, _: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+    fn visit_header(self, _: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
         use semantic::InfixOperator::*;
 
         Ok(match self {

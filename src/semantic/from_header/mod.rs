@@ -1,22 +1,23 @@
 mod block;
 mod expr_misc;
 mod expression;
+pub mod structure;
 
 pub use super::{
     super::{ast, semantic},
     SemanticError, Symbol, SymbolId, SymbolTable,
 };
 
-pub trait AstVisitor {
+pub trait HeaderVisitor {
     type Output;
 
-    fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError>;
+    fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError>;
 }
 
-impl AstVisitor for ast::File {
+impl HeaderVisitor for ast::File {
     type Output = semantic::File;
 
-    fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+    fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
         let mut symbol_table = symbol_table.fork();
 
         Ok(semantic::File {
@@ -25,7 +26,7 @@ impl AstVisitor for ast::File {
                 .into_iter()
                 .map(|item| {
                     // Convert the func head first
-                    let partial = item.visit_ast(&mut symbol_table)?;
+                    let partial = item.visit_header(&mut symbol_table)?;
 
                     // Add func head to symbol table
                     let symbol_id = symbol_table.set(
@@ -37,7 +38,7 @@ impl AstVisitor for ast::File {
                 })
                 .collect::<Result<Vec<_>, _>>()?
                 .into_iter()
-                .map(|i| i.visit_ast(&mut symbol_table.fork()))
+                .map(|i| i.visit_header(&mut symbol_table.fork()))
                 .collect::<Result<_, _>>()?,
         })
     }
@@ -49,32 +50,32 @@ pub struct PartialFunction {
     pub body: ast::Block,
 }
 
-impl AstVisitor for ast::Function {
+impl HeaderVisitor for ast::Function {
     type Output = PartialFunction;
 
-    fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+    fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
         Ok(PartialFunction {
             head: semantic::FunctionHead {
-                scope: self.scope.visit_ast(symbol_table)?,
-                name: self.name.visit_ast(symbol_table)?,
+                scope: self.scope.visit_header(symbol_table)?,
+                name: self.name.visit_header(symbol_table)?,
                 params: self
                     .params
                     .into_iter()
-                    .map(|a| a.visit_ast(symbol_table))
+                    .map(|a| a.visit_header(symbol_table))
                     .collect::<Result<_, _>>()?,
-                ty: self.ty.visit_ast(symbol_table)?,
+                ty: self.ty.visit_header(symbol_table)?,
             },
             body: self.body,
         })
     }
 }
 
-impl AstVisitor for ast::Parameter {
+impl HeaderVisitor for ast::Parameter {
     type Output = semantic::Parameter;
 
-    fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
-        let name = self.name.visit_ast(symbol_table)?;
-        let ty = self.ty.visit_ast(symbol_table)?;
+    fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+        let name = self.name.visit_header(symbol_table)?;
+        let ty = self.ty.visit_header(symbol_table)?;
         let symbol_id = symbol_table.set(name.clone(), Symbol::new_local(ty));
         Ok(semantic::Parameter {
             name,
@@ -84,14 +85,14 @@ impl AstVisitor for ast::Parameter {
     }
 }
 
-impl AstVisitor for (PartialFunction, SymbolId) {
+impl HeaderVisitor for (PartialFunction, SymbolId) {
     type Output = semantic::Function;
 
-    fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+    fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
         let (func, symbol_id) = self;
         let symbol_table = &mut symbol_table.fork();
 
-        let body = func.body.visit_ast(symbol_table)?;
+        let body = func.body.visit_header(symbol_table)?;
 
         // Assert types match
         if func.head.ty != body.ty {
@@ -109,10 +110,10 @@ impl AstVisitor for (PartialFunction, SymbolId) {
     }
 }
 
-impl AstVisitor for ast::Scope {
+impl HeaderVisitor for ast::Scope {
     type Output = semantic::Scope;
 
-    fn visit_ast(self, _: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+    fn visit_header(self, _: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
         use semantic::Scope::*;
         Ok(match self {
             Self::Local => Local,
@@ -121,18 +122,18 @@ impl AstVisitor for ast::Scope {
     }
 }
 
-impl AstVisitor for ast::Identifier {
+impl HeaderVisitor for ast::Identifier {
     type Output = semantic::Identifier;
 
-    fn visit_ast(self, _: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+    fn visit_header(self, _: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
         Ok(semantic::Identifier::new(self.as_string().clone()))
     }
 }
 
-impl AstVisitor for ast::Ty {
+impl HeaderVisitor for ast::Ty {
     type Output = semantic::Ty;
 
-    fn visit_ast(self, _: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+    fn visit_header(self, _: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
         use semantic::Ty::*;
 
         Ok(match self {

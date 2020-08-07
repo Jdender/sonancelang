@@ -1,18 +1,18 @@
 use super::*;
 
-impl AstVisitor for ast::Block {
+impl HeaderVisitor for ast::Block {
     type Output = semantic::Block;
 
-    fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+    fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
         let symbol_table = &mut symbol_table.fork();
 
         let body = self
             .body
             .into_iter()
-            .map(|s| s.visit_ast(symbol_table))
+            .map(|s| s.visit_header(symbol_table))
             .collect::<Result<_, _>>()?;
 
-        let trailing = Box::new(self.trailing.visit_ast(symbol_table)?);
+        let trailing = Box::new(self.trailing.visit_header(symbol_table)?);
 
         // Blocks return their trailing expr, same goes for types
         Ok(semantic::Block {
@@ -23,18 +23,18 @@ impl AstVisitor for ast::Block {
     }
 }
 
-impl AstVisitor for ast::Statement {
+impl HeaderVisitor for ast::Statement {
     type Output = semantic::Statement;
 
-    fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+    fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
         Ok(match self {
             ast::Statement::LetBinding { place, value, ty } => {
-                let place = place.visit_ast(symbol_table)?;
-                let value = value.visit_ast(symbol_table)?;
+                let place = place.visit_header(symbol_table)?;
+                let value = value.visit_header(symbol_table)?;
 
                 // Infer type if not declared
                 let ty = if let Some(ty) = ty {
-                    ty.visit_ast(symbol_table)?
+                    ty.visit_header(symbol_table)?
                 } else {
                     value.ty
                 };
@@ -58,7 +58,7 @@ impl AstVisitor for ast::Statement {
                 }
             }
             ast::Statement::SideEffect(expr) => {
-                semantic::Statement::SideEffect(expr.visit_ast(symbol_table)?)
+                semantic::Statement::SideEffect(expr.visit_header(symbol_table)?)
             }
         })
     }

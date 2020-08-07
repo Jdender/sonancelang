@@ -1,14 +1,13 @@
-pub mod from_ast;
-pub mod structure;
+pub mod from_header;
 pub mod symbol_table;
 
-pub use {structure::*, symbol_table::*};
+pub use {from_header::structure::*, symbol_table::*};
 
-use {super::ast, from_ast::AstVisitor};
+use {super::ast, from_header::HeaderVisitor};
 
 pub fn semantic_pass(input: ast::File) -> Result<File, SemanticError> {
     let mut symbol_table = SymbolTable::new();
-    input.visit_ast(&mut symbol_table)
+    input.visit_header(&mut symbol_table)
 }
 
 use thiserror::Error;

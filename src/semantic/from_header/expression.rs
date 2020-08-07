@@ -1,14 +1,14 @@
 use {super::*, std::cmp::Ordering};
 
-impl AstVisitor for ast::Expression {
+impl HeaderVisitor for ast::Expression {
     type Output = semantic::Expression;
 
-    fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+    fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
         use semantic::ExpressionKind::*;
 
         Ok(match self {
             Self::Literal(literal) => {
-                let literal = literal.visit_ast(symbol_table)?;
+                let literal = literal.visit_header(symbol_table)?;
                 semantic::Expression {
                     ty: literal.into(),
                     kind: Literal(literal),
@@ -16,7 +16,7 @@ impl AstVisitor for ast::Expression {
             }
 
             Self::Lookup(place) => {
-                let place = place.visit_ast(symbol_table)?;
+                let place = place.visit_header(symbol_table)?;
 
                 // Lookup symbol
                 let symbol =
@@ -43,7 +43,7 @@ impl AstVisitor for ast::Expression {
             }
 
             Self::Block(block) => {
-                let block = block.visit_ast(symbol_table)?;
+                let block = block.visit_header(symbol_table)?;
                 semantic::Expression {
                     ty: block.ty,
                     kind: Block(block),
@@ -51,7 +51,7 @@ impl AstVisitor for ast::Expression {
             }
 
             Self::Assignment { place, value } => {
-                let place = place.visit_ast(symbol_table)?;
+                let place = place.visit_header(symbol_table)?;
 
                 // Lookup symbol
                 let symbol =
@@ -69,7 +69,7 @@ impl AstVisitor for ast::Expression {
                     .ty;
 
                 let symbol_id = symbol.id();
-                let value = value.visit_ast(symbol_table)?;
+                let value = value.visit_header(symbol_table)?;
 
                 // Assert types match
                 if ty != value.ty {
@@ -90,7 +90,7 @@ impl AstVisitor for ast::Expression {
             }
 
             Self::FuncCall { name, args } => {
-                let name = name.visit_ast(symbol_table)?;
+                let name = name.visit_header(symbol_table)?;
 
                 // Lookup symbol
                 let symbol =
@@ -112,7 +112,7 @@ impl AstVisitor for ast::Expression {
 
                 let args = args
                     .into_iter()
-                    .map(|a| a.visit_ast(symbol_table))
+                    .map(|a| a.visit_header(symbol_table))
                     .collect::<Result<Vec<_>, _>>()?;
 
                 // Make sure arg and param size match
@@ -159,11 +159,11 @@ impl AstVisitor for ast::Expression {
             }
 
             Self::PrefixCall { operator, value } => {
-                let value = value.visit_ast(symbol_table)?;
+                let value = value.visit_header(symbol_table)?;
                 semantic::Expression {
                     ty: value.ty,
                     kind: PrefixCall {
-                        operator: operator.visit_ast(symbol_table)?,
+                        operator: operator.visit_header(symbol_table)?,
                         value: Box::new(value),
                     },
                 }
@@ -174,9 +174,9 @@ impl AstVisitor for ast::Expression {
                 right,
                 operator,
             } => {
-                let operator = operator.visit_ast(symbol_table)?;
-                let left = left.visit_ast(symbol_table)?;
-                let right = right.visit_ast(symbol_table)?;
+                let operator = operator.visit_header(symbol_table)?;
+                let left = left.visit_header(symbol_table)?;
+                let right = right.visit_header(symbol_table)?;
 
                 if left.ty != right.ty {
                     return Err(SemanticError::TyMismatchOperator {
@@ -201,8 +201,8 @@ impl AstVisitor for ast::Expression {
                 when_true,
                 when_false,
             } => {
-                let when_true = when_true.visit_ast(symbol_table)?;
-                let when_false = when_false.visit_ast(symbol_table)?;
+                let when_true = when_true.visit_header(symbol_table)?;
+                let when_false = when_false.visit_header(symbol_table)?;
 
                 if when_true.ty != when_false.ty {
                     return Err(SemanticError::TyMismatchIfElse {
@@ -214,7 +214,7 @@ impl AstVisitor for ast::Expression {
                 semantic::Expression {
                     ty: when_true.ty,
                     kind: IfElse {
-                        predicate: Box::new(predicate.visit_ast(symbol_table)?),
+                        predicate: Box::new(predicate.visit_header(symbol_table)?),
                         when_true,
                         when_false,
                     },
