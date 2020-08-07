@@ -69,6 +69,7 @@ pub enum Expression {
     },
     FuncCall {
         name: Identifier,
+        args: Vec<Expression>,
     },
     PrefixCall {
         operator: PrefixOperator,

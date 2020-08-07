@@ -33,6 +33,12 @@ pub enum SemanticError {
     },
     #[error("Type Mismatch: If expression has two incompatible results ({when_true:?} and {when_false:?})")]
     TyMismatchIfElse { when_true: Ty, when_false: Ty },
+    #[error("Type Mismatch: Parameter declared as {expected:?} but passed argument of {found:?} in position {position}")]
+    TyMismatchArg {
+        expected: Ty,
+        found: Ty,
+        position: usize,
+    },
     #[error("Local {symbol:?} not found in the current scope")]
     LocalNotFound { symbol: Identifier },
     #[error("Expected symbol {symbol:?} to be a local, it wasn't")]
@@ -41,4 +47,8 @@ pub enum SemanticError {
     FuncNotFound { symbol: Identifier },
     #[error("Expected symbol {symbol:?} to be a function, it wasn't")]
     ExpectedFuncSymbol { symbol: Identifier },
+    #[error("Not Enough Arguments (expected {expected}, found {found})")]
+    NotEnoughArgs { expected: usize, found: usize },
+    #[error("Too Many Arguments (expected {expected}, found {found})")]
+    TooManyArgs { expected: usize, found: usize },
 }

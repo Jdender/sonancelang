@@ -1,4 +1,4 @@
-use super::*;
+use {super::*, std::cmp::Ordering};
 
 impl AstVisitor for ast::Expression {
     type Output = semantic::Expression;
@@ -89,7 +89,7 @@ impl AstVisitor for ast::Expression {
                 }
             }
 
-            Self::FuncCall { name } => {
+            Self::FuncCall { name, args } => {
                 let name = name.visit_ast(symbol_table)?;
 
                 // Lookup symbol
@@ -100,18 +100,60 @@ impl AstVisitor for ast::Expression {
                             symbol: name.clone(),
                         })?;
 
-                let ty = symbol
+                let func = symbol
                     .as_func()
                     .ok_or_else(|| SemanticError::ExpectedFuncSymbol {
                         symbol: name.clone(),
-                    })?
-                    .ty;
+                    })?;
+
+                let symbol_id = symbol.id();
+                let ty = func.ty;
+                let params = func.params.iter().map(|p| p.ty).collect::<Vec<_>>();
+
+                let args = args
+                    .into_iter()
+                    .map(|a| a.visit_ast(symbol_table))
+                    .collect::<Result<Vec<_>, _>>()?;
+
+                // Make sure arg and param size match
+                match args.len().cmp(&params.len()) {
+                    Ordering::Less => {
+                        return Err(SemanticError::NotEnoughArgs {
+                            expected: params.len(),
+                            found: args.len(),
+                        })
+                    }
+                    Ordering::Greater => {
+                        return Err(SemanticError::TooManyArgs {
+                            expected: params.len(),
+                            found: args.len(),
+                        })
+                    }
+                    Ordering::Equal => { /* Check's out, do nothing */ }
+                }
+
+                // Make sure arg and param types match
+                for (position, (found, expected)) in args
+                    .iter()
+                    .map(|a| a.ty)
+                    .zip(params.into_iter())
+                    .enumerate()
+                {
+                    if found != expected {
+                        return Err(SemanticError::TyMismatchArg {
+                            expected,
+                            found,
+                            position,
+                        });
+                    }
+                }
 
                 semantic::Expression {
                     ty,
                     kind: FuncCall {
                         name,
-                        symbol_id: symbol.id(),
+                        args,
+                        symbol_id,
                     },
                 }
             }

@@ -26,15 +26,24 @@ impl SemanticVisitor for semantic::Expression {
                 builder.ins().iconst(types::I32, 0)
             }
 
-            FuncCall { symbol_id, .. } => {
+            FuncCall {
+                args, symbol_id, ..
+            } => {
                 let call = context
                     .func_table
                     .get(symbol_id)
                     .expect("Func should exist");
+
                 let call = context
                     .module
                     .declare_func_in_func(*call, &mut builder.func);
-                let call = builder.ins().call(call, &[]);
+
+                let args = args
+                    .iter()
+                    .map(|a| a.visit_semantic(builder, context, ()))
+                    .collect::<Vec<_>>();
+
+                let call = builder.ins().call(call, &args);
                 builder.inst_results(call)[0]
             }
 

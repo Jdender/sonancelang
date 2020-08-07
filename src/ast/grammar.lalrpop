@@ -81,7 +81,7 @@ ExpressionWithBlock: Expression = {
 
 Expression = {
     <place: Identifier> "=" <value: Boxed<Expression>> => Expression::Assignment { <> },
-    <name: Identifier> "(" ")" => Expression::FuncCall { <> },
+    <name: Identifier> "(" <args: List<Expression, ",">> ")" => Expression::FuncCall { <> },
     ExpressionWithBlock,
     ExprPre6,
 }

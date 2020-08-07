@@ -89,6 +89,7 @@ pub enum ExpressionKind {
     },
     FuncCall {
         name: Identifier,
+        args: Vec<Expression>,
         symbol_id: SymbolId,
     },
     PrefixCall {
