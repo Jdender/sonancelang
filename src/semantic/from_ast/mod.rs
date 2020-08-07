@@ -17,22 +17,29 @@ impl AstVisitor for ast::File {
     type Output = semantic::File;
 
     fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
-        let mut items = Vec::with_capacity(self.items.len());
-        let mut symbol_table = symbol_table.fork();
+        let symbol_table = &mut symbol_table.fork();
 
-        for item in self.items {
-            // Convert the func head first
-            let partial = item.visit_ast(&mut symbol_table)?;
-            // Add func head to symbol table
-            let symbol_id = symbol_table.set(
-                partial.head.name.clone(),
-                Symbol::new_func(partial.head.clone()),
-            );
-            // Convert the rest of the func
-            items.push((partial, symbol_id).visit_ast(&mut symbol_table)?);
-        }
+        Ok(semantic::File {
+            items: self
+                .items
+                .into_iter()
+                .map(|item| {
+                    // Convert the func head first
+                    let partial = item.visit_ast(symbol_table)?;
 
-        Ok(semantic::File { items })
+                    // Add func head to symbol table
+                    let symbol_id = symbol_table.set(
+                        partial.head.name.clone(),
+                        Symbol::new_func(partial.head.clone()),
+                    );
+
+                    Ok((partial, symbol_id))
+                })
+                .collect::<Result<Vec<_>, _>>()?
+                .into_iter()
+                .map(|i| i.visit_ast(symbol_table))
+                .collect::<Result<_, _>>()?,
+        })
     }
 }
 
