@@ -3,6 +3,10 @@ use {std::str::FromStr, crate::ast::*};
 grammar;
 
 match {
+    // Comments
+    r"//[^\n\r]*[\n\r]*" => { },
+    r"/\*([^\*]*\*+[^\*/])*([^\*]*\*+|[^\*])*\*/" => { },
+} else {
     "export", "func",  // Item
 
     ":", ",", "->", ";", // Punctuation
@@ -23,6 +27,8 @@ match {
     r"[a-zA-Z_]\w*" => IDENTIFIER,
     r"[+-]?\d+" => INT_LITERAL,
     r"[+-]?\d+\.\d+" => FLOAT_LITERAL,
+} else {
+    r"\s*" => { }, // Whitespace
 }
 
 #[inline]
