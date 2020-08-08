@@ -1,3 +1,8 @@
+declare "sonance_builtin" {
+
+    func add_usize(left: USize, right: USize) -> USize;
+}
+
 export trait Add[Right = Self] {
     type Output = Self;
 
@@ -6,11 +11,6 @@ export trait Add[Right = Self] {
 
 impl Add for USize {
     func add(self, right) {
-
-        external "sonance_builtin" {
-            func add_usize(left: USize, right: USize) -> USize;
-        }
-
         add_usize(self, right)
     }
 }
