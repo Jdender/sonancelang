@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-RUST_BACKTRACE=1 cargo run
 cd test
+RUST_BACKTRACE=1 cargo run input.son output.o
 gcc -o output output.o
 ./output

@@ -30,6 +30,19 @@ export func main() -> I32 {
 }
 ```
 
+## Compile A Program
+
+```bash
+# Run the compiler with input and output
+cargo run input.son output.o
+
+# Use GCC to link to libc
+gcc -o output output.o
+
+# Run output program
+./output
+```
+
 ## Features
 
 ### Functions

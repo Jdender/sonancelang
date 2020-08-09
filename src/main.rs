@@ -12,10 +12,7 @@ use {
 #[derive(Clap)]
 #[clap(version = "0.0")]
 struct Options {
-    #[clap(default_value = "test/input.txt")]
     input: String,
-
-    #[clap(default_value = "test/output.o")]
     output: String,
 }
 
