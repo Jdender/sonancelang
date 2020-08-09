@@ -22,6 +22,17 @@ impl AstVisitor for ast::File {
     }
 }
 
+impl AstVisitor for ast::Item {
+    type Output = Item;
+
+    fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+        use Item::*;
+        Ok(match self {
+            Self::Function(func) => Function(func.visit_ast(symbol_table)?),
+        })
+    }
+}
+
 impl AstVisitor for ast::Function {
     type Output = Function;
 

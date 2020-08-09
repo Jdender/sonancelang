@@ -17,22 +17,29 @@ pub fn backend_pass(file: semantic::File) -> Result<Vec<u8>, BackendError> {
 
     file.items
         .into_iter()
-        .map(|func| {
-            let mut signature = context.module.make_signature();
-            signature.returns.push(AbiParam::new(func.ty.into()));
+        .filter_map(|item| match item {
+            semantic::Item::Function(func) => {
+                let mut signature = context.module.make_signature();
+                signature.returns.push(AbiParam::new(func.ty.into()));
 
-            for arg in func.params.iter() {
-                signature.params.push(AbiParam::new(arg.ty.into()));
+                for arg in func.params.iter() {
+                    signature.params.push(AbiParam::new(arg.ty.into()));
+                }
+
+                let id = context.module.declare_function(
+                    func.name.as_string(),
+                    func.scope.into(),
+                    &signature,
+                );
+
+                let id = match id {
+                    Ok(id) => id,
+                    Err(e) => return Some(Err(e.into())),
+                };
+
+                context.func_table.insert(func.symbol_id, id);
+                Some(Ok((id, signature, func)))
             }
-
-            let id = context.module.declare_function(
-                func.name.as_string(),
-                func.scope.into(),
-                &signature,
-            )?;
-
-            context.func_table.insert(func.symbol_id, id);
-            Ok((id, signature, func))
         })
         .collect::<Result<Vec<_>, BackendError>>()?
         .into_iter()

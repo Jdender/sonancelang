@@ -25,6 +25,17 @@ impl HeaderVisitor for from_ast::File {
     }
 }
 
+impl HeaderVisitor for from_ast::Item {
+    type Output = Item;
+
+    fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+        use Item::*;
+        Ok(match self {
+            Self::Function(func) => Function(func.visit_header(symbol_table)?),
+        })
+    }
+}
+
 impl HeaderVisitor for from_ast::Function {
     type Output = Function;
 

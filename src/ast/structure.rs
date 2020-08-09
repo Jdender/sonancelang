@@ -1,6 +1,11 @@
 #[derive(Debug, Clone)]
 pub struct File {
-    pub items: Vec<Function>,
+    pub items: Vec<Item>,
+}
+
+#[derive(Debug, Clone)]
+pub enum Item {
+    Function(Function),
 }
 
 #[derive(Debug, Clone)]
