@@ -68,7 +68,7 @@ pub enum Ty {
 #[derive(Debug, Clone)]
 pub struct Block {
     pub body: Vec<Statement>,
-    pub trailing: Box<Expression>,
+    pub trailing: Option<Box<Expression>>,
 }
 
 #[derive(Debug, Clone)]

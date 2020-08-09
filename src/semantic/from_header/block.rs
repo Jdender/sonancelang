@@ -12,7 +12,12 @@ impl HeaderVisitor for ast::Block {
             .map(|s| s.visit_header(symbol_table))
             .collect::<Result<_, _>>()?;
 
-        let trailing = Box::new(self.trailing.visit_header(symbol_table)?);
+        let trailing = Box::new(
+            self.trailing
+                .map(|t| *t)
+                .unwrap_or(ast::Expression::Literal(ast::Literal::I32(0)))
+                .visit_header(symbol_table)?,
+        );
 
         // Blocks return their trailing expr, same goes for types
         Ok(Block {

@@ -78,12 +78,27 @@ Ty: Ty = {
     "F32" => Ty::F32,
 }
 
-Block: Block = "{" <body: Statement*> <trailing: Boxed<Expression>> "}" => Block { <> };
+Block: Block = {
+    "{" "}"=> Block { body: vec![], trailing: None },
+    "{" <body: Statement*> <trailing: Boxed<Expression>> "}" => Block { body, trailing: Some(trailing) },
+    "{" <body: Statement*> <last: StatementWithSemi> "}" => Block {
+        body: {
+            let mut v = body;
+            v.push(last);
+            v
+        },
+        trailing: None
+    },
+}
 
 Statement: Statement = {
+    <ExpressionWithBlock> => Statement::SideEffect(<>),
+    StatementWithSemi,
+}
+
+StatementWithSemi: Statement = {
     "let" <place: Identifier> <ty: (":" <Ty>)?> "=" <value: Expression> ";" => Statement::LetBinding { <> },
     <Expression> ";" => Statement::SideEffect(<>),
-    <ExpressionWithBlock> => Statement::SideEffect(<>),
 }
 
 ExpressionWithBlock: Expression = {
