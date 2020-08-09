@@ -202,7 +202,12 @@ impl HeaderVisitor for ast::Expression {
                 when_false,
             } => {
                 let when_true = when_true.visit_header(symbol_table)?;
-                let when_false = when_false.visit_header(symbol_table)?;
+
+                let when_false = if let Some(when_false) = when_false {
+                    when_false.visit_header(symbol_table)?
+                } else {
+                    ty_to_default_block(when_true.ty)
+                };
 
                 if when_true.ty != when_false.ty {
                     return Err(SemanticError::TyMismatchIfElse {
@@ -221,5 +226,31 @@ impl HeaderVisitor for ast::Expression {
                 }
             }
         })
+    }
+}
+
+fn ty_to_default_block(ty: Ty) -> Block {
+    use Literal::*;
+    let literal = match ty {
+        Ty::I8 => I8(0),
+        Ty::I16 => I16(0),
+        Ty::I32 => I32(0),
+        Ty::I64 => I64(0),
+        Ty::ISize => ISize(0),
+        Ty::U8 => U8(0),
+        Ty::U16 => U16(0),
+        Ty::U32 => U32(0),
+        Ty::U64 => U64(0),
+        Ty::USize => USize(0),
+        Ty::F32 => F32(0.0),
+        Ty::F64 => F64(0.0),
+    };
+    Block {
+        ty,
+        body: Vec::new(),
+        trailing: Box::new(Expression {
+            ty,
+            kind: ExpressionKind::Literal(literal),
+        }),
     }
 }

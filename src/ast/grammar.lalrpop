@@ -116,7 +116,7 @@ StatementWithSemi: Statement = {
 
 ExpressionWithBlock: Expression = {
     Block => Expression::Block(<>),
-    "if" <predicate: Boxed<Expression>> <when_true: Block> "else" <when_false: Block> => Expression::IfElse { <> },
+    "if" <predicate: Boxed<Expression>> <when_true: Block> <when_false: ("else" <Block>)?> => Expression::IfElse { <> },
 }
 
 Expression = {

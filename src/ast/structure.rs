@@ -116,7 +116,7 @@ pub enum Expression {
     IfElse {
         predicate: Box<Expression>,
         when_true: Block,
-        when_false: Block,
+        when_false: Option<Block>,
     },
 }
 
