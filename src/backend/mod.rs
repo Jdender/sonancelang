@@ -18,6 +18,31 @@ pub fn backend_pass(file: semantic::File) -> Result<Vec<u8>, BackendError> {
     file.items
         .into_iter()
         .filter_map(|item| match item {
+            semantic::Item::Declare(declare) => {
+                for func in declare.functions {
+                    let mut signature = context.module.make_signature();
+                    signature.returns.push(AbiParam::new(func.ty.into()));
+
+                    for arg in func.params.iter() {
+                        signature.params.push(AbiParam::new(arg.ty.into()));
+                    }
+
+                    let id = context.module.declare_function(
+                        func.name.as_string(),
+                        Linkage::Import,
+                        &signature,
+                    );
+
+                    let id = match id {
+                        Ok(id) => id,
+                        Err(e) => return Some(Err(e.into())),
+                    };
+
+                    context.func_table.insert(func.symbol_id, id);
+                }
+                None
+            }
+
             semantic::Item::Function(func) => {
                 let mut signature = context.module.make_signature();
                 signature.returns.push(AbiParam::new(func.ty.into()));

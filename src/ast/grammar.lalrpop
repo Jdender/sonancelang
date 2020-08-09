@@ -7,7 +7,7 @@ match {
     r"//[^\n\r]*[\n\r]*" => { },
     r"/\*([^\*]*\*+[^\*/])*([^\*]*\*+|[^\*])*\*/" => { },
 } else {
-    "export", "func",  // Item
+    "export", "func", "declare", // Item
 
     ":", ",", "->", ";", // Punctuation
 
@@ -27,6 +27,7 @@ match {
     r"[a-zA-Z_]\w*" => IDENTIFIER,
     r"[+-]?\d+" => INT_LITERAL,
     r"[+-]?\d+\.\d+" => FLOAT_LITERAL,
+    "\"c\"" => C_IDENT,
 } else {
     r"\s*" => { }, // Whitespace
 }
@@ -46,7 +47,18 @@ List<T, S>: Vec<T> = {
     }
 };
 
-pub File: File = <items: Function*> => File { <> };
+pub File: File = <items: Item*> => File { <> };
+
+Item: Item = {
+    DeclareBlock => Item::Declare(<>),
+    Function => Item::Function(<>),
+}
+
+DeclareBlock: DeclareBlock = "declare" C_IDENT "{" <functions: DeclareFunction*> "}" => DeclareBlock { <> };
+
+DeclareFunction: DeclareFunction =
+    "func"  <name: Identifier> "(" <params: List<Parameter, ",">> ")" "->" <ty: Ty> ";"
+        => DeclareFunction { <> };
 
 Function: Function = <scope: Scope> "func"
     <name: Identifier> "(" <params: List<Parameter, ",">> ")" "->" <ty: Ty>

@@ -31,7 +31,40 @@ impl HeaderVisitor for from_ast::Item {
     fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
         use Item::*;
         Ok(match self {
+            Self::Declare(declare) => Declare(declare.visit_header(symbol_table)?),
             Self::Function(func) => Function(func.visit_header(symbol_table)?),
+        })
+    }
+}
+
+impl HeaderVisitor for from_ast::DeclareBlock {
+    type Output = DeclareBlock;
+
+    fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+        Ok(DeclareBlock {
+            functions: self
+                .functions
+                .into_iter()
+                .map(|f| f.visit_header(symbol_table))
+                .collect::<Result<_, _>>()?,
+        })
+    }
+}
+
+impl HeaderVisitor for from_ast::DeclareFunction {
+    type Output = DeclareFunction;
+
+    fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+        let symbol_table = &mut symbol_table.fork();
+        Ok(DeclareFunction {
+            name: self.name,
+            ty: self.ty,
+            symbol_id: self.symbol_id,
+            params: self
+                .params
+                .into_iter()
+                .map(|i| i.visit_header(symbol_table))
+                .collect::<Result<_, _>>()?,
         })
     }
 }

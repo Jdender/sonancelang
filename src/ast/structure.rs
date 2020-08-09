@@ -5,7 +5,20 @@ pub struct File {
 
 #[derive(Debug, Clone)]
 pub enum Item {
+    Declare(DeclareBlock),
     Function(Function),
+}
+
+#[derive(Debug, Clone)]
+pub struct DeclareBlock {
+    pub functions: Vec<DeclareFunction>,
+}
+
+#[derive(Debug, Clone)]
+pub struct DeclareFunction {
+    pub name: Identifier,
+    pub params: Vec<Parameter>,
+    pub ty: Ty,
 }
 
 #[derive(Debug, Clone)]
