@@ -1,7 +1,7 @@
 pub mod from_semantic;
 
 use {
-    super::semantic::from_header as semantic,
+    super::semantic::type_check as semantic,
     cranelift::{codegen::binemit::NullTrapSink, prelude::*},
     cranelift_module::{FuncId, Linkage, Module},
     cranelift_object::{ObjectBackend, ObjectBuilder},

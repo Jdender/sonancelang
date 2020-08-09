@@ -11,7 +11,7 @@ pub trait HeaderVisitor {
     fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError>;
 }
 
-impl HeaderVisitor for from_ast::File {
+impl HeaderVisitor for header::File {
     type Output = File;
 
     fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
@@ -25,7 +25,7 @@ impl HeaderVisitor for from_ast::File {
     }
 }
 
-impl HeaderVisitor for from_ast::Item {
+impl HeaderVisitor for header::Item {
     type Output = Item;
 
     fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
@@ -37,7 +37,7 @@ impl HeaderVisitor for from_ast::Item {
     }
 }
 
-impl HeaderVisitor for from_ast::DeclareBlock {
+impl HeaderVisitor for header::DeclareBlock {
     type Output = DeclareBlock;
 
     fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
@@ -51,7 +51,7 @@ impl HeaderVisitor for from_ast::DeclareBlock {
     }
 }
 
-impl HeaderVisitor for from_ast::DeclareFunction {
+impl HeaderVisitor for header::DeclareFunction {
     type Output = DeclareFunction;
 
     fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
@@ -69,7 +69,7 @@ impl HeaderVisitor for from_ast::DeclareFunction {
     }
 }
 
-impl HeaderVisitor for from_ast::Function {
+impl HeaderVisitor for header::Function {
     type Output = Function;
 
     fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
@@ -89,7 +89,7 @@ impl HeaderVisitor for from_ast::Function {
     }
 }
 
-impl HeaderVisitor for from_ast::Parameter {
+impl HeaderVisitor for header::Parameter {
     type Output = Parameter;
 
     fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {

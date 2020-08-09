@@ -3,7 +3,7 @@ mod expr_misc;
 mod expression;
 
 pub use {
-    super::{super::semantic::from_header as semantic, BackendContext},
+    super::{super::semantic::type_check as semantic, BackendContext},
     cranelift::prelude::*,
 };
 
