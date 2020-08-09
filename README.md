@@ -18,9 +18,10 @@
 - [x] If Else Statements
 - [x] Functions and Calls
 - [x] Function Arguments/Parameters
-- [ ] External Function Calls/Defs
-- [ ] Booleans & Boolean Operators
-- [ ] Anonymous Tuples
+- [x] External Function Calls/Defs
+- [ ] Bitwise Operators
+- [ ] Unit Type
+- [ ] Never Type
 
 ## Example
 
