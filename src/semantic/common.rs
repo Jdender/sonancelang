@@ -25,8 +25,16 @@ impl CommonVisitor for ast::Scope {
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Ty {
+    I8,
+    I16,
     I32,
+    I64,
+    U8,
+    U16,
+    U32,
+    U64,
     F32,
+    F64,
 }
 
 impl CommonVisitor for ast::Ty {
@@ -36,8 +44,16 @@ impl CommonVisitor for ast::Ty {
         use Ty::*;
 
         match self {
+            Self::I8 => I8,
+            Self::I16 => I16,
             Self::I32 => I32,
+            Self::I64 => I64,
+            Self::U8 => U8,
+            Self::U16 => U16,
+            Self::U32 => U32,
+            Self::U64 => U64,
             Self::F32 => F32,
+            Self::F64 => F64,
         }
     }
 }

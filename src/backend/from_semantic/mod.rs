@@ -51,9 +51,14 @@ impl SemanticVisitor for semantic::Function {
 
 impl From<semantic::Ty> for Type {
     fn from(ty: semantic::Ty) -> Self {
+        use semantic::Ty;
         match ty {
-            semantic::Ty::I32 => types::I32,
-            semantic::Ty::F32 => types::F32,
+            Ty::I8 | Ty::U8 => types::I8,
+            Ty::I16 | Ty::U16 => types::I16,
+            Ty::I32 | Ty::U32 => types::I32,
+            Ty::I64 | Ty::U64 => types::I64,
+            Ty::F32 => types::F32,
+            Ty::F64 => types::F64,
         }
     }
 }

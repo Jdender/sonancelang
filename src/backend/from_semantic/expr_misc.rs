@@ -27,11 +27,12 @@ impl SemanticVisitor for semantic::PrefixOperator {
         _: &BackendContext,
         (ty, value): Self::Param,
     ) -> Self::Output {
+        use semantic::Ty::*;
         match ty {
-            semantic::Ty::I32 => match self {
+            I8 | I16 | I32 | I64 | U8 | U16 | U32 | U64 => match self {
                 Self::Negate => builder.ins().ineg(value),
             },
-            semantic::Ty::F32 => match self {
+            F32 | F64 => match self {
                 Self::Negate => builder.ins().fneg(value),
             },
         }
@@ -48,8 +49,9 @@ impl SemanticVisitor for semantic::InfixOperator {
         _: &BackendContext,
         (ty, left, right): Self::Param,
     ) -> Self::Output {
+        use semantic::Ty::*;
         match ty {
-            semantic::Ty::I32 => match self {
+            I8 | I16 | I32 | I64 => match self {
                 Self::Add => builder.ins().iadd(left, right),
                 Self::Subtract => builder.ins().isub(left, right),
                 Self::Multiply => builder.ins().imul(left, right),
@@ -68,7 +70,26 @@ impl SemanticVisitor for semantic::InfixOperator {
                     .ins()
                     .icmp(IntCC::SignedLessThanOrEqual, left, right),
             },
-            semantic::Ty::F32 => match self {
+            U8 | U16 | U32 | U64 => match self {
+                Self::Add => builder.ins().iadd(left, right),
+                Self::Subtract => builder.ins().isub(left, right),
+                Self::Multiply => builder.ins().imul(left, right),
+                Self::Divide => builder.ins().sdiv(left, right),
+
+                Self::Equal => builder.ins().icmp(IntCC::Equal, left, right),
+                Self::NotEqual => builder.ins().icmp(IntCC::NotEqual, left, right),
+                Self::GreaterThan => builder.ins().icmp(IntCC::SignedGreaterThan, left, right),
+                Self::LessThan => builder.ins().icmp(IntCC::SignedLessThan, left, right),
+                Self::GreaterOrEqual => {
+                    builder
+                        .ins()
+                        .icmp(IntCC::SignedGreaterThanOrEqual, left, right)
+                }
+                Self::LessOrEqual => builder
+                    .ins()
+                    .icmp(IntCC::SignedLessThanOrEqual, left, right),
+            },
+            F32 | F64 => match self {
                 Self::Add => builder.ins().fadd(left, right),
                 Self::Subtract => builder.ins().fsub(left, right),
                 Self::Multiply => builder.ins().fmul(left, right),
