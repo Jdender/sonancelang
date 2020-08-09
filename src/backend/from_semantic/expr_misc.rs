@@ -11,8 +11,16 @@ impl SemanticVisitor for semantic::Literal {
         _: Self::Param,
     ) -> Self::Output {
         match self {
-            Self::I32(num) => builder.ins().iconst(types::I32, i64::from(num)),
+            Self::I8(num) => builder.ins().iconst(types::I8, num as i64),
+            Self::I16(num) => builder.ins().iconst(types::I16, num as i64),
+            Self::I32(num) => builder.ins().iconst(types::I32, num as i64),
+            Self::I64(num) => builder.ins().iconst(types::I32, num),
+            Self::U8(num) => builder.ins().iconst(types::I8, num as i64),
+            Self::U16(num) => builder.ins().iconst(types::I16, num as i64),
+            Self::U32(num) => builder.ins().iconst(types::I32, num as i64),
+            Self::U64(num) => builder.ins().iconst(types::I64, num as i64),
             Self::F32(num) => builder.ins().f32const(num),
+            Self::F64(num) => builder.ins().f64const(num),
         }
     }
 }
@@ -74,7 +82,7 @@ impl SemanticVisitor for semantic::InfixOperator {
                 Self::Add => builder.ins().iadd(left, right),
                 Self::Subtract => builder.ins().isub(left, right),
                 Self::Multiply => builder.ins().imul(left, right),
-                Self::Divide => builder.ins().sdiv(left, right),
+                Self::Divide => builder.ins().udiv(left, right),
 
                 Self::Equal => builder.ins().icmp(IntCC::Equal, left, right),
                 Self::NotEqual => builder.ins().icmp(IntCC::NotEqual, left, right),

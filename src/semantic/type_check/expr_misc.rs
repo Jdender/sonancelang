@@ -7,8 +7,16 @@ impl HeaderVisitor for ast::Literal {
         use Literal::*;
 
         Ok(match self {
+            Self::I8(num) => I8(num),
+            Self::I16(num) => I16(num),
             Self::I32(num) => I32(num),
+            Self::I64(num) => I64(num),
+            Self::U8(num) => U8(num),
+            Self::U16(num) => U16(num),
+            Self::U32(num) => U32(num),
+            Self::U64(num) => U64(num),
             Self::F32(num) => F32(num),
+            Self::F64(num) => F64(num),
         })
     }
 }

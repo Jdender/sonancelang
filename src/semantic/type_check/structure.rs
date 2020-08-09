@@ -101,8 +101,16 @@ pub enum ExpressionKind {
 
 #[derive(Debug, Clone, Copy)]
 pub enum Literal {
+    I8(i8),
+    I16(i16),
     I32(i32),
+    I64(i64),
+    U8(u8),
+    U16(u16),
+    U32(u32),
+    U64(u64),
     F32(f32),
+    F64(f64),
 }
 
 impl From<Literal> for Ty {
@@ -110,8 +118,16 @@ impl From<Literal> for Ty {
         use Literal::*;
 
         match literal {
+            I8(_) => Self::I8,
+            I16(_) => Self::I16,
             I32(_) => Self::I32,
+            I64(_) => Self::I64,
+            U8(_) => Self::U8,
+            U16(_) => Self::U16,
+            U32(_) => Self::U32,
+            U64(_) => Self::U64,
             F32(_) => Self::F32,
+            F64(_) => Self::F64,
         }
     }
 }

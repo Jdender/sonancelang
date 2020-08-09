@@ -14,7 +14,7 @@ match {
     // Tys
     "I8", "I16", "I32", "I64",
     "U8", "U16", "U32", "U64",
-    "F32", "F64",
+    "F32", "F64", "as",
 
     "let", "if", "else", "=", // Special Operators
 
@@ -77,8 +77,16 @@ Scope: Scope = {
 Identifier: Identifier = IDENTIFIER => Identifier::new(<>.to_string());
 
 Ty: Ty = {
+    "I8"  => Ty::I8 ,
+    "I16" => Ty::I16,
     "I32" => Ty::I32,
+    "I64" => Ty::I64,
+    "U8"  => Ty::U8 ,
+    "U16" => Ty::U16,
+    "U32" => Ty::U32,
+    "U64" => Ty::U64,
     "F32" => Ty::F32,
+    "F64" => Ty::F64,
 }
 
 Block: Block = {
@@ -177,6 +185,14 @@ PrefixOperator: PrefixOperator = {
 }
 
 Literal: Literal = {
-    INT_LITERAL => Literal::I32(i32::from_str(<>).unwrap()),
-    FLOAT_LITERAL => Literal::F32(f32::from_str(<>).unwrap()),
+    <INT_LITERAL>    "as" "I8"    => Literal::I8 (i8 ::from_str(<>).unwrap()),
+    <INT_LITERAL>    "as" "I16"   => Literal::I16(i16::from_str(<>).unwrap()),
+    <INT_LITERAL>   ("as" "I32")? => Literal::I32(i32::from_str(<>).unwrap()),
+    <INT_LITERAL>    "as" "I64"   => Literal::I64(i64::from_str(<>).unwrap()),
+    <INT_LITERAL>    "as" "U8"    => Literal::U8 (u8 ::from_str(<>).unwrap()),
+    <INT_LITERAL>    "as" "U16"   => Literal::U16(u16::from_str(<>).unwrap()),
+    <INT_LITERAL>    "as" "U32"   => Literal::U32(u32::from_str(<>).unwrap()),
+    <INT_LITERAL>    "as" "U64"   => Literal::U64(u64::from_str(<>).unwrap()),
+    <FLOAT_LITERAL> ("as" "F32")? => Literal::F32(f32::from_str(<>).unwrap()),
+    <FLOAT_LITERAL>  "as" "F64"   => Literal::F64(f64::from_str(<>).unwrap()),
 }
