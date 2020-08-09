@@ -25,30 +25,19 @@
 ## Example
 
 ```swift
-export func main() -> I32 {
-    print_num(fibonacci(30));
-    putchar(10); // Newline
-}
-
-func fibonacci(num: I32) -> I32 {
-    if num <= 1 {
-        1
-    } else {
-        fibonacci(num - 1) + fibonacci(num - 2)
-    }
-}
-
 declare "c" {
     func putchar(char: I32) -> I32;
+    func getchar() -> I32;
 }
 
-func print_num(num: I32) -> I32 {
-    if num > 9  {
-        let next = num / 10;
-        num = num - (10 * next);
-        print_num(next);
-    } else {}
-    putchar(48 + num);
+export func main() -> I32 {
+    let char = getchar();
+    if char != 10 {
+        putchar(char);
+        main();
+    } else {
+        putchar(10);
+    }
 }
 ```
 

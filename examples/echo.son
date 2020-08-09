@@ -1,0 +1,14 @@
+declare "c" {
+    func putchar(char: I32) -> I32;
+    func getchar() -> I32;
+}
+
+export func main() -> I32 {
+    let char = getchar();
+    if char != 10 {
+        putchar(char);
+        main();
+    } else {
+        putchar(10);
+    }
+}
