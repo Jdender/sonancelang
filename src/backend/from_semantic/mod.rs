@@ -36,7 +36,7 @@ impl SemanticVisitor for semantic::Function {
         builder.seal_block(block);
 
         for (i, param) in self.params.iter().enumerate() {
-            builder.declare_var(param.symbol_id.into(), param.ty.into());
+            builder.declare_var(param.symbol_id.into(), ty_to_type(param.ty, context));
             builder.def_var(param.symbol_id.into(), builder.block_params(block)[i]);
         }
 
@@ -49,17 +49,16 @@ impl SemanticVisitor for semantic::Function {
     }
 }
 
-impl From<semantic::Ty> for Type {
-    fn from(ty: semantic::Ty) -> Self {
-        use semantic::Ty;
-        match ty {
-            Ty::I8 | Ty::U8 => types::I8,
-            Ty::I16 | Ty::U16 => types::I16,
-            Ty::I32 | Ty::U32 => types::I32,
-            Ty::I64 | Ty::U64 => types::I64,
-            Ty::F32 => types::F32,
-            Ty::F64 => types::F64,
-        }
+pub fn ty_to_type(ty: semantic::Ty, context: &BackendContext) -> Type {
+    use semantic::Ty;
+    match ty {
+        Ty::I8 | Ty::U8 => types::I8,
+        Ty::I16 | Ty::U16 => types::I16,
+        Ty::I32 | Ty::U32 => types::I32,
+        Ty::I64 | Ty::U64 => types::I64,
+        Ty::ISize | Ty::USize => context.module.target_config().pointer_type(),
+        Ty::F32 => types::F32,
+        Ty::F64 => types::F64,
     }
 }
 

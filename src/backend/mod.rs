@@ -5,7 +5,7 @@ use {
     cranelift::{codegen::binemit::NullTrapSink, prelude::*},
     cranelift_module::{FuncId, Linkage, Module},
     cranelift_object::{ObjectBackend, ObjectBuilder},
-    from_semantic::SemanticVisitor,
+    from_semantic::{ty_to_type, SemanticVisitor},
     std::collections::HashMap,
 };
 
@@ -21,10 +21,14 @@ pub fn backend_pass(file: semantic::File) -> Result<Vec<u8>, BackendError> {
             semantic::Item::Declare(declare) => {
                 for func in declare.functions {
                     let mut signature = context.module.make_signature();
-                    signature.returns.push(AbiParam::new(func.ty.into()));
+                    signature
+                        .returns
+                        .push(AbiParam::new(ty_to_type(func.ty, &context)));
 
                     for arg in func.params.iter() {
-                        signature.params.push(AbiParam::new(arg.ty.into()));
+                        signature
+                            .params
+                            .push(AbiParam::new(ty_to_type(arg.ty, &context)));
                     }
 
                     let id = context.module.declare_function(
@@ -45,10 +49,14 @@ pub fn backend_pass(file: semantic::File) -> Result<Vec<u8>, BackendError> {
 
             semantic::Item::Function(func) => {
                 let mut signature = context.module.make_signature();
-                signature.returns.push(AbiParam::new(func.ty.into()));
+                signature
+                    .returns
+                    .push(AbiParam::new(ty_to_type(func.ty, &context)));
 
                 for arg in func.params.iter() {
-                    signature.params.push(AbiParam::new(arg.ty.into()));
+                    signature
+                        .params
+                        .push(AbiParam::new(ty_to_type(arg.ty, &context)));
                 }
 
                 let id = context.module.declare_function(

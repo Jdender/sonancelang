@@ -75,7 +75,7 @@ impl SemanticVisitor for semantic::Expression {
                 let merge_block = builder.create_block();
 
                 // Merge takes the result from either block
-                builder.append_block_param(merge_block, self.ty.into());
+                builder.append_block_param(merge_block, ty_to_type(self.ty, context));
 
                 // Jump if predicate is zero, otherwise fall through
                 let predicate = predicate.visit_semantic(builder, context, ());

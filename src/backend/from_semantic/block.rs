@@ -32,7 +32,7 @@ impl SemanticVisitor for semantic::Statement {
             Self::LetBinding {
                 value, symbol_id, ..
             } => {
-                let ty = value.ty.into();
+                let ty = ty_to_type(value.ty, context);
 
                 let symbol_id = symbol_id.into();
                 let value = value.visit_semantic(builder, context, ());
