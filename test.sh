@@ -3,5 +3,5 @@ set -euo pipefail
 
 RUST_BACKTRACE=1 cargo run
 cd test
-gcc -o output test.c output.o
+gcc -o output output.o
 ./output
