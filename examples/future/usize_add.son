@@ -1,15 +1,18 @@
 declare "sonance_builtin" {
 
+    -> provide_default(usizeAdd)
+    type USize;
+
     func add_usize(left: USize, right: USize) -> USize;
 }
 
-export trait Add[Right = Self] {
+export trait Add(Right = Self){
     type Output = Self;
 
     func add(self, right: Right) -> Self::Output;
 }
 
-impl Add for USize {
+provide usizeAdd -> Add with USize {
     func add(self, right) {
         add_usize(self, right)
     }

@@ -6,12 +6,12 @@ export union Boolean {
     True, False,
 }
 
-export union Option[type T] {
+export union Option(T: type) {
     Some { T },
     Nothing,
 }
 
-export union Result[type T, type E] {
+export union Result(T: type, E: type) {
     Okay { T },
     Error { E },
 }

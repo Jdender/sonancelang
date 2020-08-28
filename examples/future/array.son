@@ -2,12 +2,13 @@ import {
     sonance::mem::{ swap, size_of, RawPointer, Glob },
 }
 
-export struct Array[type T, const LENGTH: USize] {
+-> provide_default(arrayInherent)
+export struct Array(T: type, LENGTH: USize) {
     // A pointer to a binary glob the size of (size of `T` multiplied by `LENGTH`)
-    pointer: RawPointer[type BinaryGlob[const size_of[T] * LENGTH]],
+    pointer: RawPointer(BinaryGlob(size_of(T) * LENGTH)),
 }
 
-impl[type T, const LENGTH: USize] Array[type T, const LENGTH] {
+provide arrayInherent(T: type, LENGTH: USize) -> Array(T, LENGTH) {
 
     /**
         -> The length of the Array
@@ -20,7 +21,7 @@ impl[type T, const LENGTH: USize] Array[type T, const LENGTH] {
         index: Position in `Array` to get from
         -> A reference to the value if found, or `None` if out of bounds
     */
-    export func get(self: &Self, index: USize) -> Option[type &T] {
+    export func get(self: Ref(Self), index: USize) -> Option(Ref(T)) {
         if index >= LENGTH { // Bounds check
             //  `None` variant of Option, represents nothing
             None
@@ -28,7 +29,7 @@ impl[type T, const LENGTH: USize] Array[type T, const LENGTH] {
             // `Some` variant of Option, it takes one value T
             Some { unsafe {
                 // Raw pointers can only be dereferenced in marked areas
-                let ptr = self.pointer.offset(size_of[type T] * index); // Find where in the array
+                let ptr = self.pointer.offset(size_of(T) * index); // Find where in the array
                 &'self *ptr // Assert to compiler pointer lives as long as self
             }}
         }
@@ -39,14 +40,14 @@ impl[type T, const LENGTH: USize] Array[type T, const LENGTH] {
         value: The new value
         -> The previous value, or `None` if out of bounds
     */
-    export func set(self: &mut Self, index: USize, value: T) -> Option[type T] {
+    export func set(self: RefMut(Self), index: USize, value: T) -> Option(T) {
         if index >= LENGTH {
             None
         } else {
             // Raw pointers can only be dereferenced in marked areas
             Some { unsafe {
                 self.pointer
-                    .offset(size_of[type T] * index)
+                    .offset(size_of(T) * index)
                     .swap(value)
             }}
         }
