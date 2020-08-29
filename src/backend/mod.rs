@@ -120,7 +120,7 @@ impl From<semantic::Scope> for Linkage {
     fn from(scope: semantic::Scope) -> Self {
         match scope {
             semantic::Scope::Local => Linkage::Local,
-            semantic::Scope::Export => Linkage::Export,
+            semantic::Scope::Public => Linkage::Export,
         }
     }
 }

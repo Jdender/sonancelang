@@ -38,7 +38,7 @@ pub struct Parameter {
 
 #[derive(Debug, Clone)]
 pub enum Scope {
-    Export,
+    Public,
     Local,
 }
 

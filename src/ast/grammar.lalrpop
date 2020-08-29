@@ -7,7 +7,7 @@ match {
     r"//[^\n\r]*[\n\r]*" => { },
     r"/\*([^\*]*\*+[^\*/])*([^\*]*\*+|[^\*])*\*/" => { },
 } else {
-    "export", "func", "declare", // Item
+    "public", "func", "declare", // Item
 
     ":", ",", "->", ";", // Punctuation
 
@@ -71,7 +71,7 @@ Function: Function = <scope: Scope> "func"
 
 Scope: Scope = {
     => Scope::Local,
-    "export" => Scope::Export,
+    "public" C_IDENT => Scope::Public,
 }
 
 Identifier: Identifier = IDENTIFIER => Identifier::new(<>.to_string());

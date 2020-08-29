@@ -7,7 +7,7 @@ pub trait CommonVisitor {
 }
 #[derive(Debug, Clone, Copy)]
 pub enum Scope {
-    Export,
+    Public,
     Local,
 }
 
@@ -18,7 +18,7 @@ impl CommonVisitor for ast::Scope {
         use Scope::*;
         match self {
             Self::Local => Local,
-            Self::Export => Export,
+            Self::Public => Public,
         }
     }
 }
