@@ -2,7 +2,7 @@ declare "c" {
     func putchar(char: I32) -> I32;
 }
 
-export func sonance() -> I32 {
+public "c" func main() -> I32 {
     putchar(104);
     putchar(101);
     putchar(108);

@@ -16,12 +16,12 @@ This is the third iteration of the compiler so far.
 ## Example
 
 ```swift
-declare "c" {
+define "c" {
     func getchar() -> I32;
     func putchar(char: I32) -> I32;
 }
 
-export func main() -> I32 {
+public "c" func main() -> I32 {
     let char = getchar();
     if char != -1 {
         putchar(char);

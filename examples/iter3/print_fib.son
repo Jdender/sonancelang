@@ -1,4 +1,4 @@
-export func main() -> I32 {
+public "c" func main() -> I32 {
     print_num(fibonacci(30));
     putchar(10); // Newline
 }
