@@ -3,17 +3,17 @@ import {
 }
 
 -> provide_default(arrayInherent)
-export struct Array(T: type, LENGTH: USize) {
+export struct Array(const T: Type, const LENGTH: USize) {
     // A pointer to a binary glob the size of (size of `T` multiplied by `LENGTH`)
     pointer: RawPointer(BinaryGlob(size_of(T) * LENGTH)),
 }
 
-provide arrayInherent(T: type, LENGTH: USize) -> Array(T, LENGTH) {
+export provide arrayInherent(const T: Type, const LENGTH: USize) -> Array(T, LENGTH) {
 
     /**
         -> The length of the Array
     */
-    export func length() -> USize {
+    export func length() -> const USize {
         LENGTH
     }
 
@@ -21,7 +21,7 @@ provide arrayInherent(T: type, LENGTH: USize) -> Array(T, LENGTH) {
         index: Position in `Array` to get from
         -> A reference to the value if found, or `None` if out of bounds
     */
-    export func get(self: Ref(Self), index: USize) -> Option(Ref(T)) {
+    export func get(self: \&Self, index: USize) -> Option(\&T)) {
         if index >= LENGTH { // Bounds check
             //  `None` variant of Option, represents nothing
             None
@@ -40,7 +40,7 @@ provide arrayInherent(T: type, LENGTH: USize) -> Array(T, LENGTH) {
         value: The new value
         -> The previous value, or `None` if out of bounds
     */
-    export func set(self: RefMut(Self), index: USize, value: T) -> Option(T) {
+    export func set(self: \&mut Self), index: USize, value: T) -> Option(T) {
         if index >= LENGTH {
             None
         } else {
