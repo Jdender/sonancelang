@@ -1,0 +1,46 @@
+import { 
+    std::core::prelude::*,
+}
+
+export union Token {
+    OpenParen,
+    CloseParen,
+    Symbol(String),
+    Number(F32),
+    Whitespace,
+    Invalid,
+}
+
+func is_symbol(char: ref Character) -> Boolean {
+    char.is_alphabetic() || char.is_punctuation()
+}
+
+export func tokenize(input: ref String) -> Unknown(Iterator(Item = Token))  {
+
+    input.chars().peekable().batching(func (input) {
+        match input.peek().use {
+
+            "(" -> Token::OpenParen,
+            ")" -> Token::CloseParen,
+
+            let char if char.is_numeric() -> input
+                .take_some_while(Character::is_numeric)
+                .insert(0, char)
+                .collect(String) 
+                .parse(F32)
+                .Token::Number(),
+
+            let char if char.is_symbol() -> input
+                .take_some_while(is_symbol)
+                .collect(String)
+                .Token::Symbol(),
+
+            let char if char.is_whitespace() -> {
+                input.skip_while(Character::is_whitespace);
+                Token::Whitespace
+            },
+
+            _ -> Invalid,
+        }
+    })
+}
