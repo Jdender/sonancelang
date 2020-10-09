@@ -20,6 +20,6 @@ func print_num(num: I32) -> I32 {
         let next = num / 10;
         num = num - (10 * next);
         print_num(next);
-    } else {}
+    }
     putchar(48 + num);
 }

@@ -16,7 +16,7 @@ This is the third iteration of the compiler so far.
 ## Example
 
 ```swift
-define "c" {
+declare "c" {
     func getchar() -> I32;
     func putchar(char: I32) -> I32;
 }
