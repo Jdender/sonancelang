@@ -5,7 +5,7 @@ use {
     cranelift::{codegen::binemit::NullTrapSink, prelude::*},
     cranelift_module::{FuncId, Linkage, Module},
     cranelift_object::{ObjectBackend, ObjectBuilder},
-    from_semantic::{ty_to_type, SemanticVisitor},
+    from_semantic::ty_to_type,
     std::collections::HashMap,
 };
 
@@ -81,7 +81,7 @@ pub fn backend_pass(file: semantic::File) -> Result<Vec<u8>, BackendError> {
 
             let mut builder = FunctionBuilder::new(&mut ctx.func, &mut builder_context);
 
-            func.visit_semantic(&mut builder, &context, ());
+            func.visit_semantic(&mut builder, &context);
 
             context
                 .module

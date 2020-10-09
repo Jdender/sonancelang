@@ -5,16 +5,8 @@ pub mod structure;
 
 pub use {super::*, structure::*};
 
-pub trait HeaderVisitor {
-    type Output;
-
-    fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError>;
-}
-
-impl HeaderVisitor for header::File {
-    type Output = File;
-
-    fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+impl header::File {
+    pub fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<File, SemanticError> {
         Ok(File {
             items: self
                 .items
@@ -25,10 +17,8 @@ impl HeaderVisitor for header::File {
     }
 }
 
-impl HeaderVisitor for header::Item {
-    type Output = Item;
-
-    fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+impl header::Item {
+    pub fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Item, SemanticError> {
         use Item::*;
         Ok(match self {
             Self::Declare(declare) => Declare(declare.visit_header(symbol_table)?),
@@ -37,10 +27,11 @@ impl HeaderVisitor for header::Item {
     }
 }
 
-impl HeaderVisitor for header::DeclareBlock {
-    type Output = DeclareBlock;
-
-    fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+impl header::DeclareBlock {
+    pub fn visit_header(
+        self,
+        symbol_table: &mut SymbolTable,
+    ) -> Result<DeclareBlock, SemanticError> {
         Ok(DeclareBlock {
             functions: self
                 .functions
@@ -51,10 +42,11 @@ impl HeaderVisitor for header::DeclareBlock {
     }
 }
 
-impl HeaderVisitor for header::DeclareFunction {
-    type Output = DeclareFunction;
-
-    fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+impl header::DeclareFunction {
+    pub fn visit_header(
+        self,
+        symbol_table: &mut SymbolTable,
+    ) -> Result<DeclareFunction, SemanticError> {
         let symbol_table = &mut symbol_table.fork();
         Ok(DeclareFunction {
             name: self.name,
@@ -69,10 +61,8 @@ impl HeaderVisitor for header::DeclareFunction {
     }
 }
 
-impl HeaderVisitor for header::Function {
-    type Output = Function;
-
-    fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+impl header::Function {
+    pub fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Function, SemanticError> {
         let symbol_table = &mut symbol_table.fork();
         Ok(Function {
             scope: self.scope,
@@ -89,10 +79,8 @@ impl HeaderVisitor for header::Function {
     }
 }
 
-impl HeaderVisitor for header::Parameter {
-    type Output = Parameter;
-
-    fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+impl header::Parameter {
+    pub fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Parameter, SemanticError> {
         Ok(Parameter {
             symbol_id: symbol_table.set(self.name.clone(), Symbol::new_local(self.ty)),
             name: self.name,

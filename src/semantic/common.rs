@@ -1,20 +1,13 @@
 use super::ast;
 
-pub trait CommonVisitor {
-    type Output;
-
-    fn visit_common(self) -> Self::Output;
-}
 #[derive(Debug, Clone, Copy)]
 pub enum Scope {
     Public,
     Local,
 }
 
-impl CommonVisitor for ast::Scope {
-    type Output = Scope;
-
-    fn visit_common(self) -> Self::Output {
+impl ast::Scope {
+    pub fn visit_common(self) -> Scope {
         use Scope::*;
         match self {
             Self::Local => Local,
@@ -39,10 +32,8 @@ pub enum Ty {
     F64,
 }
 
-impl CommonVisitor for ast::Ty {
-    type Output = Ty;
-
-    fn visit_common(self) -> Self::Output {
+impl ast::Ty {
+    pub fn visit_common(self) -> Ty {
         use Ty::*;
 
         match self {
@@ -79,10 +70,8 @@ impl Identifier {
     }
 }
 
-impl CommonVisitor for ast::Identifier {
-    type Output = Identifier;
-
-    fn visit_common(self) -> Self::Output {
+impl ast::Identifier {
+    pub fn visit_common(self) -> Identifier {
         Identifier::new(self.take())
     }
 }

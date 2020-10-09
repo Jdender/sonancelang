@@ -2,16 +2,8 @@ pub mod structure;
 
 pub use {super::*, structure::*};
 
-pub trait AstVisitor {
-    type Output;
-
-    fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError>;
-}
-
-impl AstVisitor for ast::File {
-    type Output = File;
-
-    fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+impl ast::File {
+    pub fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<File, SemanticError> {
         Ok(File {
             items: self
                 .items
@@ -22,10 +14,8 @@ impl AstVisitor for ast::File {
     }
 }
 
-impl AstVisitor for ast::Item {
-    type Output = Item;
-
-    fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+impl ast::Item {
+    pub fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<Item, SemanticError> {
         use Item::*;
         Ok(match self {
             Self::Declare(declare) => Declare(declare.visit_ast(symbol_table)?),
@@ -34,10 +24,8 @@ impl AstVisitor for ast::Item {
     }
 }
 
-impl AstVisitor for ast::DeclareBlock {
-    type Output = DeclareBlock;
-
-    fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+impl ast::DeclareBlock {
+    pub fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<DeclareBlock, SemanticError> {
         Ok(DeclareBlock {
             functions: self
                 .functions
@@ -48,10 +36,11 @@ impl AstVisitor for ast::DeclareBlock {
     }
 }
 
-impl AstVisitor for ast::DeclareFunction {
-    type Output = DeclareFunction;
-
-    fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+impl ast::DeclareFunction {
+    pub fn visit_ast(
+        self,
+        symbol_table: &mut SymbolTable,
+    ) -> Result<DeclareFunction, SemanticError> {
         let name = self.name.visit_common();
         let ty = self.ty.visit_common();
 
@@ -75,10 +64,8 @@ impl AstVisitor for ast::DeclareFunction {
     }
 }
 
-impl AstVisitor for ast::Function {
-    type Output = Function;
-
-    fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+impl ast::Function {
+    pub fn visit_ast(self, symbol_table: &mut SymbolTable) -> Result<Function, SemanticError> {
         let name = self.name.visit_common();
         let ty = self.ty.visit_common();
 
@@ -104,10 +91,8 @@ impl AstVisitor for ast::Function {
     }
 }
 
-impl AstVisitor for ast::Parameter {
-    type Output = Parameter;
-
-    fn visit_ast(self, _: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+impl ast::Parameter {
+    pub fn visit_ast(self, _: &mut SymbolTable) -> Result<Parameter, SemanticError> {
         Ok(Parameter {
             name: self.name.visit_common(),
             ty: self.ty.visit_common(),

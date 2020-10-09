@@ -1,15 +1,7 @@
 pub use super::*;
 
-impl SemanticVisitor for semantic::Literal {
-    type Param = ();
-    type Output = Value;
-
-    fn visit_semantic(
-        self,
-        builder: &mut FunctionBuilder,
-        context: &BackendContext,
-        _: Self::Param,
-    ) -> Self::Output {
+impl semantic::Literal {
+    pub fn visit_semantic(self, builder: &mut FunctionBuilder, context: &BackendContext) -> Value {
         let pointer_type = context.module.target_config().pointer_type();
         match self {
             Self::I8(num) => builder.ins().iconst(types::I8, num as i64),
@@ -28,16 +20,13 @@ impl SemanticVisitor for semantic::Literal {
     }
 }
 
-impl SemanticVisitor for semantic::PrefixOperator {
-    type Param = (semantic::Ty, Value);
-    type Output = Value;
-
-    fn visit_semantic(
+impl semantic::PrefixOperator {
+    pub fn visit_semantic(
         self,
         builder: &mut FunctionBuilder,
-        _: &BackendContext,
-        (ty, value): Self::Param,
-    ) -> Self::Output {
+        ty: semantic::Ty,
+        value: Value,
+    ) -> Value {
         use semantic::Ty::*;
         match ty {
             I8 | I16 | I32 | I64 | ISize | U8 | U16 | U32 | U64 | USize => match self {
@@ -50,16 +39,14 @@ impl SemanticVisitor for semantic::PrefixOperator {
     }
 }
 
-impl SemanticVisitor for semantic::InfixOperator {
-    type Param = (semantic::Ty, Value, Value);
-    type Output = Value;
-
-    fn visit_semantic(
+impl semantic::InfixOperator {
+    pub fn visit_semantic(
         self,
         builder: &mut FunctionBuilder,
-        _: &BackendContext,
-        (ty, left, right): Self::Param,
-    ) -> Self::Output {
+        ty: semantic::Ty,
+        left: Value,
+        right: Value,
+    ) -> Value {
         use semantic::Ty::*;
         match ty {
             I8 | I16 | I32 | I64 | ISize => match self {

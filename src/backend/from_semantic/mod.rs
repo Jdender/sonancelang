@@ -7,28 +7,8 @@ pub use {
     cranelift::prelude::*,
 };
 
-pub trait SemanticVisitor {
-    type Param;
-    type Output;
-
-    fn visit_semantic(
-        self,
-        builder: &mut FunctionBuilder,
-        context: &BackendContext,
-        param: Self::Param,
-    ) -> Self::Output;
-}
-
-impl SemanticVisitor for semantic::Function {
-    type Param = ();
-    type Output = ();
-
-    fn visit_semantic(
-        self,
-        builder: &mut FunctionBuilder,
-        context: &BackendContext,
-        _: Self::Param,
-    ) -> Self::Output {
+impl semantic::Function {
+    pub fn visit_semantic(self, builder: &mut FunctionBuilder, context: &BackendContext) {
         let block = builder.create_block();
 
         builder.append_block_params_for_function_params(block);
@@ -40,7 +20,7 @@ impl SemanticVisitor for semantic::Function {
             builder.def_var(param.symbol_id.into(), builder.block_params(block)[i]);
         }
 
-        let result = self.body.visit_semantic(builder, context, ());
+        let result = self.body.visit_semantic(builder, context);
 
         builder.ins().return_(&[result]);
 

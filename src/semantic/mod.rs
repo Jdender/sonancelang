@@ -5,7 +5,7 @@ pub mod type_check;
 
 pub use {common::*, symbol_table::*};
 
-use {super::ast, header::AstVisitor, type_check::HeaderVisitor};
+use super::ast;
 
 pub fn semantic_pass(input: ast::File) -> Result<type_check::File, SemanticError> {
     let mut symbol_table = SymbolTable::new();

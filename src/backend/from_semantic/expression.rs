@@ -1,27 +1,19 @@
 pub use super::*;
 
-impl SemanticVisitor for semantic::Expression {
-    type Param = ();
-    type Output = Value;
-
-    fn visit_semantic(
-        self,
-        builder: &mut FunctionBuilder,
-        context: &BackendContext,
-        _: Self::Param,
-    ) -> Self::Output {
+impl semantic::Expression {
+    pub fn visit_semantic(self, builder: &mut FunctionBuilder, context: &BackendContext) -> Value {
         use semantic::ExpressionKind::*;
         match self.kind {
-            Literal(literal) => literal.visit_semantic(builder, context, ()),
+            Literal(literal) => literal.visit_semantic(builder, context),
 
             Lookup { symbol_id, .. } => builder.use_var(symbol_id.into()),
 
-            Block(block) => block.visit_semantic(builder, context, ()),
+            Block(block) => block.visit_semantic(builder, context),
 
             Assignment {
                 symbol_id, value, ..
             } => {
-                let value = value.visit_semantic(builder, context, ());
+                let value = value.visit_semantic(builder, context);
                 builder.def_var(symbol_id.into(), value);
                 builder.ins().iconst(types::I32, 0)
             }
@@ -40,7 +32,7 @@ impl SemanticVisitor for semantic::Expression {
 
                 let args = args
                     .into_iter()
-                    .map(|a| a.visit_semantic(builder, context, ()))
+                    .map(|a| a.visit_semantic(builder, context))
                     .collect::<Vec<_>>();
 
                 let call = builder.ins().call(call, &args);
@@ -49,8 +41,8 @@ impl SemanticVisitor for semantic::Expression {
 
             PrefixCall { operator, value } => {
                 let ty = value.ty;
-                let value = value.visit_semantic(builder, context, ());
-                operator.visit_semantic(builder, context, (ty, value))
+                let value = value.visit_semantic(builder, context);
+                operator.visit_semantic(builder, ty, value)
             }
 
             InfixCall {
@@ -59,9 +51,9 @@ impl SemanticVisitor for semantic::Expression {
                 right,
             } => {
                 let ty = left.ty;
-                let left = left.visit_semantic(builder, context, ());
-                let right = right.visit_semantic(builder, context, ());
-                operator.visit_semantic(builder, context, (ty, left, right))
+                let left = left.visit_semantic(builder, context);
+                let right = right.visit_semantic(builder, context);
+                operator.visit_semantic(builder, ty, left, right)
             }
 
             IfElse {
@@ -78,20 +70,20 @@ impl SemanticVisitor for semantic::Expression {
                 builder.append_block_param(merge_block, ty_to_type(self.ty, context));
 
                 // Jump if predicate is zero, otherwise fall through
-                let predicate = predicate.visit_semantic(builder, context, ());
+                let predicate = predicate.visit_semantic(builder, context);
                 builder.ins().brz(predicate, else_block, &[]);
                 builder.ins().jump(true_block, &[]);
 
                 // Setup when_true block
                 builder.switch_to_block(true_block);
                 builder.seal_block(true_block);
-                let when_true = when_true.visit_semantic(builder, context, ());
+                let when_true = when_true.visit_semantic(builder, context);
                 builder.ins().jump(merge_block, &[when_true]);
 
                 // Same as above but for when_false
                 builder.switch_to_block(else_block);
                 builder.seal_block(else_block);
-                let when_false = when_false.visit_semantic(builder, context, ());
+                let when_false = when_false.visit_semantic(builder, context);
                 builder.ins().jump(merge_block, &[when_false]);
 
                 // Finish the merge and return result

@@ -1,9 +1,7 @@
 use {super::*, std::cmp::Ordering};
 
-impl HeaderVisitor for ast::Expression {
-    type Output = Expression;
-
-    fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+impl ast::Expression {
+    pub fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Expression, SemanticError> {
         use ExpressionKind::*;
 
         Ok(match self {

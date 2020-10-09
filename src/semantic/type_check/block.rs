@@ -1,9 +1,7 @@
 use super::*;
 
-impl HeaderVisitor for ast::Block {
-    type Output = Block;
-
-    fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+impl ast::Block {
+    pub fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Block, SemanticError> {
         let symbol_table = &mut symbol_table.fork();
 
         let body = self
@@ -28,10 +26,8 @@ impl HeaderVisitor for ast::Block {
     }
 }
 
-impl HeaderVisitor for ast::Statement {
-    type Output = Statement;
-
-    fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Self::Output, SemanticError> {
+impl ast::Statement {
+    pub fn visit_header(self, symbol_table: &mut SymbolTable) -> Result<Statement, SemanticError> {
         Ok(match self {
             ast::Statement::LetBinding { place, value, ty } => {
                 let place = place.visit_common();
