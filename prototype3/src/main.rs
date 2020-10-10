@@ -1,7 +1,7 @@
 use {
     anyhow::Result,
     clap::Clap,
-    sonancelang::compile,
+    sonancelang_prototype3::compile,
     std::{
         env::current_dir,
         fs::{read_to_string, OpenOptions},

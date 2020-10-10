@@ -1,6 +1,6 @@
 use {
     clap::Clap,
-    sonancelang::{run, Result},
+    sonancelang_prototype4::{run, Result},
     std::{env::current_dir, fs::read_to_string},
 };
 

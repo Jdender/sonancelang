@@ -9,7 +9,7 @@
 2. a sound; a tune.
 3. an work in progress, experimental programing language.
 
-# Iteration 3
+# Prototype 3
 
 This is the third iteration of the compiler so far.
 
