@@ -1,0 +1,57 @@
+use {std::{str::FromStr, iter}, crate::ast::*};
+
+grammar;
+
+match {
+    // Comments
+    r"//[^\n\r]*[\n\r]*" => { },
+    r"/\*([^\*]*\*+[^\*/])*([^\*]*\*+|[^\*])*\*/" => { },
+} else {
+    "func", "main",
+    "(", ")", "{", "}",
+    ";", ",", ".",
+
+    // Regex Tokens
+    r"[a-zA-Z_]\w*" => IDENTIFIER,
+    r"[+-]?\d+" => INT_LITERAL,
+    r"[+-]?\d+\.\d+" => FLOAT_LITERAL,
+    r#""([^"\\]|\\.)*""# => STRING_LITERAL
+} else {
+    r"\s*" => { }, // Whitespace
+}
+
+#[inline]
+Boxed<T>: Box<T> = T => Box::new(<>);
+
+#[inline]
+List<T, S>: Vec<T> = {
+    <v:(<T> S)*> <e:T?> => match e {
+        None => v,
+        Some(e) => {
+            let mut v = v;
+            v.push(e);
+            v
+        }
+    }
+};
+
+pub File: File =
+    "func" "main" "(" ")" "{"
+        <body: List<Expression, ";">>
+    "}" => File { <> };
+
+Expression: Expression = {
+    Literal => Expression::Literal(<>),
+    <Identifier> "(" <List<Expression, ",">> ")" => Expression::Call(<>),
+    <head: Expression> "." <name: Identifier> "(" <tail: List<Expression, ",">> ")" => Expression::Call(name, {
+        iter::once(head).chain(tail.into_iter()).collect()
+    }),
+}
+
+Identifier: String = IDENTIFIER => <>.to_owned();
+
+Literal: Literal = {
+    INT_LITERAL    => Literal::Number(f32::from_str(<>).unwrap()),
+    FLOAT_LITERAL  => Literal::Number(f32::from_str(<>).unwrap()),
+    STRING_LITERAL => Literal::String(<>.to_owned()),
+};

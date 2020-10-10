@@ -1,3 +1,0 @@
-func main() -> Unit {
-    print("Hello world!");
-}

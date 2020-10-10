@@ -1,0 +1,18 @@
+[package]
+name = "sonancelang"
+version = "0.1.0"
+authors = ["Jdender~ <jdenderplays@gmail.com>"]
+edition = "2018"
+repository = "https://github.com/Jdender/sonancelang"
+license = "MIT"
+publish = false
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[build-dependencies]
+lalrpop = { version = "0.19", features = ["lexer"] }
+
+[dependencies]
+lalrpop-util = "0.19.0"
+regex = "1"
+clap = "3.0.0-beta.1"
