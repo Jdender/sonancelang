@@ -1,0 +1,13 @@
+export module[T] for Option[T];
+
+export union Option[T] {
+    Some { T },
+    Nothing,
+}
+
+func unwrap_or(self: Self, default: T) -> T {
+    match self {
+        Some { value } -> value,
+        Nothing -> default,
+    }
+}
